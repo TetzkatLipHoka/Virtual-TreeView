@@ -997,8 +997,8 @@ type
   private
     Data: record end;        // this is a placeholder, each node gets extra data determined by NodeDataSize
   public
-    function IsAssigned(): Boolean; inline;
-    function GetData(): Pointer; overload; inline;
+    function IsAssigned(): Boolean; {$IF CompilerVersion >= 21}inline;{$IFEND} // D2009 cannot resolve cross-unit inline record methods called via pointer (E2008)
+    function GetData(): Pointer; overload; {$IF CompilerVersion >= 21}inline;{$IFEND}
     {$IF CompilerVersion >= 21} // D2009 generics cannot instantiate cross-unit generic record methods (E2506)
     function GetData<T>(): T; overload; inline;
     {$IFEND}

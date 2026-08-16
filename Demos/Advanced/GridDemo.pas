@@ -101,7 +101,7 @@ end;
 
 procedure TGridForm.VST5FreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 begin
-  Node.GetData<TGridData>().Free();
+  TGridData(PPointer(Node.GetData())^).Free(); // generic API needs D2010+
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ begin
   begin
     //Normal code
     if Column > 0 then
-      CellText := Sender.GetNodeData<TGridData>(Node).Value[Column - 1]
+      CellText := TGridData(PPointer(Sender.GetNodeData(Node))^).Value[Column - 1]
     else
       CellText := '';
   end
@@ -159,7 +159,7 @@ begin
     VST5.Header.Columns[0].Options := VST5.Header.Columns[1].Options - [TVTColumnOption.coVisible]; //test:
     //No text is shown for column 3 in addition to column 0 as in original code
     if (Column > 0) and (Column <> 3) then
-      CellText := Sender.GetNodeData<TGridData>(Node).Value[Column - 1]
+      CellText := TGridData(PPointer(Sender.GetNodeData(Node))^).Value[Column - 1]
     else
       CellText := '';
   end;
@@ -170,7 +170,7 @@ end;
 procedure TGridForm.VST5PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode;
   Column: TColumnIndex; TextType: TVSTTextType);
 begin
-  if Sender.GetNodeData<TGridData>(Node).Changed then
+  if TGridData(PPointer(Sender.GetNodeData(Node))^).Changed then
     TargetCanvas.Font.Style := [fsBold];
 end;
 

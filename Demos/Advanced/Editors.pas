@@ -261,7 +261,7 @@ var
 begin
   inherited;
 
-  Data := FNode.GetData();
+  Data := PPropertyData(FNode.GetData());
   if Edit is TComboBox then
     S := TComboBox(Edit).Text
   else
@@ -290,7 +290,7 @@ begin
   inherited;
 
   // determine what edit type actually is needed
-  Data := Node.GetData();
+  Data := PPropertyData(Node.GetData());
   case Data.ValueType of
     vtString:
       begin
@@ -393,7 +393,7 @@ var
 
 begin
   inherited;
-  Data := FNode.GetData<TGridData>();
+  Data := TGridData(PPointer(FNode.GetData())^); // generic API needs D2010+
   if Edit is TComboBox then
   begin
     S := TComboBox(Edit).Text;
@@ -438,7 +438,7 @@ begin
   inherited;
 
   // Determine what edit type actually is needed.
-  Data := Tree.GetNodeData<TGridData>(Node);
+  Data := TGridData(PPointer(Tree.GetNodeData(Node))^); // generic API needs D2010+
   case Data.ValueType[Column - 1] of
     vtString:
       begin

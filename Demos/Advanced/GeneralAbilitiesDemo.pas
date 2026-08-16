@@ -519,14 +519,14 @@ begin
       4: // Comma separated values ANSI text file
         begin
           lTargetName := ChangeFileExt(lTargetName, '.csv');
-          lText := VST2.ContentToText(tstVisible, FormatSettings.ListSeparator);
+          lText := VST2.ContentToText(tstVisible, {$IF CompilerVersion >= 22}FormatSettings.ListSeparator{$ELSE}ListSeparator{$IFEND});
           Save(TEncoding.UTF8);
         end;
       else
         // Plain text file
         lTargetName := ChangeFileExt(lTargetName, '.txt');
         lText := VST2.ContentToText(tstVisible, #9);
-        Save(TEncoding.ANSI);
+        Save({$IF CompilerVersion >= 22}TEncoding.ANSI{$ELSE}TEncoding.Default{$IFEND});
       end;//case
     end;//if
   end;//With

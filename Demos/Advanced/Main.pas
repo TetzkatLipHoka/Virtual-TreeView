@@ -192,7 +192,7 @@ begin
       NewDemo.Show;
       {$if CompilerVersion >= 33}
       NewDemo.ScaleForPPI(FCurrentPPI); // See issue #990
-      {$endif}
+      {$ifend}
     end;
   end;
 end;
