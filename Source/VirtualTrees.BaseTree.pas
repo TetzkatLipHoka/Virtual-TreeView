@@ -2,7 +2,7 @@
 
 interface
 
-{$if CompilerVersion < 24}{$MESSAGE FATAL 'This version supports only RAD Studio XE3 and higher. Please use V5 from  http://www.jam-software.com/virtual-treeview/VirtualTreeViewV5.5.3.zip  or  https://github.com/Virtual-TreeView/Virtual-TreeView/archive/V5_stable.zip'}{$ifend}
+{$if CompilerVersion < 20}{$MESSAGE FATAL 'This version supports only RAD Studio XE3 and higher. Please use V5 from  http://www.jam-software.com/virtual-treeview/VirtualTreeViewV5.5.3.zip  or  https://github.com/Virtual-TreeView/Virtual-TreeView/archive/V5_stable.zip'}{$ifend}
 
 {$booleval off} // Use fastest possible boolean evaluation
 
@@ -11,7 +11,7 @@ interface
 {$WARN UNSAFE_CAST OFF}
 {$WARN UNSAFE_CODE OFF}
 
-{$LEGACYIFEND ON}
+{$IF CompilerVersion >= 25}{$LEGACYIFEND ON}{$IFEND}
 {$WARN UNSUPPORTED_CONSTRUCT      OFF}
 
 {$HPPEMIT '#include <objidl.h>'}
@@ -2559,7 +2559,7 @@ begin
                       begin
                         if Run.CheckType in [ctCheckBox, ctTriStateCheckBox] then
                         begin
-                          if not Self.GetCheckState(Run).IsDisabled() then
+                          if not IsCheckStateDisabled(Self.GetCheckState(Run)) then
                             SetCheckState(Run, csUncheckedNormal);
                           // Check if the new child state was set successfully, otherwise we have to adjust the
                           // node's new check state accordingly.
@@ -2598,7 +2598,7 @@ begin
                       begin
                         if Run.CheckType in [ctCheckBox, ctTriStateCheckBox] then
                         begin
-                          if not Self.GetCheckState(Run).IsDisabled() then
+                          if not IsCheckStateDisabled(Self.GetCheckState(Run)) then
                             SetCheckState(Run, csCheckedNormal);
                           // Check if the new child state was set successfully, otherwise we have to adjust the
                           // node's new check state accordingly.
@@ -2648,7 +2648,7 @@ begin
         if Result then
           CheckState := Value // Set new check state
         else
-          CheckState := Self.GetCheckState(Node).GetUnpressed(); // Reset dynamic check state.
+          CheckState := GetCheckStateUnpressed(Self.GetCheckState(Node)); // Reset dynamic check state.
 
         // Propagate state up to the parent.
         if not (vsInitialized in Parent.States) then
@@ -4696,7 +4696,7 @@ begin
         lItem := GetFirst;
       //for i:=0 to List.Items.Count-1 do begin
       while Assigned(lItem) do begin
-        if not pExcludeDisabled or not CheckState[lItem].IsDisabled() then
+        if not pExcludeDisabled or not IsCheckStateDisabled(CheckState[lItem]) then
           CheckState[lItem] := aCheckState;
         if pSelectedOnly then
           lItem := GetNextSelected(lItem)
@@ -8854,7 +8854,7 @@ begin
       if Run.CheckType in [ctCheckBox, ctTriStateCheckBox] then
       begin
         System.Inc(BoxCount);
-        if NewCheckState.IsChecked then
+        if IsCheckStateChecked(NewCheckState) then
           System.Inc(CheckCount);
         PartialCheck := PartialCheck or (NewCheckState = csMixedNormal);
       end;
@@ -8863,7 +8863,7 @@ begin
       if Run.CheckType in [ctCheckBox, ctTriStateCheckBox] then
       begin
         System.Inc(BoxCount);
-        if GetCheckState(Run).IsChecked then
+        if IsCheckStateChecked(GetCheckState(Run)) then
           System.Inc(CheckCount);
         PartialCheck := PartialCheck or (GetCheckState(Run) = csMixedNormal);
       end;
@@ -8932,7 +8932,7 @@ var
   HeaderWidth: TDimension;
   ScrollBarVisible: Boolean;
 begin
-  ScrollBarVisible := (FRangeY > ClientHeight) and (ScrollBarOptions.ScrollBars in [TScrollStyle.ssVertical, TScrollStyle.ssBoth]);
+  ScrollBarVisible := (FRangeY > ClientHeight) and (ScrollBarOptions.ScrollBars in [ssVertical, ssBoth]);
   if ScrollBarVisible then
     Result := GetSystemMetrics(SM_CXVSCROLL)
   else
@@ -9610,7 +9610,7 @@ begin
     ctButton,
     ctCheckBox:
     begin
-      Result := CheckState.GetToggled();
+      Result := GetCheckStateToggled(CheckState);
     end;//ctCheckbox
     ctRadioButton:
       Result := csCheckedNormal;
@@ -11145,7 +11145,7 @@ begin
           UpdateHorizontalScrollBar(suoRepaintScrollBars in Options);
           if (suoRepaintHeader in Options) and (hoVisible in FHeader.Options) then
             FHeader.Invalidate(nil);
-          if not (tsSizing in FStates) and (FScrollBarOptions.ScrollBars in [System.UITypes.TScrollStyle.ssHorizontal, System.UITypes.TScrollStyle.ssBoth]) then
+          if not (tsSizing in FStates) and (FScrollBarOptions.ScrollBars in [ssHorizontal, ssBoth]) then
             UpdateVerticalScrollBar(suoRepaintScrollBars in Options);
         end;
 
@@ -11153,7 +11153,7 @@ begin
         begin
           UpdateVerticalScrollBar(suoRepaintScrollBars in Options);
           if not (FHeader.UseColumns or IsMouseSelecting) and
-            (FScrollBarOptions.ScrollBars in [System.UITypes.TScrollStyle.ssHorizontal, System.UITypes.TScrollStyle.ssBoth]) then
+            (FScrollBarOptions.ScrollBars in [ssHorizontal, ssBoth]) then
             UpdateHorizontalScrollBar(suoRepaintScrollBars in Options);
         end;
       end;
@@ -12112,10 +12112,10 @@ begin
   else
     IsHot := False;
 
-  if ImgCheckState.IsDisabled then begin // disabled image?
+  if IsCheckStateDisabled(ImgCheckState) then begin // disabled image?
     // We need to use disabled images, so map ImgCheckState value from disabled to normal, as disabled state is expressed by ImgEnabled.
     ImgEnabled := False;
-    ImgCheckState := ImgCheckState.GetEnabled();
+    ImgCheckState := GetCheckStateEnabled(ImgCheckState);
   end;//if
 
   if ImgCheckType = ctTriStateCheckBox then
@@ -13260,7 +13260,7 @@ begin
         SelfCheckState := Self.GetCheckState(Node);
         if ((ParentCheckState = csCheckedNormal)
              or (ParentCheckState = csUncheckedNormal))
-            and (not SelfCheckState.IsDisabled())
+            and (not IsCheckStateDisabled(SelfCheckState))
             and (SelfCheckState <> ParentCheckState)
             and (Parent <> FRoot)
         then
@@ -22408,7 +22408,7 @@ begin
     else
       if (R.Bottom > ClientHeight) or Center then
       begin
-        HScrollBarVisible := (ScrollBarOptions.ScrollBars in [System.UITypes.TScrollStyle.ssBoth, System.UITypes.TScrollStyle.ssHorizontal]) and
+        HScrollBarVisible := (ScrollBarOptions.ScrollBars in [ssBoth, ssHorizontal]) and
           (ScrollBarOptions.AlwaysVisible or (FRangeX > ClientWidth));
         if Center then
           SetOffsetY(FOffsetY - R.Bottom + Divide(ClientHeight, 2))
@@ -23296,7 +23296,7 @@ begin
   else
     FEffectiveOffsetX := -FOffsetX;
 
-  if FScrollBarOptions.ScrollBars in [System.UITypes.TScrollStyle.ssHorizontal, System.UITypes.TScrollStyle.ssBoth] then
+  if FScrollBarOptions.ScrollBars in [ssHorizontal, ssBoth] then
   begin
     ZeroMemory (@ScrollInfo, SizeOf(ScrollInfo));
     ScrollInfo.cbSize := SizeOf(ScrollInfo);
@@ -23400,7 +23400,7 @@ begin
     Exit;
   Assert(GetCurrentThreadId = MainThreadId, 'UI controls like ' + Classname + ' and its scrollbars should only be manipulated through the main thread.');
 
-  if FScrollBarOptions.ScrollBars in [TScrollStyle.ssVertical, TScrollStyle.ssBoth] then
+  if FScrollBarOptions.ScrollBars in [ssVertical, ssBoth] then
   begin
     ScrollInfo.cbSize := SizeOf(ScrollInfo);
     ScrollInfo.fMask := SIF_ALL;

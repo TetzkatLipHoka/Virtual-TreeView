@@ -248,7 +248,7 @@ begin
   fDesiredCheckState := csCheckedNormal;
   fToExecute := procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean)
                 begin
-                  if not Control.CheckState[Node].IsDisabled then
+                  if not IsCheckStateDisabled(Control.CheckState[Node]) then
                     Control.CheckState[Node] := fDesiredCheckState;
                 end;
 end;

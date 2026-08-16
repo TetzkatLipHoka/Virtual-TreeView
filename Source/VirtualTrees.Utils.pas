@@ -153,6 +153,17 @@ uses
 const
   WideLF = Char(#10);
 
+{$IF CompilerVersion < 23}
+// Not yet in this RTL's ShlObj: Vista+ extension of IDragSourceHelper.
+const
+  DSH_ALLOWDROPDESCRIPTIONTEXT = $0001;
+type
+  IDragSourceHelper2 = interface(IDragSourceHelper)
+    ['{83E07D0D-0C5F-4163-BF1A-60B274051E40}']
+    function SetFlags(dwFlags: DWORD): HRESULT; stdcall;
+  end;
+{$IFEND}
+
 procedure ApplyDragImage(const pDataObject: IDataObject; pBitmap: TBitmap);
 var
   DragSourceHelper: IDragSourceHelper;
@@ -788,7 +799,7 @@ asm
         POP     EDI
         POP     ESI
 end;
-  {$ENDIF}
+  {$IFEND}
 {$ENDIF !ASSEMBLER}
 
 
@@ -986,7 +997,7 @@ asm
         POP     EDI
         POP     ESI
 end;
-      {$ENDIF}
+      {$IFEND}
     {$ENDIF !ASSEMBLER}
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1221,7 +1232,7 @@ asm
         POP     EDI
         POP     ESI
 end;
-      {$ENDIF}
+      {$IFEND}
     {$ENDIF !ASSEMBLER}
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1383,7 +1394,7 @@ asm
         DEC     EDX
         JNZ     @1
 end;
-      {$ENDIF}
+      {$IFEND}
     {$ENDIF !ASSEMBLER}
 
 //----------------------------------------------------------------------------------------------------------------------
