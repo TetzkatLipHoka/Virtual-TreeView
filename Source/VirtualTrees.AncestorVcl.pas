@@ -240,6 +240,7 @@ begin
     else
       with Canvas do
       begin
+{$IF CompilerVersion >= 23} // thHintNormal needs the XE2+ Themes translation; branch is dead without VCL styles anyway
         if TBVTCracker(Tree).VclStyleEnabled  then
         begin
           InflateRect(R, -1, -1); // Fixes missing border when VCL styles are used
@@ -259,6 +260,7 @@ begin
           GradientFillCanvas(Canvas, LGradientStart, LGradientEnd, R, gdVertical);
         end
         else
+{$IFEND}
         begin
           // Still force tooltip back and text color.
           Font.Color := clInfoText;
@@ -375,7 +377,7 @@ begin
             begin
               // Determine actual line break style depending on what was returned by the methods and what's in the node.
               if LineBreakStyle = hlbDefault then
-                if (vsMultiline in Node.States) or HintText.Contains(#13) then
+                if (vsMultiline in Node.States) or (Pos(#13, HintText) > 0) then // .Contains needs XE3+ string helpers
                   LineBreakStyle := hlbForceMultiLine
                 else
                   LineBreakStyle := hlbForceSingleLine;

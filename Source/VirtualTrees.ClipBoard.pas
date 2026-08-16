@@ -41,7 +41,7 @@ type
   end;
 
 var
-  ClipboardDescriptions: array [1..CF_MAX - 1] of TClipboardFormatEntry = (
+  ClipboardDescriptions: array [1..CF_DIBV5] of TClipboardFormatEntry = ( // CF_DIBV5 = last listed entry; CF_MAX differs across RTL versions (2009: 17, modern: 18)
     (ID: CF_TEXT; Description: 'Plain text'), // Do not localize
     (ID: CF_BITMAP; Description: 'Windows bitmap'), // Do not localize
     (ID: CF_METAFILEPICT; Description: 'Windows metafile'), // Do not localize

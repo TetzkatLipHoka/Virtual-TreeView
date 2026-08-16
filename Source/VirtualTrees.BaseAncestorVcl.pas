@@ -128,6 +128,11 @@ uses
   VirtualTrees.AccessibilityFactory,
   VirtualTrees.StyleHooks;
 
+{$IF NOT Declared(USER_DEFAULT_SCREEN_DPI)}
+const
+  USER_DEFAULT_SCREEN_DPI = 96; // not in Windows.pas before Delphi 10
+{$IFEND}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 const
@@ -419,7 +424,8 @@ begin
       else
         Res := StyleServices.GetElementSize(BM.Canvas.Handle, StyleServices.GetElementDetails(tbCheckBoxUncheckedNormal), TElementSize.esActual, lSize {$IF CompilerVersion >= 34}, Self.CurrentPPI{$IFEND});
     if not Res then begin
-      lSize := TSize.Create(GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK));
+      lSize.cx := GetSystemMetrics(SM_CXMENUCHECK); // TSize.Create needs XE2+
+      lSize.cy := GetSystemMetrics(SM_CYMENUCHECK);
       if lSize.cx = 0 then begin // error? (Should happen rarely only)
         lSize.cx := MulDiv(cDefaultCheckboxSize, Screen.PixelsPerInch, USER_DEFAULT_SCREEN_DPI);
         lSize.cy := lSize.cx;

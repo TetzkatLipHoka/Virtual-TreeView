@@ -144,7 +144,7 @@ var
   lException: TObject;
   lCurrentTree: TBaseVirtualTree;
 begin
-  TThread.NameThreadForDebugging('VirtualTrees.TWorkerThread');
+  {$IF CompilerVersion >= 21}TThread.NameThreadForDebugging('VirtualTrees.TWorkerThread');{$IFEND}
   while not Terminated do
   try
     WaitForSingleObject(FWorkEvent, INFINITE);

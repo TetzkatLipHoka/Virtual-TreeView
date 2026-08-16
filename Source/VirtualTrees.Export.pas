@@ -21,7 +21,7 @@ implementation
 
 uses
   System.Classes,
-  System.SysUtils,
+  {$IF CompilerVersion < 23}SysUtils,{$ELSE}System.SysUtils,{$IFEND} // D2009 alias double-registration makes IntToStr calls ambiguous (E2251), see VirtualTrees.Header.pas
   System.StrUtils,
   System.Generics.Collections,
   System.UITypes,
@@ -440,7 +440,7 @@ begin
           CrackTree.DoGetText(lGetCellTextEventArgs);
           CellText := THtmlEncoding.HTML.Encode(lGetCellTextEventArgs.CellText);
           Buffer.Add(CellText);
-          if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
+          if not (lGetCellTextEventArgs.StaticText = '') {.IsEmpty needs XE3+} and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
             Buffer.Add(' ' + lGetCellTextEventArgs.StaticText);
           Buffer.Add('</td>');
         end;
@@ -775,7 +775,7 @@ begin
           begin
             TextPlusFont(lGetCellTextEventArgs.CellText, CrackTree.Canvas.Font);
           end;
-          if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
+          if not (lGetCellTextEventArgs.StaticText = '') {.IsEmpty needs XE3+} and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
           begin
             CrackTree.DoPaintText(Run, CrackTree.Canvas, Index, ttStatic);
             TextPlusFont(' ' + lGetCellTextEventArgs.StaticText, CrackTree.Canvas.Font);
@@ -935,7 +935,7 @@ begin
             CrackTree.DoGetText(lGetCellTextEventArgs);
             if Index = CrackTree.Header.MainColumn then
               Buffer.Add(Copy(Tabs, 1, Integer(CrackTree.GetNodeLevel(Run)) * Length(Separator)));
-            if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
+            if not (lGetCellTextEventArgs.StaticText = '') {.IsEmpty needs XE3+} and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
               CheckQuotingAndAppend(lGetCellTextEventArgs.CellText + ' ' + lGetCellTextEventArgs.StaticText)
             else
               CheckQuotingAndAppend(lGetCellTextEventArgs.CellText);
@@ -1026,10 +1026,10 @@ function ContentToClipboard(Tree: TCustomVirtualStringTree; Format: Word; Source
     EndHTMLIndex := EndFragmentIndex + Length(HTMLExtro);
 
     Description := Version +
-    System.SysUtils.Format('%s%.8d', [StartHTML, StartHTMLIndex]) + #13#10 +
-    System.SysUtils.Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
-    System.SysUtils.Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
-    System.SysUtils.Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10;
+    {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}.Format('%s%.8d', [StartHTML, StartHTMLIndex]) + #13#10 +
+    {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}.Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
+    {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}.Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
+    {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}.Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10;
     HTML := Description + DocType + HTMLIntro + HTML + HTMLExtro;
   end;
 
@@ -1065,7 +1065,7 @@ begin
   else
     if Format = CF_CSV then
     begin
-      S := AnsiString(ContentToUnicodeString(CrackTree, Source, FormatSettings.ListSeparator) + #0);
+      S := AnsiString(ContentToUnicodeString(CrackTree, Source, {$IF CompilerVersion >= 22}FormatSettings.ListSeparator{$ELSE}ListSeparator{$IFEND}) + #0);
       Data := PAnsiChar(S);
       DataSize := Length(S);
     end// CF_CSV

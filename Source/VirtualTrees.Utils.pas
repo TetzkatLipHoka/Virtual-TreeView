@@ -31,11 +31,31 @@ interface
 uses
   Winapi.Windows,
   Winapi.ActiveX,
+  {$IF CompilerVersion < 23}Winapi.ShlObj,{$IFEND} { IDragSourceHelper for the compat declarations below }
   System.Types,
   Vcl.Graphics,
   Vcl.ImgList,
   Vcl.Controls,
   VirtualTrees.Types;
+
+{$IF CompilerVersion < 23}
+// Vista+ API, not yet declared in this RTL's ShlObj; interface-visible for BaseTree and Header.
+function SHDoDragDrop(hwnd: HWND; pdtobj: IDataObject; pdsrc: IDropSource; dwEffect: DWORD; var pdwEffect: DWORD): HRESULT; stdcall;
+
+// Not yet in this RTL's ShlObj: Vista+ extension of IDragSourceHelper (used here and in DragImage).
+const
+  DSH_ALLOWDROPDESCRIPTIONTEXT = $0001;
+type
+  IDragSourceHelper2 = interface(IDragSourceHelper)
+    ['{83E07D0D-0C5F-4163-BF1A-60B274051E40}']
+    function SetFlags(dwFlags: DWORD): HRESULT; stdcall;
+  end;
+
+// D2009's Windows.pas declares GetTextExtentPoint32W twice (PWideChar and UnicodeString) and reports
+// E2251 even for exact PWideChar arguments; this interface-visible declaration shadows both for all
+// units that use this one after Winapi.Windows.
+function GetTextExtentPoint32W(DC: HDC; Str: PWideChar; Count: Integer; var Size: TSize): BOOL; stdcall;
+{$IFEND}
 
 type
   /// <summary>
@@ -145,7 +165,7 @@ implementation
 
 uses
   Winapi.CommCtrl,
-  Winapi.ShlObj,
+  {$IF CompilerVersion >= 23}Winapi.ShlObj,{$IFEND}
   System.SysUtils,
   System.StrUtils,
   System.Math;
@@ -154,14 +174,8 @@ const
   WideLF = Char(#10);
 
 {$IF CompilerVersion < 23}
-// Not yet in this RTL's ShlObj: Vista+ extension of IDragSourceHelper.
-const
-  DSH_ALLOWDROPDESCRIPTIONTEXT = $0001;
-type
-  IDragSourceHelper2 = interface(IDragSourceHelper)
-    ['{83E07D0D-0C5F-4163-BF1A-60B274051E40}']
-    function SetFlags(dwFlags: DWORD): HRESULT; stdcall;
-  end;
+function SHDoDragDrop; external 'shell32.dll' name 'SHDoDragDrop';
+function GetTextExtentPoint32W; external 'gdi32.dll' name 'GetTextExtentPoint32W';
 {$IFEND}
 
 procedure ApplyDragImage(const pDataObject: IDataObject; pBitmap: TBitmap);
@@ -297,6 +311,7 @@ var
   Len: Integer;
   L, H, N: Integer;
   W: TDimension;
+  PW: PWideChar; // typed local pins the GetTextExtentPoint32W overload (D2009: E2251 otherwise)
   
 begin
   Len := Length(S);
@@ -320,7 +335,8 @@ begin
       while L < H do
       begin
         N := (L + H + 1) shr 1;
-        GetTextExtentPoint32W(DC, PWideChar(S), N, Size);
+        PW := PWideChar(S);
+        GetTextExtentPoint32W(DC, PW, N, Size);
         W := Size.cx + EllipsisWidth;
         if W <= Width then
           L := N
@@ -347,6 +363,7 @@ var
   Size_px_x_px: TSize;  // cx, cy
   StrInLen: Integer;
   LoLen, HiLen, TestLen, TestWidth_px: Integer;
+  PW: PWideChar; // typed local pins the GetTextExtentPoint32W overload (D2009: E2251 otherwise)
 
 begin
   StrInLen := Length(StrIn);
@@ -372,7 +389,8 @@ begin
       begin
         TestLen := (LoLen + HiLen + 1) shr 1;  // Test average of Lo and Hi
 
-        GetTextExtentPoint32W(TargetCanvasDC, PWideChar(StrIn), TestLen, Size_px_x_px);
+        PW := PWideChar(StrIn);
+        GetTextExtentPoint32W(TargetCanvasDC, PW, TestLen, Size_px_x_px);
         TestWidth_px := Size_px_x_px.cx + EllipsisWidth_px;
 
         if TestWidth_px <= AllowedWidth_px then

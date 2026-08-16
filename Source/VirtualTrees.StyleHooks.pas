@@ -45,6 +45,7 @@ uses
 
 const
   CM_UPDATE_VCLSTYLE_SCROLLBARS = CM_BASE + 2050;
+{$IF CompilerVersion >= 23} // VCL styles and TScrollingStyleHook exist since XE2
 
 type
   // XE2+ VCL Style
@@ -105,18 +106,19 @@ type
     property HorzScrollWnd: TScrollWindow read FHorzScrollWnd;
     property VertScrollWnd: TScrollWindow read FVertScrollWnd;
     property LeftButtonDown: Boolean read FLeftButtonDown;
-    {$ifend}
+    {$endif}
   public
     constructor Create(AControl: TWinControl); override;
     {$ifdef NOT_USE_VCL_STYLEHOOK}
     destructor Destroy; override;
-    {$ifend}
+    {$endif}
     /// Draws an expand arrow like used in the RAD Studio IDE.
     /// The code is not yet dpi-aware.
     class procedure DrawExpandArrow(pBitmap: TBitmap; pExpanded: Boolean; pColor: TColor = clNone);
     property HorzScrollRect;
     property VertScrollRect;
   end;
+{$IFEND}
 
 type
   /// prototype for the global callback VTStyleServicesFunc.
@@ -155,6 +157,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
+{$IF CompilerVersion >= 23} // whole VCL-style hook implementation
 type
   TBaseVirtualTreeCracker = class(TBaseVirtualTree)
   end;
@@ -210,7 +213,7 @@ begin
   HorzSliderState := tsThumbBtnHorzNormal;
   HorzUpState := tsArrowBtnLeftNormal;
   HorzDownState := tsArrowBtnRightNormal;
-  {$ifend}
+  {$endif}
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -274,9 +277,9 @@ begin
      ((HorzScrollWnd <> nil) and not HorzScrollWnd.HandleAllocated) then
   begin  // Fixes issue #390
     if VertScrollWnd <> nil then
-      FreeAndNil({$ifdef NOT_USE_VCL_STYLEHOOK}FVertScrollWnd{$else}VertScrollWnd{$ifend});
+      FreeAndNil({$ifdef NOT_USE_VCL_STYLEHOOK}FVertScrollWnd{$else}VertScrollWnd{$endif});
     if HorzScrollWnd <> nil then
-      FreeAndNil({$ifdef NOT_USE_VCL_STYLEHOOK}FHorzScrollWnd{$else}HorzScrollWnd{$ifend});
+      FreeAndNil({$ifdef NOT_USE_VCL_STYLEHOOK}FHorzScrollWnd{$else}HorzScrollWnd{$endif});
 
     InitScrollBars;
   end;
@@ -1087,6 +1090,8 @@ begin
     EndPaint(Handle, PS);
   end;
 end;
-{$ifend}
+{$endif}
+
+{$IFEND}
 
 end.

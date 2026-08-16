@@ -739,7 +739,7 @@ type
     FVclStyleEnabled: Boolean;
     FSelectionCount: Integer;
 
-    procedure CMStyleChanged(var Message: TMessage); message CM_STYLECHANGED;
+    {$IF CompilerVersion >= 23}procedure CMStyleChanged(var Message: TMessage); message CM_STYLECHANGED;{$IFEND}
     procedure CMParentDoubleBufferedChange(var Message: TMessage); message CM_PARENTDOUBLEBUFFEREDCHANGED;
 
     procedure AdjustTotalCount(Node: PVirtualNode; Value: Integer; relative: Boolean = False);
@@ -1253,7 +1253,7 @@ type
     procedure UpdateDesigner; virtual;
     procedure UpdateEditBounds; virtual;
     procedure UpdateHeaderRect; virtual;
-    procedure UpdateStyleElements; override;
+    {$IF CompilerVersion >= 24}procedure UpdateStyleElements; override;{$IFEND}
     procedure ValidateCache; virtual;
     procedure ValidateNodeDataSize(var Size: Integer); virtual;
     procedure WndProc(var Message: TMessage); override;
@@ -1577,11 +1577,13 @@ type
     function GetNodeAt(X, Y: TDimension): PVirtualNode; overload;
     function GetNodeAt(X, Y: TDimension; Relative: Boolean; var NodeTop: TDimension): PVirtualNode; overload;
     function GetNodeData(Node: PVirtualNode): Pointer; overload;
+    {$IF CompilerVersion >= 21} // D2009 generics cannot instantiate cross-unit generic record methods (E2506)
     function GetNodeData<T>(pNode: PVirtualNode): T; overload; inline;
     function GetSelectedData<T>(): TArray<T>; overload;
     function GetInterfaceFromNodeData<T:IInterface>(pNode: PVirtualNode): T; overload; inline;
     function GetNodeDataAt<T>(pXCoord: Integer; pYCoord: Integer): T;
     function GetFirstSelectedNodeData<T>(): T;
+    {$IFEND}
     function GetNodeLevel(Node: PVirtualNode): Cardinal;
     function GetNodeLevelForSelectConstraint(Node: PVirtualNode): integer;
     function GetOffset(pElement: TVTElement; pNode: PVirtualNode): TDimension;
@@ -1650,7 +1652,7 @@ type
     procedure SetCheckStateForAll(aCheckState: TCheckState; pSelectedOnly: Boolean; pExcludeDisabled: Boolean = True);
     procedure SetNodeData(pNode: PVirtualNode; pUserData: Pointer); overload; inline;
     procedure SetNodeData(pNode: PVirtualNode; const pUserData: IInterface); overload; inline;
-    procedure SetNodeData<T>(pNode: PVirtualNode; pUserData: T); overload;
+    {$IF CompilerVersion >= 21}procedure SetNodeData<T>(pNode: PVirtualNode; pUserData: T); overload;{$IFEND}
     procedure Sort(Node: PVirtualNode; Column: TColumnIndex; Direction: TSortDirection; DoInit: Boolean = True); override;
     procedure SortTree(Column: TColumnIndex; Direction: TSortDirection; DoInit: Boolean = True); virtual;
     procedure ToggleNode(Node: PVirtualNode);
@@ -1953,7 +1955,7 @@ end;
 procedure TBaseVirtualTree.ClearCellSelection;
 begin
   InternalClearCellSelection;
-  ChangeCell([]);
+  ChangeCell(nil); // [] dyn-array literal needs XE7+
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2312,10 +2314,12 @@ begin
   FClipboardFormats := TClipboardFormats.Create(Self);
   FOptions := GetOptionsClass.Create(Self);
 
+  {$IF CompilerVersion >= 21}
   Touch.InteractiveGestures := [igPan, igPressAndTap];
   Touch.InteractiveGestureOptions := [igoPanInertia,
     igoPanSingleFingerHorizontal, igoPanSingleFingerVertical,
     igoPanGutter, igoParentPassthrough];
+  {$IFEND}
 
   if not (csDesigning in ComponentState) then //Don't create worker thread in IDE, there is no use for it
     TWorkerThread.AddThreadReference();
@@ -3652,6 +3656,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+{$IF CompilerVersion >= 21}
 function TBaseVirtualTree.GetSelectedData<T>: TArray<T>;
 var
   lItem: PVirtualNode;
@@ -3668,6 +3673,7 @@ begin
   end;
   SetLength(Result, i); // See issue #927, SelectedCount may not yet be updated.
 end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -4306,6 +4312,7 @@ var
 const
   cMinExpandoHeight = 11; // pixels @100%
 begin
+{$IF CompilerVersion >= 23} // tcbCategoryGlyph* need the XE2+ Themes translation; branch is dead without VCL styles anyway
   if VclStyleEnabled and (seClient in StyleElements) then
   begin
     if NeedButtons then begin
@@ -4336,6 +4343,7 @@ begin
     end;//if NeedButtons
   end// if VclStyleEnabled
     else
+{$IFEND}
       begin // No stlye
         Size.cx := ScaledPixels(9);
         Size.cy := ScaledPixels(9);
@@ -5295,6 +5303,7 @@ begin
   Include(pNode.States, vsOnFreeNodeCallRequired);
 end;
 
+{$IF CompilerVersion >= 21}
 procedure TBaseVirtualTree.SetNodeData<T>(pNode: PVirtualNode; pUserData: T);
 
   // Can be used to set user data of a PVirtualNode to a class instance.
@@ -5302,6 +5311,7 @@ procedure TBaseVirtualTree.SetNodeData<T>(pNode: PVirtualNode; pUserData: T);
 begin
   pNode.SetData<T>(pUserData);
 end;
+{$IFEND}
 
 procedure TBaseVirtualTree.SetNodeData(pNode: PVirtualNode; const pUserData: IInterface);
 
@@ -6032,11 +6042,13 @@ begin
   // empty by intention, we do our own buffering
 end;
 
+{$IF CompilerVersion >= 23}
 procedure TBaseVirtualTree.CMStyleChanged(var Message: TMessage);
 begin
   VclStyleChanged;
   RecreateWnd;
 end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -7939,9 +7951,11 @@ begin
   end;
   if (((tsUseThemes in FStates) and not VclStyleEnabled) or (VclStyleEnabled and (seBorder in StyleElements))) then
       StyleServices.PaintBorder(Self, False)
+{$IF CompilerVersion >= 23}
   else
     if (VclStyleEnabled and not (seBorder in StyleElements)) then
       TStyleManager.SystemStyle.PaintBorder(Self, False)
+{$IFEND}
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -10460,7 +10474,14 @@ begin
   if vsReleaseCallOnUserDataRequired in Node.States then
   begin
     // Data may have been set to nil, in which case we can't call _Release on it
+    {$IF CompilerVersion >= 21}
     IntfData := GetInterfaceFromNodeData<IInterface>(Node);
+    {$ELSE}
+    if Assigned(Node) then
+      IntfData := IInterface(Self.GetNodeData(Node)^)
+    else
+      IntfData := nil;
+    {$IFEND}
     if Assigned(IntfData) then
       IntfData._Release();
   end;
@@ -11871,9 +11892,13 @@ var
   R: TRect;
 begin
   R := Rect(Left, Min(Top, Bottom), Left + LineWidth, Max(Top, Bottom) + LineWidth);
+{$IF CompilerVersion >= 23} // tlGroupHeaderLine* missing in older Themes translations; plain grid line is the pre-styles look anyway
   if pFixedColumn and (TVtPaintOption.toShowVertGridLines in TreeOptions.PaintOptions) then // In case we showe grid lines, we must use a color for the fixed column that differentiates from the normal gridlines
     StyleServices.DrawElement(PaintInfo.Canvas.Handle, StyleServices.GetElementDetails(tlGroupHeaderLineOpenHot), R {$IF CompilerVersion  >= 34}, @R, CurrentPPI{$IFEND})
   else begin
+{$ELSE}
+  begin
+{$IFEND}
     if StyleServices.IsSystemStyle then // This approach does not work well for many VCL styles, so we added an else case
     begin
       DrawGridLine(PaintInfo.Canvas, R)
@@ -14297,7 +14322,7 @@ begin
         end;
         R := Rect(XPos, YPos, XPos + lSize.cx, YPos + lSize.cy);
         if (Index in [ckButtonNormal..ckButtonDisabled]) then
-          R.Offset(-1, 0); // Eliminate 1 pixel border around Windows themed button
+          OffsetRect(R, -1, 0); // Eliminate 1 pixel border around Windows themed button (TRect.Offset needs XE2+)
         DrawThemeBackground(Theme, Canvas.Handle, Details.Part, Details.State, R, nil);
         CloseThemeData(Theme);
       end
@@ -14306,7 +14331,7 @@ begin
         if (Index in [ckButtonNormal..ckButtonDisabled]) or not StyleServices.GetElementSize(Canvas.Handle, Details, TElementSize.esActual, lSize{$IF CompilerVersion >= 34}, CurrentPPI{$IFEND}) then begin
           // radio buttons fail in RAD Studio 10 Seattle and lower, fallback to checkbox images. See issue #615
           if not StyleServices.GetElementSize(Canvas.Handle, StyleServices.GetElementDetails(tbCheckBoxUncheckedNormal), TElementSize.esActual, lSize{$IF CompilerVersion >= 34}, CurrentPPI{$IFEND}) then
-            lSize := TSize.Create(GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK));
+            begin lSize.cx := GetSystemMetrics(SM_CXMENUCHECK); lSize.cy := GetSystemMetrics(SM_CYMENUCHECK); end; // TSize.Create needs XE2+
         end;//if
         R := Rect(XPos, YPos, XPos + lSize.cx, YPos + lSize.cy);
         StyleServices.DrawElement(Canvas.Handle, Details, R {$IF CompilerVersion  >= 34}, nil, FCurrentPPI{$IFEND});
@@ -19259,6 +19284,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+{$IF CompilerVersion >= 21}
 function TBaseVirtualTree.GetNodeData<T>(pNode: PVirtualNode): T;
 
 // Returns the associated data converted to the class given in the generic part of the function.
@@ -19305,6 +19331,7 @@ function TBaseVirtualTree.GetFirstSelectedNodeData<T>(): T;
 begin
   Result := Self.GetNodeData<T>(GetFirstSelected());
 end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -20049,7 +20076,7 @@ end;
 function TBaseVirtualTree.SelectedCells: TVTCellArray;
 begin
   if FSelectedCellCount = 0 then
-    Result := [] else
+    Result := nil else // [] dyn-array literal needs XE7+
   begin
     // Makes a copy of the selected cells, so the actual selected array
     // cannot be changed
@@ -21541,7 +21568,7 @@ begin
                 // Put the constructed node image onto the target canvas.
                 if not (poUnbuffered in PaintOptions) then
                   with NodeBitmap do
-                    BitBlt(TargetCanvas.Handle, TargetRect.Left, TargetRect.Top, TargetRect.Width, TargetRect.Height, Canvas.Handle, Window.Left, 0, SRCCOPY);
+                    BitBlt(TargetCanvas.Handle, TargetRect.Left, TargetRect.Top, TargetRect.Right - TargetRect.Left, TargetRect.Bottom - TargetRect.Top, Canvas.Handle, Window.Left, 0, SRCCOPY);
               end;
             end;
 
@@ -22425,7 +22452,7 @@ begin
     if Horizontally then
       // 2) scroll horizontally
       // Center only if there is enough space for the focused column, otherwise left align, see issue #397.
-      ScrolledHorizontally := ScrollIntoView(FFocusedColumn, Center and (R.Width <= (ClientWidth - Header.Columns.GetVisibleFixedWidth)), Node);
+      ScrolledHorizontally := ScrollIntoView(FFocusedColumn, Center and ((R.Right - R.Left) <= (ClientWidth - Header.Columns.GetVisibleFixedWidth)), Node);
   end;
 
   Result := ScrolledVertically or ScrolledHorizontally;
@@ -23370,12 +23397,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+{$IF CompilerVersion >= 24}
 procedure TBaseVirtualTree.UpdateStyleElements;
 begin
   inherited;
   UpdateHeaderRect;
   FHeader.Columns.PaintHeader(Canvas, FHeaderRect, Point(0,0));
 end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 

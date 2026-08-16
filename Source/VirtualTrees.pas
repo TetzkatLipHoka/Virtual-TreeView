@@ -591,8 +591,8 @@ type
     property OnStructureChange;
     property OnUpdating;
     property OnCanResize;
-    property OnGesture;
-    property Touch;
+    {$IF CompilerVersion >= 21}property OnGesture;{$IFEND}
+    {$IF CompilerVersion >= 21}property Touch;{$IFEND}
     property OnColumnHeaderSpanning;
   end;
 
@@ -616,7 +616,8 @@ const
   cDefaultText = 'Node';
   RTLFlag: array[Boolean] of Integer = (0, ETO_RTLREADING);
   AlignmentToDrawFlag: array[TAlignment] of Cardinal = (DT_LEFT, DT_RIGHT, DT_CENTER);
-  gInitialized: Integer = 0;           // >0 if global structures have been initialized; otherwise 0
+var
+  gInitialized: Integer = 0;           // >0 if global structures have been initialized; otherwise 0 (a real var: it is mutated via AtomicIncrement)
 
 //// initialization of stuff global to the unit
 procedure InitializeGlobalStructures();
@@ -898,7 +899,7 @@ begin
       if BidiMode <> bdLeftToRight then
         DrawFormat := DrawFormat or DT_RTLREADING;
       // Check if the text must be shortend.
-      if (Column > NoColumn) and ((NodeWidth - 2 * TextMargin) > R.Width) then
+      if (Column > NoColumn) and ((NodeWidth - 2 * TextMargin) > (R.Right - R.Left)) then
       begin
         Text := DoShortenString(Canvas, Node, Column, Text, R.Right - R.Left, TripleWidth);
         if Alignment = taRightJustify then
@@ -1393,11 +1394,11 @@ begin
     DoGetText(lEventArgs);
 
     // Paint the normal text first...
-    if not lEventArgs.CellText.IsEmpty then
+    if not (lEventArgs.CellText = '') then {.IsEmpty needs XE3+}
       PaintNormalText(PaintInfo, TextOutFlags, lEventArgs.CellText);
 
     // ... and afterwards the static text if not centered and the node is not multiline enabled.
-    if (Alignment <> taCenter) and not (vsMultiline in PaintInfo.Node.States) and (toShowStaticText in TreeOptions.StringOptions) and not lEventArgs.StaticText.IsEmpty then
+    if (Alignment <> taCenter) and not (vsMultiline in PaintInfo.Node.States) and (toShowStaticText in TreeOptions.StringOptions) and not (lEventArgs.StaticText = '') then {.IsEmpty needs XE3+}
       PaintStaticText(PaintInfo, lEventArgs.StaticTextAlignment, lEventArgs.StaticText);
   finally
     RestoreFontChangeEvent(PaintInfo.Canvas);
@@ -2005,9 +2006,13 @@ begin
 end;
 
 initialization
+  {$IF CompilerVersion >= 23}
   TCustomStyleEngine.RegisterStyleHook(TVirtualStringTree, TVclStyleScrollBarsHook);
+  {$IFEND}
 
 finalization
+  {$IF CompilerVersion >= 23}
   TCustomStyleEngine.UnRegisterStyleHook(TVirtualStringTree, TVclStyleScrollBarsHook);
+  {$IFEND}
 
 end.

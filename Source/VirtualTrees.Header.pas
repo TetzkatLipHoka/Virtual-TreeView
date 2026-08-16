@@ -459,7 +459,9 @@ uses
   WinApi.ShlObj,
   WinApi.ActiveX,
   WinApi.UxTheme,
-  System.Math,
+  // D2009 + "-ASystem.Math=Math" alias double-registers Math's overloads here (every Min/Max call E2251);
+  // referencing the real unit name avoids it. Measured, cause presumably inline expansion from sibling units.
+  {$IF CompilerVersion < 23}Math,{$ELSE}System.Math,{$IFEND}
   System.SysUtils,
   System.Generics.Defaults,
   Vcl.Forms,
@@ -5354,14 +5356,18 @@ function TVirtualTreeColumns.GetSelectedCellColumns : TColumnsArray;
 var
   LColumnIndex: TColumnIndex;
 begin
-  Result := [];
+  Result := nil;
   LColumnIndex := GetFirstColumn;
   if LColumnIndex = InvalidColumn then
     Exit;
   while LColumnIndex <> InvalidColumn do
     begin
       if coMulticellSelected in FHeader.Columns[LColumnIndex].Options then
-        Result := Result + [FHeader.Columns[LColumnIndex]];
+      begin
+        // classic append; dyn-array literals and "+" need XE7+
+        SetLength(Result, Length(Result) + 1);
+        Result[High(Result)] := FHeader.Columns[LColumnIndex];
+      end;
       LColumnIndex := GetNextColumn(LColumnIndex);
     end;
 end;

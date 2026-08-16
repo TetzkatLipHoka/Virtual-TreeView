@@ -268,8 +268,8 @@ type
     property OnStructureChange;
     property OnUpdating;
     property OnCanResize;
-    property OnGesture;
-    property Touch;
+    {$IF CompilerVersion >= 21}property OnGesture;{$IFEND}
+    {$IF CompilerVersion >= 21}property Touch;{$IFEND}
     property StyleElements;
   end;
 
@@ -346,9 +346,13 @@ begin
 end;
 
 initialization
+  {$IF CompilerVersion >= 23}
   TCustomStyleEngine.RegisterStyleHook(TVirtualDrawTree, TVclStyleScrollBarsHook);
+  {$IFEND}
 
 finalization
+  {$IF CompilerVersion >= 23}
   TCustomStyleEngine.UnRegisterStyleHook(TVirtualDrawTree, TVclStyleScrollBarsHook);
+  {$IFEND}
 
 end.

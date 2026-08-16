@@ -14,6 +14,7 @@ uses
   Vcl.Themes,
   Vcl.Graphics,
   Vcl.ImgList,
+  System.TypInfo, // interface-visible: generic record method bodies (TVirtualNode.SetData<T>) are compiled at the instantiation site and need PTypeInfo there (D2009: E2506 otherwise)
   System.UITypes; // some types moved from Vcl.* to System.UITypes
 
 {$MINENUMSIZE 1, make enumerations as small as possible}
@@ -149,7 +150,7 @@ type
   TVTPaintContext = HDC;
   TVTBrush = HBRUSH;
 {$ENDIF}
-  TColumnIndex = {$if CompilerVersion < 36} type {$ifend} Integer; // See issue #1276
+  TColumnIndex = {$if (CompilerVersion >= 21) and (CompilerVersion < 36)} type {$ifend} Integer; // See issue #1276; on D2009 "type Integer" makes every Min/Max overload call ambiguous (E2251)
   TColumnPosition = type Cardinal;
   PCardinal = ^Cardinal;
 
@@ -300,6 +301,12 @@ const
 
 /// Returns +1 for ascending and -1 for descending sort order; free-function twin of TSortDirectionHelper.ToInt.
 function SortDirectionToInt(SD : TSortDirection) : Integer; {$IF CompilerVersion >= 18}inline;{$IFEND}
+
+{$IF CompilerVersion < 23}
+// Intrinsics since XE2; mapped to the classic interlocked API here.
+function AtomicIncrement(var Target : Integer) : Integer; inline;
+function AtomicDecrement(var Target : Integer) : Integer; inline;
+{$IFEND}
 
 type
 // Used during owner draw of the header to indicate which drop mark for the column must be drawn.
@@ -939,6 +946,11 @@ type
   end;
 {$IFEND}
 
+{$IF CompilerVersion < 21}
+  // Declared in System.pas since Delphi 2010.
+  TArray<T> = array of T;
+{$IFEND}
+
   PVirtualNode = ^TVirtualNode;
 
   TVirtualNode = packed record
@@ -987,9 +999,13 @@ type
   public
     function IsAssigned(): Boolean; inline;
     function GetData(): Pointer; overload; inline;
+    {$IF CompilerVersion >= 21} // D2009 generics cannot instantiate cross-unit generic record methods (E2506)
     function GetData<T>(): T; overload; inline;
+    {$IFEND}
     procedure SetData(pUserData: Pointer); overload;
+    {$IF CompilerVersion >= 21}
     procedure SetData<T>(pUserData: T); overload;
+    {$IFEND}
     procedure SetData(const pUserData: IInterface); overload;
   end;
 
@@ -1176,7 +1192,6 @@ type
 implementation
 
 uses
-  System.TypInfo,
   VirtualTrees.StyleHooks,
   VirtualTrees.BaseTree,
   VirtualTrees.BaseAncestorVcl{to eliminate H2443 about inline expanding}
@@ -1199,6 +1214,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+{$IF CompilerVersion >= 21}
 function TVirtualNode.GetData<T>: T;
 
 // Returns the associated data converted to the class given in the generic part of the function.
@@ -1207,6 +1223,7 @@ begin
   Result := T(Pointer((PByte(@(Self.Data))))^);
   Include(States, vsOnFreeNodeCallRequired);
 end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1259,6 +1276,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+{$IF CompilerVersion >= 21}
 procedure TVirtualNode.SetData<T>(pUserData: T);
 
 begin
@@ -1267,6 +1285,7 @@ begin
     Include(Self.States, vsReleaseCallOnUserDataRequired);
   Include(Self.States, vsOnFreeNodeCallRequired);
 end;
+{$IFEND}
 
 procedure TVirtualNode.SetFirstChild(const pFirstChild: PVirtualNode);
 begin
@@ -1750,6 +1769,18 @@ function SortDirectionToInt(SD : TSortDirection) : Integer;
 begin
   Result := cSortDirectionToInt[SD];
 end;
+
+{$IF CompilerVersion < 23}
+function AtomicIncrement(var Target : Integer) : Integer;
+begin
+  Result := InterlockedIncrement(Target);
+end;
+
+function AtomicDecrement(var Target : Integer) : Integer;
+begin
+  Result := InterlockedDecrement(Target);
+end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 
