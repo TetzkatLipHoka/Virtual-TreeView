@@ -61,9 +61,9 @@ interface
 {$WARN UNSUPPORTED_CONSTRUCT      OFF}
 
 uses
-  Winapi.Windows, Winapi.Messages, Winapi.ActiveX,
-  System.Classes, System.SysUtils,
-  Vcl.Graphics, Vcl.Controls, Vcl.ImgList, Vcl.Menus, Vcl.Themes,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, Winapi.Messages, Winapi.ActiveX,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.SysUtils,
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}, Vcl.Controls, Vcl.ImgList, Vcl.Menus, Vcl.Themes,
   VirtualTrees.Types,
   VirtualTrees.Header,
   VirtualTrees.BaseTree,
@@ -134,7 +134,7 @@ type
   TVTConstraintPercent     = VirtualTrees.Header.TVTConstraintPercent;
   TVTFixedAreaConstraints  = VirtualTrees.Header.TVTFixedAreaConstraints;
   TColumnsArray            = VirtualTrees.Header.TColumnsArray;
-  TCanvas                  = Vcl.Graphics.TCanvas;
+  TCanvas                  = {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}.TCanvas;
 
 const
   // Aliases for increased compatibility with V7, feel free to extend by pull requests
@@ -600,9 +600,9 @@ type
 
 implementation
 uses
-  System.TypInfo,              // for migration stuff
-  System.StrUtils,
-  System.Types,                // prevent inline compiler warning
+  {$IF CompilerVersion < 23}TypInfo{$ELSE}System.TypInfo{$IFEND},              // for migration stuff
+  {$IF CompilerVersion < 23}StrUtils{$ELSE}System.StrUtils{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},                // prevent inline compiler warning
   System.UITypes,              // prevent inline compiler warning
   VirtualTrees.StyleHooks,
   VirtualTrees.ClipBoard,
@@ -978,7 +978,7 @@ begin
       SetBkMode(Canvas.Handle, TRANSPARENT)
     else
       SetBkMode(Canvas.Handle, OPAQUE);
-    Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(Text), Length(Text), R, DrawFormat);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Canvas.Handle, PWideChar(Text), Length(Text), R, DrawFormat);
   end;
 end;
 
@@ -1062,7 +1062,7 @@ begin
   MemDC := CreateCompatibleDC(0);
   try
     SelectObject(MemDC, Msg.Font);
-    WinApi.Windows.GetTextMetrics(MemDC, TM);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetTextMetrics(MemDC, TM);
     FTextHeight := TM.tmHeight;
 
     GetTextExtentPoint32W(MemDC, '...', 3, Size);
@@ -1440,7 +1440,7 @@ begin
   if Assigned(FOnDrawTextEx) then
     FOnDrawTextEx(Self, PaintInfo.Canvas, PaintInfo.Node, PaintInfo.Column, lText, CellRect, DefaultDraw, DrawFormat);
   if DefaultDraw then
-    Winapi.Windows.DrawTextW(PaintInfo.Canvas.Handle, PWideChar(lText), Length(lText), CellRect, DrawFormat);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(PaintInfo.Canvas.Handle, PWideChar(lText), Length(lText), CellRect, DrawFormat);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1461,7 +1461,7 @@ begin
       DrawFormat := DrawFormat or DT_RTLREADING;
 
     R := Rect(0, 0, Result.cx, MaxInt);
-    Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(Text), Length(Text), R, DrawFormat);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Canvas.Handle, PWideChar(Text), Length(Text), R, DrawFormat);
     Result.cx := R.Right - R.Left;
   end;
   if Assigned(FOnMeasureTextWidth) then
@@ -1714,7 +1714,7 @@ begin
     DrawFormat := DrawFormat or DT_RIGHT or DT_RTLREADING
   else
     DrawFormat := DrawFormat or DT_LEFT;
-  Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(S), Length(S), PaintInfo.CellRect, DrawFormat);
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Canvas.Handle, PWideChar(S), Length(S), PaintInfo.CellRect, DrawFormat);
   Result := PaintInfo.CellRect.Bottom - PaintInfo.CellRect.Top;
 end;
 

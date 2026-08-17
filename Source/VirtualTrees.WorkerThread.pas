@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.BaseTree;
 
@@ -39,9 +39,9 @@ type
 implementation
 
 uses
-  Winapi.Windows,
-  System.Types,
-  System.SysUtils;
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND};
 
 type
   TBaseVirtualTreeCracker = class(TBaseVirtualTree)

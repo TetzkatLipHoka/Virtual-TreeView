@@ -3,14 +3,14 @@
 interface
 
 uses
-  WinApi.ActiveX,
-  WinApi.Windows,
-  System.Classes,
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   VirtualTrees.Types;
 
 type
-  IDataObject = WinApi.ActiveX.IDataObject;
+  IDataObject = {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND}.IDataObject;
 
   // IDataObject.SetData support
   TInternalStgMedium = packed record

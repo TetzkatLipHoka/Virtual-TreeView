@@ -8,9 +8,9 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.ActiveX, Winapi.oleacc,
-  System.Classes, System.Types,
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, Winapi.ActiveX, Winapi.oleacc,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.Types,
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   VirtualTrees, VirtualTrees.AccessibilityFactory, VirtualTrees.BaseTree;
 
 type
@@ -101,8 +101,8 @@ type
 implementation
 
 uses
-  System.SysUtils, System.Variants, System.Math,
-  Vcl.Forms,
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}, System.Variants, System.Math,
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
   VirtualTrees.Types;
 
 type

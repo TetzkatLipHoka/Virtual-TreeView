@@ -13,12 +13,12 @@ unit VirtualTrees.AncestorVCL;
 interface
 
 uses
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   Vcl.Themes,
-  Winapi.Messages,
-  Winapi.Windows,
-  Winapi.oleacc,
-  Winapi.ActiveX,
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}oleacc{$ELSE}Winapi.oleacc{$IFEND},
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.BaseTree;
 
@@ -58,12 +58,12 @@ type
 
 implementation
 uses
-  System.Classes,
-  Vcl.Graphics,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
   System.UITypes,
-  Vcl.AxCtrls,
-  Vcl.Forms,
-  Vcl.GraphUtil,
+  {$IF CompilerVersion < 23}AxCtrls{$ELSE}Vcl.AxCtrls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}GraphUtil{$ELSE}Vcl.GraphUtil{$IFEND},
   VirtualTrees.ClipBoard,
   VirtualTrees.DataObject,
   VirtualTrees.DragnDrop,
@@ -289,12 +289,12 @@ begin
         // Determine text position and don't forget the border.
         InflateRect(R, -1, -1);
         DrawFormat := DT_TOP or DT_NOPREFIX;
-        SetBkMode(Handle, Winapi.Windows.TRANSPARENT);
+        SetBkMode(Handle, {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.TRANSPARENT);
         R.Top := Y;
         R.Left := R.Left + 3; // Make the text more centered
         if Assigned(Node) and (LineBreakStyle = hlbForceMultiLine) then
           DrawFormat := DrawFormat or DT_WORDBREAK;
-        Winapi.Windows.DrawTextW(Handle, PWideChar(HintText), Length(HintText), R, DrawFormat);
+        {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Handle, PWideChar(HintText), Length(HintText), R, DrawFormat);
       end;
   end;
 end;
@@ -392,7 +392,7 @@ begin
                 // On Windows NT/2K/XP the behavior of the tooltip is slightly different to that on Windows 9x/Me.
                 // We don't have Unicode word wrap on the latter so the tooltip gets as wide as the largest line
                 // in the caption (limited by carriage return), which results in unoptimal overlay of the tooltip.
-                Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), R, DT_CALCRECT or DT_WORDBREAK);
+                {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), R, DT_CALCRECT or DT_WORDBREAK);
                 if BidiMode = bdLeftToRight then
                   Result.Right := R.Right + TBVTCracker(Tree).TextMargin
                 else
@@ -428,7 +428,7 @@ begin
                   on the right.
                 }
                 R := Rect(0, 0, MaxWidth, FTextHeight);
-                Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), R, DT_CALCRECT or DT_TOP or DT_NOPREFIX or DT_WORDBREAK);
+                {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), R, DT_CALCRECT or DT_TOP or DT_NOPREFIX or DT_WORDBREAK);
                 if R.Right <> result.right - result.left then
                 begin
                   result.Right := result.Left + r.Right;
@@ -456,7 +456,7 @@ begin
               // Start with the base size of the hint in client coordinates.
               Result := Rect(0, 0, MaxWidth, FTextHeight);
               // Calculate the true size of the text rectangle.
-              Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), Result, DT_CALCRECT or DT_TOP or DT_NOPREFIX or DT_WORDBREAK);
+              {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), Result, DT_CALCRECT or DT_TOP or DT_NOPREFIX or DT_WORDBREAK);
               // The height of the text plus 2 pixels vertical margin plus the border determine the hint window height.
               // Minus 4 because THintWindow.ActivateHint adds 4 to Rect.Bottom anyway. Note that it is not scaled because the RTL itself does not do any scaling either.
               Inc(Result.Bottom, Tree.ScaledPixels(6) - 4);

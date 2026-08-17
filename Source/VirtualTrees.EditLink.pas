@@ -6,11 +6,11 @@ unit VirtualTrees.EditLink;
 interface
 
 uses
-  WinApi.Messages,
-  System.Types,
-  System.Classes,
-  Vcl.Controls,
-  Vcl.StdCtrls,
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
   VirtualTrees,
   VirtualTrees.Types,
   VirtualTrees.BaseTree;
@@ -165,11 +165,11 @@ type
 implementation
 
 uses
-  WinApi.Windows,
-  System.SysUtils,
-  System.Math,
-  Vcl.Graphics,
-  Vcl.Forms;
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND};
 
 type
   TCustomVirtualStringTreeCracker = class(TCustomVirtualStringTree);

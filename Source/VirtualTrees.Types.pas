@@ -3,18 +3,18 @@
 interface
 
 uses
-  WinApi.ActiveX,
-  Winapi.Windows,
-  Winapi.Messages,
-  System.Types,
-  System.Classes,
-  System.SysUtils,
-  Vcl.Controls,
-  Vcl.GraphUtil,
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}GraphUtil{$ELSE}Vcl.GraphUtil{$IFEND},
   Vcl.Themes,
-  Vcl.Graphics,
-  Vcl.ImgList,
-  System.TypInfo, // interface-visible: generic record method bodies (TVirtualNode.SetData<T>) are compiled at the instantiation site and need PTypeInfo there (D2009: E2506 otherwise)
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}TypInfo{$ELSE}System.TypInfo{$IFEND}, // interface-visible: generic record method bodies (TVirtualNode.SetData<T>) are compiled at the instantiation site and need PTypeInfo there (D2009: E2506 otherwise)
   System.UITypes; // some types moved from Vcl.* to System.UITypes
 
 {$MINENUMSIZE 1, make enumerations as small as possible}
@@ -145,7 +145,7 @@ type
   PDimension = ^Integer;
   TNodeHeight = NativeInt;
   TVTCursor = HCURSOR;
-  TVTDragDataObject = WinApi.ActiveX.IDataObject;
+  TVTDragDataObject = {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND}.IDataObject;
   TVTBackground = TPicture;
   TVTPaintContext = HDC;
   TVTBrush = HBRUSH;
@@ -941,7 +941,7 @@ type
   end;
 
 {$IF CompilerVersion < 23}
-  // Declared in Vcl.Controls since XE2; empty on Win32, ensures 8 byte alignment of pointers on Win64.
+  // Declared in {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND} since XE2; empty on Win32, ensures 8 byte alignment of pointers on Win64.
   TDWordFiller = record
   end;
 {$IFEND}

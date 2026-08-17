@@ -6,7 +6,7 @@
 
 interface
 
-uses Winapi.Windows,
+uses {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
      System.NetEncoding,
      VirtualTrees,
      VirtualTrees.Classes;
@@ -20,14 +20,14 @@ procedure ContentToCustom(Tree: TCustomVirtualStringTree; Source: TVSTTextSource
 implementation
 
 uses
-  System.Classes,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   {$IF CompilerVersion < 23}SysUtils,{$ELSE}System.SysUtils,{$IFEND} // D2009 alias double-registration makes IntToStr calls ambiguous (E2251), see VirtualTrees.Header.pas
-  System.StrUtils,
-  System.Generics.Collections,
+  {$IF CompilerVersion < 23}StrUtils{$ELSE}System.StrUtils{$IFEND},
+  {$IF CompilerVersion < 23}Generics.Collections{$ELSE}System.Generics.Collections{$IFEND},
   System.UITypes,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.ClipBoard,
   VirtualTrees.Header,

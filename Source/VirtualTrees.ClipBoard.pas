@@ -29,9 +29,9 @@ interface
 {$WARN UNSAFE_CAST OFF}
 
 uses
-  Winapi.Windows,
-  Winapi.ActiveX,
-  System.Classes,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   VirtualTrees.BaseTree;
 
 type
@@ -76,7 +76,7 @@ function RegisterVTClipboardFormat(const Description: string; TreeClass: TVirtua
 type
   TClipboardFormatListEntry = class
   public
-    Description: string;               // The string used to register the format with Winapi.Windows.
+    Description: string;               // The string used to register the format with {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.
     TreeClass: TVirtualTreeClass;      // The tree class which supports rendering this format.
     Priority: Cardinal;                // Number which determines the order of formats used in IDataObject.
     FormatEtc: TFormatEtc;             // The definition of the format in the IDataObject.
@@ -113,7 +113,7 @@ var
 implementation
 
 uses
-  System.SysUtils;
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND};
 
 var
   _List: TList = nil;  //Note - not using class constructors as they are not supported on C++ Builder. See also issue #

@@ -29,13 +29,13 @@ interface
 {$WARN UNSAFE_CODE OFF}
 
 uses
-  Winapi.Windows,
-  Winapi.ActiveX,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
   {$IF CompilerVersion < 23}Winapi.ShlObj,{$IFEND} { IDragSourceHelper for the compat declarations below }
-  System.Types,
-  Vcl.Graphics,
-  Vcl.ImgList,
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   VirtualTrees.Types;
 
 {$IF CompilerVersion < 23}
@@ -53,7 +53,7 @@ type
 
 // D2009's Windows.pas declares GetTextExtentPoint32W twice (PWideChar and UnicodeString) and reports
 // E2251 even for exact PWideChar arguments; this interface-visible declaration shadows both for all
-// units that use this one after Winapi.Windows.
+// units that use this one after {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.
 function GetTextExtentPoint32W(DC: HDC; Str: PWideChar; Count: Integer; var Size: TSize): BOOL; stdcall;
 {$IFEND}
 
@@ -164,11 +164,11 @@ function Divide(const Dimension: Single; const DivideBy: Integer): Single; overl
 implementation
 
 uses
-  Winapi.CommCtrl,
-  {$IF CompilerVersion >= 23}Winapi.ShlObj,{$IFEND}
-  System.SysUtils,
-  System.StrUtils,
-  System.Math;
+  {$IF CompilerVersion < 23}CommCtrl{$ELSE}Winapi.CommCtrl{$IFEND},
+  {$IF CompilerVersion >= 23}{$IF CompilerVersion < 23}ShlObj{$ELSE}Winapi.ShlObj{$IFEND},{$IFEND}
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}StrUtils{$ELSE}System.StrUtils{$IFEND},
+  {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND};
 
 const
   WideLF = Char(#10);
@@ -298,7 +298,7 @@ begin
   Bounds.Right := Bounds.Left + 1;
   Bounds.Bottom := Bounds.Top + 1;
 
-  Winapi.Windows.DrawTextW(DC, PWideChar(S), Length(S), Bounds, DrawFormat or DT_CALCRECT);
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(DC, PWideChar(S), Length(S), Bounds, DrawFormat or DT_CALCRECT);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

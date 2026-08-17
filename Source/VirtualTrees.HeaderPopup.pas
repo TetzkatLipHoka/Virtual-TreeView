@@ -66,8 +66,8 @@
 interface
 
 uses
-  System.Classes,
-  Vcl.Menus,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.BaseTree;
 
@@ -108,8 +108,8 @@ type
 implementation
 
 uses
-  Winapi.Windows,
-  System.Types,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
   VirtualTrees.Header;
 
 resourcestring

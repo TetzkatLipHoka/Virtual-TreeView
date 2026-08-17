@@ -37,9 +37,9 @@
 interface
 
 uses
-  Winapi.oleacc,
-  System.Classes,
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}oleacc{$ELSE}Winapi.oleacc{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   VirtualTrees.BaseTree;
 
 type

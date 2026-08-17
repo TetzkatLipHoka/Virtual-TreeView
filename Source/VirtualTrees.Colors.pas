@@ -3,10 +3,10 @@
 interface
 
 uses
-  System.Classes,
-  Vcl.Graphics,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
   Vcl.Themes,
-  Vcl.Controls;
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND};
 
 type
   //class to collect all switchable colors into one place
@@ -101,7 +101,7 @@ type
 implementation
 
 uses
-  WinApi.Windows,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.Utils,
   VirtualTrees.StyleHooks,

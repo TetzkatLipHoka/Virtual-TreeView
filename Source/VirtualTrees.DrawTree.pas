@@ -3,8 +3,8 @@
 interface
 
 uses
-  System.Types,
-  System.Classes,
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   Vcl.Themes,
   VirtualTrees.Types,
   VirtualTrees.BaseTree,

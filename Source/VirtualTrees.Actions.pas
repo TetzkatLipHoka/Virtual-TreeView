@@ -3,10 +3,10 @@
 interface
 
 uses
-  System.Classes,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   System.Actions,
-  Vcl.Controls,
-  Vcl.ActnList,
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}ActnList{$ELSE}Vcl.ActnList{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.BaseTree;
 
@@ -115,8 +115,8 @@ procedure Register;
 implementation
 
 uses
-  WinApi.Windows,
-  Vcl.Forms;
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND};
 
 procedure Register;
 begin

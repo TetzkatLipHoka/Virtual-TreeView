@@ -3,17 +3,17 @@
 interface
 
 uses
-  WinApi.Windows,
-  WinApi.Messages,
-  System.Classes,
-  System.Types,
-  System.Generics.Collections,
-  Vcl.Graphics,
-  Vcl.Menus,
-  Vcl.ImgList,
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}Generics.Collections{$ELSE}System.Generics.Collections{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   Vcl.Themes,
-  Vcl.GraphUtil,
+  {$IF CompilerVersion < 23}GraphUtil{$ELSE}Vcl.GraphUtil{$IFEND},
   System.UITypes, // some types moved from Vcl.* to System.UITypes
   VirtualTrees.StyleHooks,
   VirtualTrees.Utils,
@@ -225,7 +225,7 @@ type
     procedure HeaderPopupMenuAddHeaderPopupItem(const Sender : TObject; const Column : TColumnIndex; var Cmd : TAddPopupItemType);
     procedure IndexChanged(OldIndex, NewIndex : Integer);
     procedure InitializePositionArray;
-    procedure Notify(Item : TCollectionItem; Action : System.Classes.TCollectionNotification); override;
+    procedure Notify(Item : TCollectionItem; Action : {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}.TCollectionNotification); override;
     procedure ReorderColumns(RTL : Boolean);
     procedure SetHoverIndex(Index : TColumnIndex);
     procedure Update(Item : TCollectionItem); override;
@@ -456,15 +456,15 @@ type
 implementation
 
 uses
-  WinApi.ShlObj,
-  WinApi.ActiveX,
-  WinApi.UxTheme,
+  {$IF CompilerVersion < 23}ShlObj{$ELSE}Winapi.ShlObj{$IFEND},
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}UxTheme{$ELSE}Winapi.UxTheme{$IFEND},
   // D2009 + "-ASystem.Math=Math" alias double-registers Math's overloads here (every Min/Max call E2251);
   // referencing the real unit name avoids it. Measured, cause presumably inline expansion from sibling units.
   {$IF CompilerVersion < 23}Math,{$ELSE}System.Math,{$IFEND}
-  System.SysUtils,
-  System.Generics.Defaults,
-  Vcl.Forms,
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Generics.Defaults{$ELSE}System.Generics.Defaults{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
   VirtualTrees.HeaderPopup,
   VirtualTrees.BaseTree,
   VirtualTrees.BaseAncestorVcl, // to eliminate H2443 about inline expanding
@@ -1825,7 +1825,7 @@ begin
           Result := NewCursor <> Screen.Cursors[crDefault];
           if Result then
           begin
-            WinApi.Windows.SetCursor(NewCursor);
+            {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetCursor(NewCursor);
             Message.Result := 1;
           end;
         end;
@@ -2185,7 +2185,7 @@ type
   //the FPropPath member, which is otherwise not accessible. The reason why this access is needed is that
   //with nested components this member contains unneeded property path information. These information prevent
   //successful load of the stored properties later.
-  //In System.Classes.pas you can see that FPropPath is reset several times to '' to prevent this case for certain properies.
+  //In {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}.pas you can see that FPropPath is reset several times to '' to prevent this case for certain properies.
   //Unfortunately, there is no clean way for us here to do the same.
 {$HINTS off}
   TWriterHack = class(TFiler)
@@ -2209,7 +2209,7 @@ begin
   try
     //If VT is a nested component then this path contains the name of the parent component at this time
     //(otherwise it is already empty). This path is then combined with the property name under which the tree
-    //is defined in the parent component. Unfortunately, the load code in System.Classes.pas does not consider this case
+    //is defined in the parent component. Unfortunately, the load code in {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}.pas does not consider this case
     //is then unable to load this property.
     TWriterHack(Writer).FPropPath := '';
     Writer.WriteCollection(Columns);
@@ -4437,16 +4437,16 @@ begin
     if TreeViewControl.VclStyleEnabled then
     begin
       SetTextColor(DC, ColorToRGB(TreeViewControl.Colors.HeaderFontColor));
-      WinApi.Windows.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
+      {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
     end
     else
     begin
       OffsetRect(Bounds, 1, 1);
       SetTextColor(DC, ColorToRGB(clBtnHighlight));
-      WinApi.Windows.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
+      {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
       OffsetRect(Bounds, - 1, - 1);
       SetTextColor(DC, ColorToRGB(clBtnShadow));
-      WinApi.Windows.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
+      {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
     end
   else
   begin
@@ -4454,7 +4454,7 @@ begin
       SetTextColor(DC, ColorToRGB(TreeViewControl.Colors.HeaderHotColor))
     else
       SetTextColor(DC, ColorToRGB(TreeViewControl.Colors.HeaderFontColor));
-    WinApi.Windows.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawTextW(DC, PWideChar(Caption), Length(Caption), Bounds, DrawFormat);
   end;
 end;
 
@@ -4773,7 +4773,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVirtualTreeColumns.Notify(Item : TCollectionItem; Action : System.Classes.TCollectionNotification);
+procedure TVirtualTreeColumns.Notify(Item : TCollectionItem; Action : {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}.TCollectionNotification);
 var
   I : Integer;
   lRemovedPosition: TColumnPosition;

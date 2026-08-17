@@ -33,15 +33,15 @@ interface
 {$ifend}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  Winapi.UxTheme,
-  System.Classes,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}UxTheme{$ELSE}Winapi.UxTheme{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   System.UITypes,
-  Vcl.Graphics,
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
   Vcl.Themes,
-  Vcl.Forms,
-  Vcl.Controls;
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND};
 
 const
   CM_UPDATE_VCLSTYLE_SCROLLBARS = CM_BASE + 2050;
@@ -139,9 +139,9 @@ function VTStyleServices(AControl: TControl = nil): TCustomStyleServices;
 implementation
 
 uses
-  System.SysUtils,
-  System.Math,
-  System.Types,
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
   VirtualTrees.Header,
   VirtualTrees.Types,
   VirtualTrees.BaseTree;
@@ -818,7 +818,7 @@ begin
     OverrideMax := SF.nMax;
     if 0 < SF.nPage then
       OverrideMax := SF.nMax - Integer(SF.nPage) + 1;
-    ScrollPos := System.Math.EnsureRange(ListPos + (OverrideMax - SF.nMin) * ((Mouse.CursorPos.Y - PrevScrollPos) / (VertTrackRect.Height - VertSliderRect.Height)),
+    ScrollPos := {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND}.EnsureRange(ListPos + (OverrideMax - SF.nMin) * ((Mouse.CursorPos.Y - PrevScrollPos) / (VertTrackRect.Height - VertSliderRect.Height)),
                                          SF.nMin, OverrideMax);
     SF.fMask := SIF_POS;
     SF.nPos := Round(ScrollPos);
@@ -844,7 +844,7 @@ begin
     OverrideMax := SF.nMax;
     if 0 < SF.nPage then
       OverrideMax := SF.nMax - Integer(SF.nPage) + 1;
-    ScrollPos := System.Math.EnsureRange(ListPos + (OverrideMax - SF.nMin) * ((Mouse.CursorPos.X - PrevScrollPos) / (HorzTrackRect.Width - HorzSliderRect.Width)),
+    ScrollPos := {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND}.EnsureRange(ListPos + (OverrideMax - SF.nMin) * ((Mouse.CursorPos.X - PrevScrollPos) / (HorzTrackRect.Width - HorzSliderRect.Width)),
                                          SF.nMin, OverrideMax);
     SF.fMask := SIF_POS;
     SF.nPos := Round(ScrollPos);

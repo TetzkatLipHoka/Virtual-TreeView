@@ -12,14 +12,14 @@ unit VirtualTrees.BaseAncestorVCL;
 
 interface
 uses
-  Winapi.Windows,
-  Winapi.oleacc,
-  Winapi.ActiveX,
-  Winapi.Messages,
-  System.Classes,
-  Vcl.Controls,
-  Vcl.Graphics,
-  Vcl.StdCtrls,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}oleacc{$ELSE}Winapi.oleacc{$IFEND},
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
   VirtualTrees.Types;
 
 type
@@ -65,19 +65,19 @@ type
     function PasteFromClipboard: Boolean; virtual; abstract;
 
     /// <summary>
-    /// Handle less alias for WinApi.Windows.InvalidateRect
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.InvalidateRect
     /// </summary>
     function InvalidateRect(lpRect: PRect; bErase: BOOL): BOOL; inline;
     /// <summary>
-    /// Handle less alias for WinApi.Windows.UpdateWindow
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.UpdateWindow
     /// </summary>
     function UpdateWindow(): BOOL; inline;
     /// <summary>
-    /// Handle less alias for WinApi.Windows.RedrawWindow
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow
     /// </summary>
     function RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL; overload; inline;
     /// <summary>
-    /// Handle less alias for WinApi.Windows.RedrawWindow
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow
     /// </summary>
     function RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL; overload; inline;
 
@@ -87,23 +87,23 @@ type
     function SendWM_SETREDRAW(Updating: Boolean): LRESULT; inline;
 
     /// <summary>
-    /// Handle less alias for WinApi.Windows.ShowScrollBar
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.ShowScrollBar
     /// </summary>
     procedure ShowScrollBar(Bar: Integer; AShow: Boolean);
     /// <summary>
-    /// Handle less alias for WinApi.Windows.SetScrollInfo
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetScrollInfo
     /// </summary>
     function SetScrollInfo(Bar: Integer; const ScrollInfo: TScrollInfo; Redraw: Boolean): TDimension;
     /// <summary>
-    /// Handle less alias for WinApi.Windows.GetScrollInfo
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetScrollInfo
     /// </summary>
     function GetScrollInfo(Bar: Integer; var ScrollInfo: TScrollInfo): Boolean;
     /// <summary>
-    /// Handle less alias for WinApi.Windows.GetScrollPos
+    /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetScrollPos
     /// </summary>
     function GetScrollPos(Bar: Integer): TDimension;
     /// <summary>
-    /// Canvas based without HDC alias for WinApi.Windows.GetTextMetrics
+    /// Canvas based without HDC alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetTextMetrics
     /// </summary>
     function GetTextMetrics(Canvas: TCanvas; var TM: TTextMetric): BOOL; overload; inline;
   public //properties
@@ -115,14 +115,14 @@ type
 implementation
 
 uses
-  System.SyncObjs,
-  System.SysUtils,
-  Vcl.AxCtrls,
-  Vcl.Forms,
+  {$IF CompilerVersion < 23}SyncObjs{$ELSE}System.SyncObjs{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}AxCtrls{$ELSE}Vcl.AxCtrls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
   Vcl.Themes,
-  Winapi.CommCtrl,
-  Winapi.ShlObj,
-  Winapi.UxTheme,
+  {$IF CompilerVersion < 23}CommCtrl{$ELSE}Winapi.CommCtrl{$IFEND},
+  {$IF CompilerVersion < 23}ShlObj{$ELSE}Winapi.ShlObj{$IFEND},
+  {$IF CompilerVersion < 23}UxTheme{$ELSE}Winapi.UxTheme{$IFEND},
   VirtualTrees.DataObject,
   VirtualTrees.Clipboard,
   VirtualTrees.AccessibilityFactory,
@@ -506,21 +506,21 @@ end;
 
 function TVTBaseAncestorVcl.RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
-  Result:= Winapi.Windows.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVTBaseAncestorVcl.RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
-  Result:= Winapi.Windows.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVTBaseAncestorVcl.InvalidateRect(lpRect: PRect; bErase: BOOL): BOOL;
 begin
-  Result:= WinApi.Windows.InvalidateRect(Handle, lpRect, bErase);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.InvalidateRect(Handle, lpRect, bErase);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -535,7 +535,7 @@ end;
 
 function TVTBaseAncestorVcl.UpdateWindow(): BOOL;
 begin
-  Result:= WinApi.Windows.UpdateWindow(Handle);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.UpdateWindow(Handle);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -562,7 +562,7 @@ end;
 
 procedure TVTBaseAncestorVcl.ShowScrollBar(Bar: Integer; AShow: Boolean);
 begin
-  WinApi.Windows.ShowScrollBar(Handle, Bar, AShow);
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.ShowScrollBar(Handle, Bar, AShow);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -576,33 +576,33 @@ end;
 
 function TVTBaseAncestorVcl.SetScrollInfo(Bar: Integer; const ScrollInfo: TScrollInfo; Redraw: Boolean): TDimension;
 begin
-  Result:= WinApi.Windows.SetScrollInfo(Handle, Bar, ScrollInfo, Redraw);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetScrollInfo(Handle, Bar, ScrollInfo, Redraw);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TVTBaseAncestorVcl.SetWindowTheme(const Theme: string);
 begin
-  Winapi.UxTheme.SetWindowTheme(Handle, PWideChar(Theme), nil);
+  {$IF CompilerVersion < 23}UxTheme{$ELSE}Winapi.UxTheme{$IFEND}.SetWindowTheme(Handle, PWideChar(Theme), nil);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVTBaseAncestorVcl.GetScrollInfo(Bar: Integer; var ScrollInfo: TScrollInfo): Boolean;
 begin
-  Result:= WinApi.Windows.GetScrollInfo(Handle, Bar, ScrollInfo);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetScrollInfo(Handle, Bar, ScrollInfo);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVTBaseAncestorVcl.GetScrollPos(Bar: Integer): TDimension;
 begin
-  Result:= WinApi.Windows.GetScrollPos(Handle, Bar);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetScrollPos(Handle, Bar);
 end;
 
 function TVTBaseAncestorVcl.GetTextMetrics(Canvas: TCanvas; var TM: TTextMetric): BOOL;
 begin
-  Result:= WinApi.Windows.GetTextMetrics(Canvas.Handle, TM);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetTextMetrics(Canvas.Handle, TM);
 end;
 
 end.

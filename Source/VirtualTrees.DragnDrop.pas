@@ -3,12 +3,12 @@
 interface
 
 uses
-  WinApi.Windows,
-  WinApi.ActiveX,
-  WinApi.ShlObj,
-  System.Types,
-  Vcl.Graphics,
-  Vcl.Controls,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}ShlObj{$ELSE}Winapi.ShlObj{$IFEND},
+  {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   VirtualTrees.Types,
   VirtualTrees.BaseTree,
   VirtualTrees.Header;

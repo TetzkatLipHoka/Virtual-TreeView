@@ -27,11 +27,11 @@ interface
 {$HPPEMIT '#pragma link "VirtualTrees.Accessibility"'}
 
 uses
-  Winapi.Windows, Winapi.Messages, Winapi.ActiveX, Winapi.CommCtrl,
-  Winapi.UxTheme, Winapi.ShlObj,
-  System.SysUtils, System.Classes, System.Types,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.ImgList, Vcl.StdCtrls,
-  Vcl.Menus, Vcl.Printers, Vcl.Themes,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, Winapi.Messages, Winapi.ActiveX, Winapi.CommCtrl,
+  Winapi.UxTheme, {$IF CompilerVersion < 23}ShlObj{$ELSE}Winapi.ShlObj{$IFEND},
+  System.SysUtils, {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.Types,
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}, Vcl.Controls, Vcl.Forms, Vcl.ImgList, Vcl.StdCtrls,
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND}, Vcl.Printers, Vcl.Themes,
   System.UITypes, // some types moved from Vcl.* to System.UITypes
   VirtualTrees.Types,
   VirtualTrees.Colors,
@@ -52,7 +52,7 @@ type
     TCanvas                = FMX.Graphics.TCanvas;
   {$ELSE}
     TVTBaseAncestor        = TVTBaseAncestorVcl;
-    TCanvas                = Vcl.Graphics.TCanvas;
+    TCanvas                = {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}.TCanvas;
     TFormatEtcArray        = VirtualTrees.Types.TFormatEtcArray;											  
   {$ENDIF}
 
@@ -1809,16 +1809,16 @@ function TreeFromNode(Node: PVirtualNode): TBaseVirtualTree;
 implementation
 
 uses
-  Winapi.MMSystem,             // for animation timer (does not include further resources)
-  System.Math,
-  System.SyncObjs,
-  System.StrUtils,
-  Vcl.Clipbrd,
-  Vcl.Consts,
-  Vcl.ExtCtrls,
-  Vcl.AxCtrls,                 // TOLEStream
-  Vcl.StdActns,                // for standard action support
-  Vcl.GraphUtil,               // accessibility helper class
+  {$IF CompilerVersion < 23}MMSystem{$ELSE}Winapi.MMSystem{$IFEND},             // for animation timer (does not include further resources)
+  {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND},
+  {$IF CompilerVersion < 23}SyncObjs{$ELSE}System.SyncObjs{$IFEND},
+  {$IF CompilerVersion < 23}StrUtils{$ELSE}System.StrUtils{$IFEND},
+  {$IF CompilerVersion < 23}Clipbrd{$ELSE}Vcl.Clipbrd{$IFEND},
+  {$IF CompilerVersion < 23}Consts{$ELSE}Vcl.Consts{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
+  {$IF CompilerVersion < 23}AxCtrls{$ELSE}Vcl.AxCtrls{$IFEND},                 // TOLEStream
+  {$IF CompilerVersion < 23}StdActns{$ELSE}Vcl.StdActns{$IFEND},                // for standard action support
+  {$IF CompilerVersion < 23}GraphUtil{$ELSE}Vcl.GraphUtil{$IFEND},               // accessibility helper class
   VirtualTrees.StyleHooks,
   VirtualTrees.WorkerThread,
   VirtualTrees.ClipBoard,
@@ -8150,7 +8150,7 @@ begin
           end
           else
             NewCursor := Cursor;
-          Winapi.Windows.SetCursor(Screen.Cursors[NewCursor]);
+          {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetCursor(Screen.Cursors[NewCursor]);
           Message.Result := 1;
         end
         else
@@ -8495,7 +8495,7 @@ begin
   begin
     DeleteObject(FPanningCursor);
     FPanningCursor := NewCursorHandle;
-    Winapi.Windows.SetCursor(FPanningCursor);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetCursor(FPanningCursor);
   end
   else
     DeleteObject(NewCursorHandle);
@@ -11847,7 +11847,7 @@ var
 begin
   R := Rect(Min(Left, Right), Top, Max(Left, Right) + 1, Top + 1);
   PaintInfo.Canvas.Brush.Color := FColors.BackGroundColor;
-  Winapi.Windows.FillRect(PaintInfo.Canvas.Handle, R, DottedBrushTreeLines.Handle);
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.FillRect(PaintInfo.Canvas.Handle, R, DottedBrushTreeLines.Handle);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -11859,7 +11859,7 @@ var
 begin
   R := Rect(Left, Min(Top, Bottom), Left + 1, Max(Top, Bottom) + 1);
   PaintInfo.Canvas.Brush.Color := FColors.BackGroundColor;
-  Winapi.Windows.FillRect(PaintInfo.Canvas.Handle, R, DottedBrushTreeLines.Handle);
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.FillRect(PaintInfo.Canvas.Handle, R, DottedBrushTreeLines.Handle);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -12824,10 +12824,10 @@ begin
     GetHitTestInfoAt(Message.XPos, Message.YPos, True, HitInfo, KeysToShiftState(Message.Keys));
   end;//if tsEditing
 
-  // Focus change. Don't use the SetFocus method as this does not work for MDI Winapi.Windows.
+  // Focus change. Don't use the SetFocus method as this does not work for MDI {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.
   if not Focused and CanFocus then
   begin
-    Winapi.Windows.SetFocus(Handle);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetFocus(Handle);
     // Repeat the hit test as an OnExit event might got triggered that could modify the tree.
     GetHitTestInfoAt(Message.XPos, Message.YPos, True, HitInfo, KeysToShiftState(Message.Keys));
     FLastHitInfo := HitInfo; // See issue #1297
@@ -14194,7 +14194,7 @@ begin
 
     // Erase parts not drawn.
     Brush.Color := FColors.BorderColor;
-    Winapi.Windows.FillRect(DC, RW, Brush.Handle);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.FillRect(DC, RW, Brush.Handle);
   end;
 end;
 
@@ -14855,7 +14855,7 @@ begin
             DrawBackground(TREIS_HOTSELECTED);
         end
         else
-          Winapi.Windows.DrawFocusRect(Handle, FocusRect);
+          {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.DrawFocusRect(Handle, FocusRect);
         SetTextColor(Handle, TextColorBackup);
         SetBkColor(Handle, BackColorBackup);
       end;
@@ -15344,7 +15344,7 @@ begin
       FPanningWindow.Release;
     DeleteObject(FPanningCursor);
     FPanningCursor := 0;
-    Winapi.Windows.SetCursor(Screen.Cursors[Cursor]);
+    {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.SetCursor(Screen.Cursors[Cursor]);
   end;
 end;
 
@@ -17668,7 +17668,7 @@ begin
 
       // Increase cell height (up to MaxUnclippedHeight determined above) if text does not fit.
       GetTextMetrics(Self.Canvas, TM);
-      ExtraVerticalMargin := System.Math.Min(TM.tmHeight, MaxUnclippedHeight) - (Result.Bottom - Result.Top);
+      ExtraVerticalMargin := {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND}.Min(TM.tmHeight, MaxUnclippedHeight) - (Result.Bottom - Result.Top);
       if ExtraVerticalMargin > 0 then
         InflateRect(Result, 0, Divide(ExtraVerticalMargin + 1, 2));
 
