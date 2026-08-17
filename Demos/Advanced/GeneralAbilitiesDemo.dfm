@@ -76,8 +76,6 @@ object GeneralForm: TGeneralForm
     OnKeyDown = VST2KeyDown
     OnNewText = VST2NewText
     OnStateChange = VST2StateChange
-    Touch.InteractiveGestures = [igPan, igPressAndTap]
-    Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
     Columns = <
       item
         Hint = 'Column which initially contains the tree.'

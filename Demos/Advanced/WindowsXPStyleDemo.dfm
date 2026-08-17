@@ -79,8 +79,6 @@ object WindowsXPForm: TWindowsXPForm
       OnInitChildren = XPTreeInitChildren
       OnInitNode = XPTreeInitNode
       OnStateChange = XPTreeStateChange
-      Touch.InteractiveGestures = [igPan, igPressAndTap]
-      Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
       Columns = <
         item
           Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]

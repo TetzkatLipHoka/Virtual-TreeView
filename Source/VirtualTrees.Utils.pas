@@ -1022,8 +1022,11 @@ end;
 procedure EMMS;
 
 // Reset MMX state to use the FPU for other tasks again.
+// CPUX86 exists since XE2 only; older Win32 compilers define just CPU386. With the wrong
+// symbol this becomes an empty procedure, the MMX-tagged FPU stack is never cleared and the
+// next x87 instruction dies with FLT_STACK_CHECK ("Invalid floating point operation").
 
-{$ifdef CPUX86}
+{$if defined(CPUX86) or defined(CPU386)}
 asm
         DB      $0F, $77               /// EMMS
 end;
@@ -1032,7 +1035,7 @@ inline;
 begin
 
 end;
-{$endif}
+{$ifend}
 
 //----------------------------------------------------------------------------------------------------------------------
 

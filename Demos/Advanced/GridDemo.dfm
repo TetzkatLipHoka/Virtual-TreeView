@@ -4,7 +4,6 @@ object GridForm: TGridForm
   ClientHeight = 474
   ClientWidth = 745
   Color = clBtnFace
-  CustomTitleBar.CaptionAlignment = taCenter
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -110,8 +109,6 @@ object GridForm: TGridForm
     OnPaintText = VST5PaintText
     OnInitNode = VST5InitNode
     OnStateChange = VST5StateChange
-    Touch.InteractiveGestures = [igPan, igPressAndTap]
-    Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
     OnColumnHeaderSpanning = VST5ColumnHeaderSpanning
     Columns = <
       item

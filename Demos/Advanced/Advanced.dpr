@@ -3,6 +3,15 @@ program Advanced;
 {$R 'ExtraRes.res' 'ExtraRes.rc'}
 
 uses
+  {$IFDEF FPUTRAP}
+  FpuTrap,
+  {$ENDIF}
+  {$IFDEF MADEXCEPT}
+  madExcept,
+  madLinkDisAsm,
+  madListHardware,
+  madListProcesses,
+  {$ENDIF}
   Forms,
   SpeedDemo in 'SpeedDemo.pas' {SpeedForm},
   DrawTreeDemo in 'DrawTreeDemo.pas' {DrawTreeForm},
