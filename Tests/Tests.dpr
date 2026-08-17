@@ -18,6 +18,9 @@ uses
   VTOnDrawTextTests in 'VTOnDrawTextTests.pas',
   VTCellSelectionTests in 'VTCellSelectionTests.pas',
   VTSelectedCountIssue1197Tests in 'VTSelectedCountIssue1197Tests.pas',
+=======
+  VTPaintToIssue632Tests in 'VTPaintToIssue632Tests.pas',
+>>>>>>> 7d967a4 (Fix #632: header is missing from PaintTo and drawn for client-only WM_PRINT)
   VirtualTrees.MouseUtils in 'VirtualTrees.MouseUtils.pas',
   VTCellSelectionTests.VisibilityForm in 'VTCellSelectionTests.VisibilityForm.pas' {VisibilityForm},
   VTCellSelectionTests.VTSelectionTestForm in 'VTCellSelectionTests.VTSelectionTestForm.pas' {SelectionTestForm};
