@@ -30,7 +30,7 @@ uses
 {$R *.RES}
 
 begin
-  ReportMemoryLeaksOnShutdown := True;
+  {$IF CompilerVersion >= 18}ReportMemoryLeaksOnShutdown := True;{$IFEND}
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TStateForm, StateForm);

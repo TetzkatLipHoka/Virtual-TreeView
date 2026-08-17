@@ -10,9 +10,18 @@ unit VisibilityDemo;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, VirtualTrees, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.ImgList, VirtualTrees.Types, VirtualTrees.BaseAncestorVCL,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND}, VirtualTrees,
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND}, VirtualTrees.Types, VirtualTrees.BaseAncestorVCL,
   VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 type
@@ -34,7 +43,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
     procedure VST2GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
     procedure VST3Scroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: TDimension);
     procedure VST2InitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
     procedure VST2Scroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: TDimension);
@@ -45,7 +54,7 @@ type
       var Accept: Boolean);
     procedure Splitter2Paint(Sender: TObject);
     procedure VST1GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
     procedure FormShow(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure VST1Change(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -176,7 +185,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TVisibilityForm.VST2GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: string);
+  TextType: TVSTTextType; var CellText: UnicodeString);
 
 var
   Data: PLinkData;

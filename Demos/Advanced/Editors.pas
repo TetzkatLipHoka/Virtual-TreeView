@@ -6,9 +6,21 @@ unit Editors;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtDlgs, Vcl.ImgList,
-  Vcl.Buttons, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Mask, VirtualTrees,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ExtDlgs{$ELSE}Vcl.ExtDlgs{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}Buttons{$ELSE}Vcl.Buttons{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
+  {$IF CompilerVersion < 23}Mask{$ELSE}Vcl.Mask{$IFEND}, VirtualTrees,
   VirtualTrees.EditLink, VirtualTrees.Types;
 
 type

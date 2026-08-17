@@ -9,9 +9,17 @@ unit PropertiesDemo;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, VirtualTrees,
-  Vcl.ImgList, Vcl.ExtCtrls, System.UITypes, VirtualTrees.BaseTree,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND}, VirtualTrees,
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND}, System.UITypes, VirtualTrees.BaseTree,
   System.ImageList, VirtualTrees.Types, VirtualTrees.BaseAncestorVCL,
   VirtualTrees.AncestorVCL;
 
@@ -35,7 +43,7 @@ type
     procedure VST3GetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
       var Ghosted: Boolean; var Index: TImageIndex);
     procedure VST3GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
     procedure VST3InitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
     procedure VST3InitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
       var InitialStates: TVirtualNodeInitStates);
@@ -119,7 +127,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TPropertiesForm.VST3GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: string);
+  TextType: TVSTTextType; var CellText: UnicodeString);
 
 var
   Data: PPropertyData;

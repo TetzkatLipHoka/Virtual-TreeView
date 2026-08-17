@@ -8,9 +8,19 @@ unit SpeedDemo;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, VirtualTrees,
-  VirtualTrees.Types, Vcl.ExtDlgs, Vcl.ComCtrls, Vcl.Imaging.jpeg, Vcl.Menus,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND}, VirtualTrees,
+  VirtualTrees.Types, {$IF CompilerVersion < 23}ExtDlgs{$ELSE}Vcl.ExtDlgs{$IFEND},
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
+  {$IF CompilerVersion < 23}JPEG{$ELSE}Vcl.Imaging.jpeg{$IFEND},
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND},
   VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 type
@@ -38,7 +48,7 @@ type
     procedure ClearButtonClick(Sender: TObject);
     procedure AddButtonClick(Sender: TObject);
     procedure VST1GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
     procedure VST1Change(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VST1StructureChange(Sender: TBaseVirtualTree; Node: PVirtualNode; Reason: TChangeReason);
     procedure DeleteSelectionButtonClick(Sender: TObject);
@@ -135,15 +145,15 @@ procedure TSpeedForm.SBCheckBoxClick(Sender: TObject);
 
 begin
   if SBCheckBox.Checked then
-    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions + [TVTPaintOption.toShowBackground]
+    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions + [toShowBackground]
   else
-    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions - [TVTPaintOption.toShowBackground];
+    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions - [toShowBackground];
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TSpeedForm.VST1GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: string);
+  var CellText: UnicodeString);
 
 begin
   CellText := Format('Level %d, Index %d', [Sender.GetNodeLevel(Node), Node.Index]);

@@ -133,6 +133,17 @@ const
   USER_DEFAULT_SCREEN_DPI = 96; // not in Windows.pas before Delphi 10
 {$IFEND}
 
+{$IF CompilerVersion < 20}
+// Delphi 7's Windows.pas declares NotifyWinEvent without the stdcall directive - it is the
+// only user32 import in that unit missing it, so the compiler uses the register convention
+// while user32.dll expects stdcall with four arguments. user32 then pops 16 bytes the caller
+// never pushed, ESP is left 12 bytes off, and the calling routine returns into stack garbage
+// (AV at a stack address). Corrected by Borland in Delphi 2009. This local declaration
+// shadows the broken one from Windows.pas.
+procedure NotifyWinEvent(event: DWord; hwnd: HWND; idObject, idChild: Longint); stdcall;
+  external 'user32.dll' name 'NotifyWinEvent';
+{$IFEND}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 const

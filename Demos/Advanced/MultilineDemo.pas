@@ -21,7 +21,7 @@ type
       var InitialStates: TVirtualNodeInitStates);
     procedure FormCreate(Sender: TObject);
     procedure MLTreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-      TextType: TVSTTextType; var CellText: string);
+      TextType: TVSTTextType; var CellText: UnicodeString);
     procedure MLTreePaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType);
     procedure MLTreeEditing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
@@ -72,7 +72,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TNodeForm.MLTreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: string);
+  TextType: TVSTTextType; var CellText: UnicodeString);
 
 // Returns the text for the given node. This text was loaded at form creation time from the application resource.
 
@@ -147,9 +147,9 @@ procedure TNodeForm.AutoAdjustCheckBoxClick(Sender: TObject);
 
 begin
   if AutoAdjustCheckBox.Checked then
-    MLTree.TreeOptions.MiscOptions := MLTree.TreeOptions.MiscOptions + [TVTMiscOption.toVariablenodeHeight]
+    MLTree.TreeOptions.MiscOptions := MLTree.TreeOptions.MiscOptions + [toVariablenodeHeight]
   else
-    MLTree.TreeOptions.MiscOptions := MLTree.TreeOptions.MiscOptions - [TVTMiscOption.toVariablenodeHeight];
+    MLTree.TreeOptions.MiscOptions := MLTree.TreeOptions.MiscOptions - [toVariablenodeHeight];
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

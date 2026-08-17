@@ -24,11 +24,18 @@ unit DrawTreeDemo;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  VirtualTrees, Vcl.StdCtrls,
-  {$ifdef GraphicEx} GraphicEx, {$else} Vcl.Imaging.JPEG, {$endif}
-  Vcl.ImgList, Vcl.ComCtrls, System.UITypes, VirtualTrees.DrawTree,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  VirtualTrees, {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$ifdef GraphicEx} GraphicEx, {$else} {$IF CompilerVersion < 23}JPEG{$ELSE}Vcl.Imaging.JPEG{$IFEND}, {$endif}
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND}, System.UITypes, VirtualTrees.DrawTree,
   System.ImageList, VirtualTrees.Types, VirtualTrees.BaseAncestorVCL,
   VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 

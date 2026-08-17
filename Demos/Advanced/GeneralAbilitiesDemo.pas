@@ -1,4 +1,4 @@
-﻿unit GeneralAbilitiesDemo;
+unit GeneralAbilitiesDemo;
 
 // Virtual Treeview sample form demonstrating following features:
 //   - General use and feel of TVirtualStringTree.
@@ -25,9 +25,22 @@ interface
 {$ifend}
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, VirtualTrees,
-  Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ImgList, Vcl.Menus, Vcl.StdActns, Vcl.ActnList,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$IF CompilerVersion < 23}Buttons{$ELSE}Vcl.Buttons{$IFEND}, VirtualTrees,
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND},
+  {$IF CompilerVersion < 23}StdActns{$ELSE}Vcl.StdActns{$IFEND},
+  {$IF CompilerVersion < 23}ActnList{$ELSE}Vcl.ActnList{$IFEND},
   VirtualTrees.HeaderPopup, System.UITypes, System.ImageList,
   VirtualTrees.BaseTree, VirtualTrees.Types, VirtualTrees.BaseAncestorVCL,
   VirtualTrees.AncestorVCL;
@@ -98,7 +111,14 @@ implementation
 uses
   ShellAPI, Main, States;
 
+// Eine DFM kennt keine {$IF}-Gates, dieses Formular benutzt aber Properties, die es
+// auf D7 noch nicht gab (Margins/AlignWithMargins ab D2006, TPanel.BevelEdges spaeter).
+// Deshalb fuer D7 eine generierte Variante, siehe build\make-d7-dfm.sh.
+{$IF CompilerVersion < 20}
+{$R GeneralAbilitiesDemo.D7.dfm}
+{$ELSE}
 {$R *.DFM}
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -201,7 +221,7 @@ begin
         E.CellText := Data.Caption;
         E.StaticText := Data.StaticText;
         if Sender.GetNodeLevel(E.Node) > 0 then
-          E.StaticTextAlignment := TAlignment.taRightJustify;
+          E.StaticTextAlignment := taRightJustify;
       end;
     1,2:
       E.CellText := Data.ForeignText;
@@ -261,7 +281,7 @@ begin
       4:
         begin
           ForeignText := WideChar($20AC);
-          ForeignText := 'nichts ist unmöglich ' + ForeignText;
+          ForeignText := UnicodeString('nichts ist unm') + WideChar($00F6) + 'glich ' + ForeignText;
         end;
       5:
         begin
@@ -405,12 +425,12 @@ begin
   with Sender as TRadioGroup do
     if ItemIndex = 0 then
     begin
-      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions + [TVTPaintOption.toShowTreeLines];
+      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions + [toShowTreeLines];
       VST2.ButtonStyle := bsRectangle;
     end
     else
     begin
-      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions - [TVTPaintOption.toShowTreeLines];
+      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions - [toShowTreeLines];
       VST2.ButtonStyle := bsTriangle;
     end;
 end;
@@ -448,11 +468,11 @@ begin
   with VST2.TreeOptions do
     if ThemeRadioGroup.ItemIndex = 0 then
     begin
-      PaintOptions := PaintOptions + [TVTPaintOption.toThemeAware];
+      PaintOptions := PaintOptions + [toThemeAware];
       VST2.CheckImageKind := ckSystemDefault;
     end
     else
-      PaintOptions := PaintOptions - [TVTPaintOption.toThemeAware];
+      PaintOptions := PaintOptions - [toThemeAware];
 
   RadioGroup1.Enabled := ThemeRadioGroup.ItemIndex = 1;
   RadioGroup2.Enabled := ThemeRadioGroup.ItemIndex = 1;
@@ -472,8 +492,62 @@ const
     '<body>'#13#10;
 
 var
-  lText: String;
   lTargetName: string;
+
+{$IF CompilerVersion < 20}
+  // D7 has no TEncoding/TStreamWriter: dump the generated text as raw ANSI bytes instead.
+  procedure SaveBytes(const S: AnsiString);
+  var
+    lStream: TFileStream;
+  begin
+    lStream := TFileStream.Create(lTargetName, fmCreate);
+    try
+      if Length(S) > 0 then
+        lStream.WriteBuffer(S[1], Length(S));
+    finally
+      lStream.Free;
+    end;
+  end;
+
+begin
+  with SaveDialog do
+  begin
+    if Execute then
+    begin
+      lTargetName := FileName;
+      case FilterIndex of
+      1: // HTML
+        begin
+          if Pos('.', lTargetName) = 0 then
+            lTargetName := lTargetName + '.html';
+          SaveBytes(AnsiString(HTMLHead + VST2.ContentToHTML(tstVisible) + '</body></html>'));
+        end;//HTML
+      2: // Unicode UTF-16 text file (D7: saved as ANSI, no wide encoding support)
+        begin
+          lTargetName := ChangeFileExt(lTargetName, '.uni');
+          SaveBytes(AnsiString(VST2.ContentToText(tstVisible, #9)));
+        end;
+      3: // Rich text file
+        begin
+          lTargetName := ChangeFileExt(lTargetName, '.rtf');
+          SaveBytes(AnsiString(VST2.ContentToRTF(tstVisible)));
+        end;
+      4: // Comma separated values ANSI text file
+        begin
+          lTargetName := ChangeFileExt(lTargetName, '.csv');
+          SaveBytes(AnsiString(VST2.ContentToText(tstVisible, ListSeparator)));
+        end;
+      else
+        // Plain text file
+        lTargetName := ChangeFileExt(lTargetName, '.txt');
+        SaveBytes(AnsiString(VST2.ContentToText(tstVisible, #9)));
+      end;//case
+    end;//if
+  end;//With
+end;
+{$ELSE}
+var
+  lText: String;
 
   procedure Save(pEconding: TEncoding);
   begin
@@ -531,6 +605,7 @@ begin
     end;//if
   end;//With
 end;
+{$IFEND}
 
 //----------------------------------------------------------------------------------------------------------------------
 

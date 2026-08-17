@@ -10,9 +10,17 @@ unit GridDemo;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, VirtualTrees,
-  Vcl.ImgList, Vcl.Menus, System.ImageList, VirtualTrees.BaseTree, VirtualTrees.Types,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND}, VirtualTrees,
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND}, System.ImageList, VirtualTrees.BaseTree, VirtualTrees.Types,
   VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL;
 
 type
@@ -35,7 +43,7 @@ type
     procedure VST5FocusChanging(Sender: TBaseVirtualTree; OldNode, NewNode: PVirtualNode; OldColumn,
       NewColumn: TColumnIndex; var Allowed: Boolean);
     procedure VST5GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
     procedure VST5InitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
       var InitialStates: TVirtualNodeInitStates);
     procedure VST5PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode;
@@ -144,7 +152,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TGridForm.VST5GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+procedure TGridForm.VST5GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: UnicodeString);
 begin
   if not AutoSpanCheckBox.Checked then
   begin
@@ -156,7 +164,7 @@ begin
   end
   else
   begin
-    VST5.Header.Columns[0].Options := VST5.Header.Columns[1].Options - [TVTColumnOption.coVisible]; //test:
+    VST5.Header.Columns[0].Options := VST5.Header.Columns[1].Options - [coVisible]; //test:
     //No text is shown for column 3 in addition to column 0 as in original code
     if (Column > 0) and (Column <> 3) then
       CellText := TGridData(PPointer(Sender.GetNodeData(Node))^).Value[Column - 1]
@@ -237,9 +245,9 @@ procedure TGridForm.GridLineCheckBoxClick(Sender: TObject);
 
 begin
   if GridLineCheckBox.Checked then
-    VST5.TreeOptions.PaintOptions := VST5.TreeOptions.PaintOptions + [TVTPaintOption.toShowHorzGridLines, TVTPaintOption.toShowVertGridLines]
+    VST5.TreeOptions.PaintOptions := VST5.TreeOptions.PaintOptions + [toShowHorzGridLines, toShowVertGridLines]
   else
-    VST5.TreeOptions.PaintOptions := VST5.TreeOptions.PaintOptions - [TVTPaintOption.toShowHorzGridLines, TVTPaintOption.toShowVertGridLines];
+    VST5.TreeOptions.PaintOptions := VST5.TreeOptions.PaintOptions - [toShowHorzGridLines, toShowVertGridLines];
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -252,9 +260,9 @@ begin
     with TargetCanvas do
     begin
       // Decorate the fixed indicator column by filling it with an edge similar to that of TCustomGrid.
-      if TVTPaintOption.toShowVertGridLines in VST5.TreeOptions.PaintOptions then
+      if toShowVertGridLines in VST5.TreeOptions.PaintOptions then
         Inc(CellRect.Right);
-      if TVTPaintOption.toShowHorzGridLines in VST5.TreeOptions.PaintOptions then
+      if toShowHorzGridLines in VST5.TreeOptions.PaintOptions then
         Inc(CellRect.Bottom);
       DrawEdge(Handle, CellRect, BDR_RAISEDINNER, BF_RECT or BF_MIDDLE);
       if Node = Sender.FocusedNode then
@@ -276,9 +284,9 @@ end;
 procedure TGridForm.AutoSpanCheckBoxClick(Sender: TObject);
 begin
   if AutoSpanCheckBox.Checked then
-    VST5.TreeOptions.AutoOptions := VST5.TreeOptions.AutoOptions + [TVTAutoOption.toAutoSpanColumns]
+    VST5.TreeOptions.AutoOptions := VST5.TreeOptions.AutoOptions + [toAutoSpanColumns]
   else
-    VST5.TreeOptions.AutoOptions := VST5.TreeOptions.AutoOptions - [TVTAutoOption.toAutoSpanColumns];
+    VST5.TreeOptions.AutoOptions := VST5.TreeOptions.AutoOptions - [toAutoSpanColumns];
 end;
 
 end.

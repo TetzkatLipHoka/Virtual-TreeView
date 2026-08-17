@@ -1,4 +1,4 @@
-﻿unit HeaderCustomDrawDemo;
+unit HeaderCustomDrawDemo;
 
 // Virtual Treeview sample form demonstrating following features:
 //   - Advanced header custom draw.
@@ -7,9 +7,18 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.ImgList, VirtualTrees, Vcl.StdCtrls, Vcl.ExtCtrls, VirtualTrees.BaseTree,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Variants{$ELSE}System.Variants{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND}, VirtualTrees,
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND}, VirtualTrees.BaseTree,
   System.ImageList, VirtualTrees.Types, VirtualTrees.BaseAncestorVCL,
   VirtualTrees.AncestorVCL;
 
@@ -33,7 +42,7 @@ type
     procedure HeaderCustomDrawTreeStateChange(Sender: TBaseVirtualTree; Enter, Leave: TVirtualTreeStates);
     procedure HeaderCustomDrawTreeGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
   private
     FBackBitmap1,
     FBackBitmap2,
@@ -154,7 +163,10 @@ begin
                 TargetCanvas.Font.Size := 60;
                 if IsHoverIndex then
                   TargetCanvas.Font.Color := $80FF;
-                S := 'û';
+                // Webdings $FB = Weltkarte. Frueher ein direktes Zeichen im Quelltext -
+                // als Nicht-ASCII-Byte ueberlebt das keinen Werkzeugdurchlauf (D7 braucht
+                // die Datei ohne BOM, also ANSI; jedes UTF-8-Werkzeug zerstoert das Byte).
+                S := Chr($FB);
                 Size := TargetCanvas.TextExtent(S);
                 SetBkMode(TargetCanvas.Handle, TRANSPARENT);
                 TargetCanvas.TextOut(PaintRectangle.Left + 10, Paintrectangle.Bottom - Size.cy, S);
@@ -308,7 +320,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure THeaderOwnerDrawForm.HeaderCustomDrawTreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-  Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+  Column: TColumnIndex; TextType: TVSTTextType; var CellText: UnicodeString);
 
 begin
   CellText := 'Some simple text.';

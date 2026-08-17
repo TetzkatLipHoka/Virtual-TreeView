@@ -15,9 +15,21 @@ interface
 {$warn UNSAFE_CODE off}
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons,
-  VirtualTrees, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ImgList, Vcl.Menus, System.UITypes,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$IF CompilerVersion < 23}Buttons{$ELSE}Vcl.Buttons{$IFEND},
+  VirtualTrees,
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND}, System.UITypes,
   VirtualTrees.Types, System.ImageList, VirtualTrees.BaseAncestorVCL,
   VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
@@ -49,7 +61,7 @@ type
     procedure AlignTreeGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
       var Ghosted: Boolean; var Index: TImageIndex);
     procedure AlignTreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: string);
+      var CellText: UnicodeString);
     procedure AlignTreePaintText(Sender: TBaseVirtualTree; const Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       TextType: TVSTTextType);
     procedure AlignTreeGetNodeDataSize(Sender: TBaseVirtualTree; var NodeDataSize: Integer);
@@ -172,7 +184,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TAlignForm.AlignTreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: string);
+  TextType: TVSTTextType; var CellText: UnicodeString);
 
 var
   Data: PAlignData;
@@ -257,7 +269,7 @@ begin
       end;
     end;
   end;
-  Node.CheckType := TCheckType.ctTriStateCheckBox;
+  Node.CheckType := ctTriStateCheckBox;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -356,21 +368,21 @@ begin
 
     // Button layout
     LayoutCombo.ItemIndex := Ord(Columns[0].Layout);
-    if not (TVTHeaderOption.hoShowImages in Options) then
+    if not (hoShowImages in Options) then
       Height := 24
     else
-      if Columns[0].Layout in [TVTHeaderColumnLayout.blGlyphTop, TVTHeaderColumnLayout.blGlyphBottom] then
+      if Columns[0].Layout in [blGlyphTop, blGlyphBottom] then
         Height := 64
       else
         Height := 40;
 
     // Options
-    ShowGlyphsOptionBox.Checked := TVTHeaderOption.hoShowImages in Options;
-    HotTrackOptionBox.Checked := TVTHeaderOption.hoHotTrack in Options;
+    ShowGlyphsOptionBox.Checked := hoShowImages in Options;
+    HotTrackOptionBox.Checked := hoHotTrack in Options;
     ShowTextOptionBox.Checked := True;
     ChangeHeaderText;
-    VisibleOptionBox.Checked := TVTHeaderOption.hoVisible in Options;
-    EnabledOptionBox.Checked := TVTColumnOption.coEnabled in Columns[0].Options;
+    VisibleOptionBox.Checked := hoVisible in Options;
+    EnabledOptionBox.Checked := coEnabled in Columns[0].Options;
   end;
 end;
 
@@ -531,35 +543,35 @@ begin
       0:
         if Checked then
         begin
-          Options := Options + [TVTHeaderOption.hoShowImages];
-          if Columns[0].Layout in [TVTHeaderColumnLayout.blGlyphTop, TVTHeaderColumnLayout.blGlyphBottom] then
+          Options := Options + [hoShowImages];
+          if Columns[0].Layout in [blGlyphTop, blGlyphBottom] then
             Height := 64
           else
             Height := 40;
         end
         else
         begin
-          Options := Options - [TVTHeaderOption.hoShowImages];
+          Options := Options - [hoShowImages];
           Height := 24;
         end;
       1:
         if Checked then
-          Options := Options + [TVTHeaderOption.hoHotTrack]
+          Options := Options + [hoHotTrack]
         else
-          Options := Options - [TVTHeaderOption.hoHotTrack];
+          Options := Options - [hoHotTrack];
       2:
         ChangeHeaderText;
       3:
         if Checked then
-          Options := Options + [TVTHeaderOption.hoVisible]
+          Options := Options + [hoVisible]
         else
-          Options := Options - [TVTHeaderOption.hoVisible];
+          Options := Options - [hoVisible];
       4:
         for I := 0 to Columns.Count - 1 do
           if Checked then
-            Columns[I].Options := Columns[I].Options + [TVTColumnOption.coEnabled]
+            Columns[I].Options := Columns[I].Options + [coEnabled]
           else
-            Columns[I].Options := Columns[I].Options - [TVTColumnOption.coEnabled];
+            Columns[I].Options := Columns[I].Options - [coEnabled];
     end;
 end;
 
@@ -576,10 +588,10 @@ begin
     for I := 0 to Columns.Count - 1 do
       Columns[I].Layout := TVTHeaderColumnLayout(ItemIndex);
 
-    if not (TVTHeaderOption.hoShowImages in Options) then
+    if not (hoShowImages in Options) then
       Height := 24
     else
-      if Columns[0].Layout in [TVTHeaderColumnLayout.blGlyphTop, TVTHeaderColumnLayout.blGlyphBottom] then
+      if Columns[0].Layout in [blGlyphTop, blGlyphBottom] then
         Height := 64
       else
         Height := 40;

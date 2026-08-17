@@ -12,10 +12,22 @@ interface
 {$warn UNSAFE_CODE off}
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.Buttons,
-  Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.ImgList, Vcl.ActnList,
-  Vcl.StdActns, VirtualTrees;
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ToolWin{$ELSE}Vcl.ToolWin{$IFEND},
+  {$IF CompilerVersion < 23}Buttons{$ELSE}Vcl.Buttons{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
+  {$IF CompilerVersion < 23}ActnList{$ELSE}Vcl.ActnList{$IFEND},
+  {$IF CompilerVersion < 23}StdActns{$ELSE}Vcl.StdActns{$IFEND}, VirtualTrees, VirtualTrees.Types;
 
 type
   TMainForm = class(TForm)
@@ -139,7 +151,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   // Show hints 10 seconds.
   Application.HintHidePause := 10000;
-  System.ReportMemoryLeaksOnShutdown:= true;
+  {$IF CompilerVersion >= 18}System.ReportMemoryLeaksOnShutdown := true;{$IFEND}
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

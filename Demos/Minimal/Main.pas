@@ -6,8 +6,17 @@ unit Main;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees, Vcl.StdCtrls, Vcl.ExtCtrls,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND},
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
+  {$IF CompilerVersion < 23}Dialogs{$ELSE}Vcl.Dialogs{$IFEND},
+  VirtualTrees, VirtualTrees.Types,
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND},
+  {$IF CompilerVersion < 23}ExtCtrls{$ELSE}Vcl.ExtCtrls{$IFEND},
   VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 type
@@ -27,7 +36,7 @@ type
       var InitialStates: TVirtualNodeInitStates);
     procedure CloseButtonClick(Sender: TObject);
     procedure VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+      Column: TColumnIndex; TextType: TVSTTextType; var CellText: UnicodeString);
   end;
 
 var
@@ -37,7 +46,13 @@ var
 
 implementation
 
+// Siehe GeneralAbilitiesDemo: die VST hier benutzt AlignWithMargins/Margins (ab D2006),
+// fuer D7 deshalb eine generierte DFM-Variante (build\make-d7-dfm.sh).
+{$IF CompilerVersion < 20}
+{$R Main.D7.dfm}
+{$ELSE}
 {$R *.DFM}
+{$IFEND}
 
 type
   // This is a very simple record we use to store data in the nodes.
@@ -116,7 +131,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TMainForm.VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-  Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+  Column: TColumnIndex; TextType: TVSTTextType; var CellText: UnicodeString);
 
 var
   Data: PMyRec;
