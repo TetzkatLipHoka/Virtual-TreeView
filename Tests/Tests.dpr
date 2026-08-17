@@ -17,6 +17,7 @@ uses
   VTOnEditCancelledTests in 'VTOnEditCancelledTests.pas',
   VTOnDrawTextTests in 'VTOnDrawTextTests.pas',
   VTBandsIssue1091Tests in 'VTBandsIssue1091Tests.pas',
+  VTPaintTreeIssue1074Tests in 'VTPaintTreeIssue1074Tests.pas',
   VTCellSelectionTests in 'VTCellSelectionTests.pas',
   VTSelectedCountIssue1197Tests in 'VTSelectedCountIssue1197Tests.pas',
 =======
