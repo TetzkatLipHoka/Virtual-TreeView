@@ -269,7 +269,7 @@ begin
       end;
     end;
   end;
-  Node.CheckType := ctTriStateCheckBox;
+  Node.CheckType := {$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctTriStateCheckBox;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -368,21 +368,21 @@ begin
 
     // Button layout
     LayoutCombo.ItemIndex := Ord(Columns[0].Layout);
-    if not (hoShowImages in Options) then
+    if not ({$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoShowImages in Options) then
       Height := 24
     else
-      if Columns[0].Layout in [blGlyphTop, blGlyphBottom] then
+      if Columns[0].Layout in [{$IF CompilerVersion >= 20}TVTHeaderColumnLayout.{$IFEND}blGlyphTop, {$IF CompilerVersion >= 20}TVTHeaderColumnLayout.{$IFEND}blGlyphBottom] then
         Height := 64
       else
         Height := 40;
 
     // Options
-    ShowGlyphsOptionBox.Checked := hoShowImages in Options;
-    HotTrackOptionBox.Checked := hoHotTrack in Options;
+    ShowGlyphsOptionBox.Checked := {$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoShowImages in Options;
+    HotTrackOptionBox.Checked := {$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoHotTrack in Options;
     ShowTextOptionBox.Checked := True;
     ChangeHeaderText;
-    VisibleOptionBox.Checked := hoVisible in Options;
-    EnabledOptionBox.Checked := coEnabled in Columns[0].Options;
+    VisibleOptionBox.Checked := {$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoVisible in Options;
+    EnabledOptionBox.Checked := {$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coEnabled in Columns[0].Options;
   end;
 end;
 
@@ -543,35 +543,35 @@ begin
       0:
         if Checked then
         begin
-          Options := Options + [hoShowImages];
-          if Columns[0].Layout in [blGlyphTop, blGlyphBottom] then
+          Options := Options + [{$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoShowImages];
+          if Columns[0].Layout in [{$IF CompilerVersion >= 20}TVTHeaderColumnLayout.{$IFEND}blGlyphTop, {$IF CompilerVersion >= 20}TVTHeaderColumnLayout.{$IFEND}blGlyphBottom] then
             Height := 64
           else
             Height := 40;
         end
         else
         begin
-          Options := Options - [hoShowImages];
+          Options := Options - [{$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoShowImages];
           Height := 24;
         end;
       1:
         if Checked then
-          Options := Options + [hoHotTrack]
+          Options := Options + [{$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoHotTrack]
         else
-          Options := Options - [hoHotTrack];
+          Options := Options - [{$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoHotTrack];
       2:
         ChangeHeaderText;
       3:
         if Checked then
-          Options := Options + [hoVisible]
+          Options := Options + [{$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoVisible]
         else
-          Options := Options - [hoVisible];
+          Options := Options - [{$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoVisible];
       4:
         for I := 0 to Columns.Count - 1 do
           if Checked then
-            Columns[I].Options := Columns[I].Options + [coEnabled]
+            Columns[I].Options := Columns[I].Options + [{$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coEnabled]
           else
-            Columns[I].Options := Columns[I].Options - [coEnabled];
+            Columns[I].Options := Columns[I].Options - [{$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coEnabled];
     end;
 end;
 
@@ -588,10 +588,10 @@ begin
     for I := 0 to Columns.Count - 1 do
       Columns[I].Layout := TVTHeaderColumnLayout(ItemIndex);
 
-    if not (hoShowImages in Options) then
+    if not ({$IF CompilerVersion >= 20}TVTHeaderOption.{$IFEND}hoShowImages in Options) then
       Height := 24
     else
-      if Columns[0].Layout in [blGlyphTop, blGlyphBottom] then
+      if Columns[0].Layout in [{$IF CompilerVersion >= 20}TVTHeaderColumnLayout.{$IFEND}blGlyphTop, {$IF CompilerVersion >= 20}TVTHeaderColumnLayout.{$IFEND}blGlyphBottom] then
         Height := 64
       else
         Height := 40;

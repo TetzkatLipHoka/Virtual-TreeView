@@ -1285,7 +1285,7 @@ type
     property BackGroundImageTransparent: Boolean read FBackGroundImageTransparent write SetBackGroundImageTransparent default False;
     property BackgroundOffsetX: TDimension index 0 read FBackgroundOffsetX write SetBackgroundOffset stored IsStored_BackgroundOffsetXY; // default 0;
     property BackgroundOffsetY: TDimension index 1 read FBackgroundOffsetY write SetBackgroundOffset stored IsStored_BackgroundOffsetXY; // default 0;
-    property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle default bsSingle;
+    property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle default {$IF CompilerVersion >= 20}TFormBorderStyle.{$IFEND}bsSingle;
     property BottomSpace: TDimension read FBottomSpace write SetBottomSpace stored IsStored_BottomSpace; //default 0;
     property ButtonFillMode: TVTButtonFillMode read FButtonFillMode write SetButtonFillMode default fmTreeColor;
     property ButtonStyle: TVTButtonStyle read FButtonStyle write SetButtonStyle default bsRectangle;
@@ -1597,7 +1597,7 @@ type
     function GetNodeLevel(Node: PVirtualNode): Cardinal;
     function GetNodeLevelForSelectConstraint(Node: PVirtualNode): integer;
     function GetOffset(pElement: TVTElement; pNode: PVirtualNode): TDimension;
-    procedure GetOffsets(pNode: PVirtualNode; out pOffsets: TVTOffsets; pElement: TVTElement = ofsEndOfClientArea; pColumn: Integer = NoColumn);
+    procedure GetOffsets(pNode: PVirtualNode; out pOffsets: TVTOffsets; pElement: TVTElement = {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsEndOfClientArea; pColumn: Integer = NoColumn);
     function GetPrevious(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
     function GetPreviousChecked(Node: PVirtualNode; State: TCheckState = csCheckedNormal;
       ConsiderChildrenAbove: Boolean = False): PVirtualNode;
@@ -2281,7 +2281,7 @@ begin
   FSelectedHotPlusBM := TBitmap.Create;
   FSelectedHotMinusBM := TBitmap.Create;
 
-  FBorderStyle := bsSingle;
+  FBorderStyle := {$IF CompilerVersion >= 20}TFormBorderStyle.{$IFEND}bsSingle;
   FButtonStyle := bsRectangle;
   FButtonFillMode := fmTreeColor;
 
@@ -2744,7 +2744,7 @@ begin
 
   if Assigned(Run) then
   begin
-    LabelOffset := GetOffset(ofsLabel, Run);
+    LabelOffset := GetOffset({$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel, Run);
 
     // ----- main loop
     // Change selection depending on the node's rectangle being in the selection rectangle or not, but
@@ -3558,7 +3558,7 @@ begin
   begin Result := lOffsets[pElement]; Exit; end; // Exit(x) needs D2009+
 end;
 
-procedure TBaseVirtualTree.GetOffsets(pNode: PVirtualNode; out pOffsets: TVTOffsets; pElement: TVTElement = ofsEndOfClientArea; pColumn: Integer = NoColumn);
+procedure TBaseVirtualTree.GetOffsets(pNode: PVirtualNode; out pOffsets: TVTOffsets; pElement: TVTElement = {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsEndOfClientArea; pColumn: Integer = NoColumn);
 // Calculates the offset up to the given element and supplies them in an array.
 var
   lNodeLevel: Integer;
@@ -3569,12 +3569,12 @@ begin
     pColumn := Header.MainColumn;
 
   // Left Margin
-  pOffsets[ofsMargin] := FMargin;
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsMargin] := FMargin;
   if pElement = ofsMargin then
     exit;
 
-  pOffsets[ofsToggleButton] := pOffsets[ofsMargin];
-  pOffsets[ofsCheckBox]     := pOffsets[ofsMargin];
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsToggleButton] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsMargin];
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox]     := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsMargin];
   if (pColumn = Header.MainColumn) then
   begin
     if not (toFixedIndent in TreeOptions.PaintOptions) then
@@ -3588,44 +3588,44 @@ begin
       lNodeLevel := 1;
     lNodeIndent := lNodeLevel * TDimension(FIndent);
     // toggle buttons
-    Inc(pOffsets[ofsToggleButton], lNodeIndent);
-    Dec(pOffsets[ofsToggleButton], Divide((TDimension(FIndent) - FPlusBM.Width), 2) - 1 + FPlusBM.Width); //Compare PaintTree() relative line 107
+    Inc(pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsToggleButton], lNodeIndent);
+    Dec(pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsToggleButton], Divide((TDimension(FIndent) - FPlusBM.Width), 2) - 1 + FPlusBM.Width); //Compare PaintTree() relative line 107
     // checkbox
-    Inc(pOffsets[ofsCheckBox], lNodeIndent);
+    Inc(pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox], lNodeIndent);
   end;//if MainColumn
 
   // The area in which the toggle buttons are painted must have exactly the size of one indent level
-  if pElement <= ofsToggleButton then
+  if pElement <= {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsToggleButton then
     exit;
 
   if (toCheckSupport in TreeOptions.MiscOptions) and Assigned(FCheckImages) and (pNode.CheckType <> ctNone) and (pColumn = Header.MainColumn) then
   begin
-    Inc(pOffsets[ofsCheckBox], fImagesMargin);
+    Inc(pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox], fImagesMargin);
 
     // right of checkbox, left of state image
-    pOffsets[ofsStateImage] := pOffsets[ofsCheckBox] + FCheckImages.Width + fImagesMargin;
+    pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox] + FCheckImages.Width + fImagesMargin;
   end else
-    pOffsets[ofsStateImage] := pOffsets[ofsCheckBox];
-  if pElement <= ofsStateImage then
+    pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox];
+  if pElement <= {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage then
     exit;
 
   // right of left image, left of normal image
-  pOffsets[ofsImage] := pOffsets[ofsStateImage] + GetImageSize(pNode, ikState, pColumn).cx;
-  if pElement = ofsImage then
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage] + GetImageSize(pNode, {$IF CompilerVersion >= 20}TVTImageKind.{$IFEND}ikState, pColumn).cx;
+  if pElement = {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage then
     exit;
 
   // label
-  pOffsets[ofsLabel] := pOffsets[ofsImage] + GetImageSize(pNode, ikNormal, pColumn).cx;
-  pOffsets[ofsText] := pOffsets[ofsLabel] + FTextMargin;
-  Dec(pOffsets[ofsText]); //TODO: This should no longer be necessary once issue #369 is resolved.
-  if pElement <= ofsText then
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage] + GetImageSize(pNode, {$IF CompilerVersion >= 20}TVTImageKind.{$IFEND}ikNormal, pColumn).cx;
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsText] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel] + FTextMargin;
+  Dec(pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsText]); //TODO: This should no longer be necessary once issue #369 is resolved.
+  if pElement <= {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsText then
     exit;
 
   // End of text
-  pOffsets[ofsRightOfText] := pOffsets[ofsText] + DoGetNodeWidth(pNode, pColumn) + DoGetNodeExtraWidth(pNode, pColumn);
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsRightOfText] := pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsText] + DoGetNodeWidth(pNode, pColumn) + DoGetNodeExtraWidth(pNode, pColumn);
 
   // end of client area
-  pOffsets[ofsEndOfClientArea] := Max(FRangeX, ClientWidth) - FTextMargin;
+  pOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsEndOfClientArea] := Max(FRangeX, ClientWidth) - FTextMargin;
 end;
 
 function TBaseVirtualTree.GetOffsetXY: TPoint;
@@ -4331,7 +4331,7 @@ begin
   if VclStyleEnabled and (seClient in StyleElements) then
   begin
     if NeedButtons then begin
-      if StyleServices.GetElementSize(FPlusBM.Canvas.Handle, StyleServices.GetElementDetails(tcbCategoryGlyphClosed), esActual, Size) then
+      if StyleServices.GetElementSize(FPlusBM.Canvas.Handle, StyleServices.GetElementDetails(tcbCategoryGlyphClosed), {$IF CompilerVersion >= 20}TElementSize.{$IFEND}esActual, Size) then
       begin
         Size.cx := Max(Size.cx, cMinExpandoHeight); // Use min size of 11, see issue #1035 / RSP-33715
         Size.cx := ScaledPixels(Size.cx) // I would have expected that the returned value is dpi-sclaed, but this is not the case in RAD Studio 10.4.1. See issue #984
@@ -4658,8 +4658,8 @@ procedure TBaseVirtualTree.SetButtonFillMode(const Value: TVTButtonFillMode);
 begin
   if FButtonFillMode <> Value then
   begin
-    if Value = fmShaded then // no longer supported
-      FButtonFillMode := fmTreeColor
+    if Value = {$IF CompilerVersion >= 20}TVTButtonFillMode.{$IFEND}fmShaded then // no longer supported
+      FButtonFillMode := {$IF CompilerVersion >= 20}TVTButtonFillMode.{$IFEND}fmTreeColor
     else
       FButtonFillMode := Value;
     if not (csLoading in ComponentState) then
@@ -8987,7 +8987,7 @@ var
   HeaderWidth: TDimension;
   ScrollBarVisible: Boolean;
 begin
-  ScrollBarVisible := (FRangeY > ClientHeight) and (ScrollBarOptions.ScrollBars in [ssVertical, ssBoth]);
+  ScrollBarVisible := (FRangeY > ClientHeight) and (ScrollBarOptions.ScrollBars in [{$IF CompilerVersion >= 20}TScrollStyle.{$IFEND}ssVertical, {$IF CompilerVersion >= 20}TScrollStyle.{$IFEND}ssBoth]);
   if ScrollBarVisible then
     Result := GetSystemMetrics(SM_CXVSCROLL)
   else
@@ -9689,26 +9689,26 @@ begin
     if tsPanning in FStates then
     begin
       if (X - FLastClickPos.X) < -8 then
-        Include(Result, sdLeft);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdLeft);
       if (X - FLastClickPos.X) > 8 then
-        Include(Result, sdRight);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdRight);
 
       if (Y - FLastClickPos.Y) < -8 then
-        Include(Result, sdUp);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdUp);
       if (Y - FLastClickPos.Y) > 8 then
-        Include(Result, sdDown);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdDown);
     end
     else
     begin
       if (X < FDefaultNodeHeight) and (FEffectiveOffsetX <> 0) then
-        Include(Result, sdLeft);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdLeft);
       if (ClientWidth + FEffectiveOffsetX < FRangeX) and (X > ClientWidth - FDefaultNodeHeight) then
-        Include(Result, sdRight);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdRight);
 
       if (Y < FDefaultNodeHeight) and (FOffsetY <> 0) then
-        Include(Result, sdUp);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdUp);
       if (ClientHeight - FOffsetY < FRangeY) and (Y > ClientHeight - FDefaultNodeHeight) then
-        Include(Result, sdDown);
+        Include(Result, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdDown);
 
       // Since scrolling during dragging is not handled via the timer we do a check here whether the auto
       // scroll timeout already has elapsed or not.
@@ -11760,7 +11760,7 @@ begin
   UpdateWindow();
 
   Effect := 0;
-  DoDragOver(nil, [], dsDragLeave, Point(0, 0), FLastDropMode, Effect);
+  DoDragOver(nil, [], {$IF CompilerVersion >= 20}TDragState.{$IFEND}dsDragLeave, Point(0, 0), FLastDropMode, Effect);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -12265,8 +12265,8 @@ var
   Index: TImageIndex;
   lImageList: TCustomImageList;
 begin
-  if not Assigned(OnGetImageIndexEx) and (((Kind = ikNormal) and not Assigned(fImages))
-    or ((Kind = ikState) and not Assigned(fStateImages))) then
+  if not Assigned(OnGetImageIndexEx) and (((Kind = {$IF CompilerVersion >= 20}TVTImageKind.{$IFEND}ikNormal) and not Assigned(fImages))
+    or ((Kind = {$IF CompilerVersion >= 20}TVTImageKind.{$IFEND}ikState) and not Assigned(fStateImages))) then
   begin
     Result.cx := 0;
     Result.cy := 0;
@@ -12329,7 +12329,7 @@ begin
   begin
     if not (vsInitialized in Node.States) then
       InitNode(Node);
-    CurrentWidth := GetOffset(ofsRightOfText, Node);
+    CurrentWidth := GetOffset({$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsRightOfText, Node);
     if Result < (CurrentWidth) then
       Result := CurrentWidth;
     Inc(TopPosition, NodeHeight[Node]);
@@ -12993,10 +12993,10 @@ begin
 
   // Dragging might be started in the inherited handler manually (which is discouraged for stability reasons)
   // the test for manual mode is done below (after the focused node is set).
-  AutoDrag := ((DragMode = dmAutomatic) or Dragging) and (not IsCellHit or FullRowDrag);
+  AutoDrag := ((DragMode = {$IF CompilerVersion >= 20}TDragMode.{$IFEND}dmAutomatic) or Dragging) and (not IsCellHit or FullRowDrag);
 
   // Query the application to learn if dragging may start now (if set to dmManual).
-  if Assigned(HitInfo.HitNode) and not AutoDrag and (DragMode = dmManual) then
+  if Assigned(HitInfo.HitNode) and not AutoDrag and (DragMode = {$IF CompilerVersion >= 20}TDragMode.{$IFEND}dmManual) then
     AutoDrag := DoBeforeDrag(HitInfo.HitNode, Column) and (FullRowDrag or IsLabelHit);
 
   // handle node height tracking
@@ -13360,7 +13360,7 @@ begin
           SetCheckState(Node, Node.Parent.CheckState);
       end
       else if (toSyncCheckboxesWithSelection in TreeOptions.SelectionOptions) then
-        Node.CheckType := ctCheckBox;
+        Node.CheckType := {$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctCheckBox;
 
       if ivsDisabled in InitStates then
         Include(States, vsDisabled);
@@ -14408,7 +14408,7 @@ begin
       if (Index in [ckButtonNormal..ckButtonDisabled]) then begin
         Canvas.Pen.Color := clGray;
         // These constants have been determined by test using various themes and dpi-scalings
-        DrawArrow(Canvas, sdDown, Point(R.Left + Round(lSize.cx * 0.22), R.Top + Round(lSize.cy * 0.33)), Round(lSize.cx *0.28));
+        DrawArrow(Canvas, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdDown, Point(R.Left + Round(lSize.cx * 0.22), R.Top + Round(lSize.cy * 0.33)), Round(lSize.cx *0.28));
       end;//if
     end
     else begin
@@ -14420,7 +14420,7 @@ begin
       begin
         if Selected and not Ghosted then
         begin
-          if Focused or (toPopupMode in FOptions.PaintOptions) then
+          if Focused or ({$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toPopupMode in FOptions.PaintOptions) then
             ForegroundColor := ColorToRGB(FColors.FocusedSelectionColor)
           else
             ForegroundColor := ColorToRGB(FColors.UnfocusedSelectionColor);
@@ -15345,7 +15345,7 @@ procedure TBaseVirtualTree.StartWheelPanning(Position: TPoint);
     Image.Left := 0;
     Image.Top := 0;
     Image.Parent := Form;
-    Image.Align := alClient;
+    Image.Align := {$IF CompilerVersion >= 20}TAlign.{$IFEND}alClient;
 
     PanningImage := TIcon.Create;
     try
@@ -16142,16 +16142,16 @@ begin
   // ... and bevels.
   OffsetX := BorderWidth;
   OffsetY := BorderWidth;
-  if BevelKind <> bkNone then
+  if BevelKind <> {$IF CompilerVersion >= 20}TBevelKind.{$IFEND}bkNone then
   begin
     EdgeSize := 0;
-    if BevelInner <> bvNone then
+    if BevelInner <> {$IF CompilerVersion >= 20}TBevelCut.{$IFEND}bvNone then
       Inc(EdgeSize, BevelWidth);
-    if BevelOuter <> bvNone then
+    if BevelOuter <> {$IF CompilerVersion >= 20}TBevelCut.{$IFEND}bvNone then
       Inc(EdgeSize, BevelWidth);
-    if beLeft in BevelEdges then
+    if {$IF CompilerVersion >= 20}TBevelEdge.{$IFEND}beLeft in BevelEdges then
       Inc(OffsetX, EdgeSize);
-    if beTop in BevelEdges then
+    if {$IF CompilerVersion >= 20}TBevelEdge.{$IFEND}beTop in BevelEdges then
       Inc(OffsetY, EdgeSize);
   end;
 
@@ -16484,7 +16484,7 @@ function TBaseVirtualTree.AddChild(Parent: PVirtualNode; UserData: Pointer = nil
 
 begin
   if not (toReadOnly in FOptions.MiscOptions) then
-    Result := InsertNode(Parent, amAddChildLast, UserData)
+    Result := InsertNode(Parent, {$IF CompilerVersion >= 20}TVTNodeAttachMode.{$IFEND}amAddChildLast, UserData)
   else
     Result := nil;
 end;
@@ -17549,7 +17549,7 @@ begin
   if FRoot.TotalCount > 1 then
   begin
     DoStateChange([tsExpanding]);
-    StartOperation(okExpand);
+    StartOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExpand);
     BeginUpdate;
     try
       if Node = nil then
@@ -17583,7 +17583,7 @@ begin
         Node := GetNext(Node);
       until (Node = Stop) or OperationCanceled;
     finally
-      EndOperation(okExpand);
+      EndOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExpand);
       EndUpdate;
       DoStateChange([], [tsExpanding]);
     end;
@@ -17696,8 +17696,8 @@ begin
       CurrentAlignment := FHeader.Columns[Column].Alignment;
     end;
 
-    GetOffsets(Node, lOffsets, ofsLabel, Column);
-    LeftOffset := lOffSets[ofsLabel];
+    GetOffsets(Node, lOffsets, {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel, Column);
+    LeftOffset := lOffSets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel];
     // Offset contains now the distance from the left or right border of the rectangle (depending on bidi mode).
     // Now consider the alignment too and calculate the final result.
     if CurrentBidiMode = bdLeftToRight then
@@ -18625,8 +18625,8 @@ begin
 
     while Assigned(Run) and not OperationCanceled do
     begin
-      GetOffsets(Run, lOffsets, ofsLabel, Column);
-      TextLeft := lOffsets[ofsLabel];
+      GetOffsets(Run, lOffsets, {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel, Column);
+      TextLeft := lOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel];
       CurrentWidth := DoGetNodeWidth(Run, Column);
       Inc(CurrentWidth, DoGetNodeExtraWidth(Run, Column));
       Inc(CurrentWidth, DoGetCellContentMargin(Run, Column).X);
@@ -21419,7 +21419,7 @@ begin
                       PaintInfo.BidiMode := BidiMode;
                       PaintInfo.Alignment := FAlignment;
                     end;
-                    GetOffSets(PaintInfo.Node, PaintInfo.Offsets, ofsText, PaintInfo.Column);
+                    GetOffSets(PaintInfo.Node, PaintInfo.Offsets, {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsText, PaintInfo.Column);
 
                     PaintInfo.PaintOptions := PaintOptions;
                     with PaintInfo do
@@ -23510,7 +23510,7 @@ begin
     Exit;
   Assert(GetCurrentThreadId = MainThreadId, 'UI controls like ' + Classname + ' and its scrollbars should only be manipulated through the main thread.');
 
-  if FScrollBarOptions.ScrollBars in [ssVertical, ssBoth] then
+  if FScrollBarOptions.ScrollBars in [{$IF CompilerVersion >= 20}TScrollStyle.{$IFEND}ssVertical, {$IF CompilerVersion >= 20}TScrollStyle.{$IFEND}ssBoth] then
   begin
     ScrollInfo.cbSize := SizeOf(ScrollInfo);
     ScrollInfo.fMask := SIF_ALL;

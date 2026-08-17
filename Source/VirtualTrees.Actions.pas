@@ -143,9 +143,9 @@ end;
 procedure TVirtualTreeAction.SetSelectedOnly(const Value: Boolean);
 begin
   if Value then
-    Include(fFilter, vsSelected)
+    Include(fFilter, {$IF CompilerVersion >= 20}TVirtualNodeState.{$IFEND}vsSelected)
   else
-    Exclude(fFilter, vsSelected);
+    Exclude(fFilter, {$IF CompilerVersion >= 20}TVirtualNodeState.{$IFEND}vsSelected);
 end;
 
 procedure TVirtualTreeAction.DoAfterExecute;

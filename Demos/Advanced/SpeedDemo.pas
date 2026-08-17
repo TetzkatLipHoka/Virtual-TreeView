@@ -19,7 +19,7 @@ uses
   {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND}, VirtualTrees,
   VirtualTrees.Types, {$IF CompilerVersion < 23}ExtDlgs{$ELSE}Vcl.ExtDlgs{$IFEND},
   {$IF CompilerVersion < 23}ComCtrls{$ELSE}Vcl.ComCtrls{$IFEND},
-  {$IF CompilerVersion < 23}JPEG{$ELSE}Vcl.Imaging.jpeg{$IFEND},
+  {$IF CompilerVersion < 23}jpeg{$ELSE}Vcl.Imaging.jpeg{$IFEND},
   {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND},
   VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
@@ -145,9 +145,9 @@ procedure TSpeedForm.SBCheckBoxClick(Sender: TObject);
 
 begin
   if SBCheckBox.Checked then
-    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions + [toShowBackground]
+    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions + [{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowBackground]
   else
-    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions - [toShowBackground];
+    VST1.TreeOptions.PaintOptions := VST1.TreeOptions.PaintOptions - [{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowBackground];
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

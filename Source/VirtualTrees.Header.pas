@@ -458,7 +458,7 @@ uses
   {$IF CompilerVersion < 23}UxTheme{$ELSE}Winapi.UxTheme{$IFEND},
   // D2009 + "-ASystem.Math=Math" alias double-registers Math's overloads here (every Min/Max call E2251);
   // referencing the real unit name avoids it. Measured, cause presumably inline expansion from sibling units.
-  {$IF CompilerVersion < 23}Math,{$ELSE}System.Math,{$IFEND}
+  {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND},
   {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
   {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
   VirtualTrees.HeaderPopup,
@@ -1528,7 +1528,7 @@ begin
           with TVirtualTreeColumnsCracker(FColumns) do
           begin
             HandleClick(P, mbMiddle, True, False);
-            TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp(mbMiddle, GetShiftState, P.X, P.Y + Self.FHeight);
+            TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp({$IF CompilerVersion >= 20}TmouseButton.{$IFEND}mbMiddle, GetShiftState, P.X, P.Y + Self.FHeight);
             DownIndex := NoColumn;
             CheckBoxHit := False;
           end;
@@ -1564,14 +1564,14 @@ begin
         begin
           case Message.Msg of
             WM_NCMBUTTONDBLCLK :
-              Button := mbMiddle;
+              Button := {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbMiddle;
             WM_NCRBUTTONDBLCLK :
-              Button := mbRight;
+              Button := {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbRight;
           else
               //WM_NCLBUTTONDBLCLK
-            Button := mbLeft;
+            Button := {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft;
           end;
-          if Button = mbLeft then
+          if Button = {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft then
             TVirtualTreeColumnsCracker(FColumns).AdjustDownColumn(P);
           TVirtualTreeColumnsCracker(FColumns).HandleClick(P, Button, True, True);
         end;
@@ -1659,14 +1659,14 @@ begin
 
         //This is a good opportunity to notify the application.
         if not (csDesigning in TBaseVirtualTreeCracker(FOwner).ComponentState) and IsInHeader then
-          TBaseVirtualTreeCracker(FOwner).DoHeaderMouseDown(mbLeft, GetShiftState, P.X, P.Y + FHeight);
+          TBaseVirtualTreeCracker(FOwner).DoHeaderMouseDown({$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft, GetShiftState, P.X, P.Y + FHeight);
       end;
     WM_NCRBUTTONDOWN :
       begin
         with TWMNCRButtonDown(Message) do
           P := FOwner.ScreenToClient(Point(XCursor, YCursor));
         if InHeader(P) then
-          TBaseVirtualTreeCracker(FOwner).DoHeaderMouseDown(mbRight, GetShiftState, P.X, P.Y + FHeight);
+          TBaseVirtualTreeCracker(FOwner).DoHeaderMouseDown({$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbRight, GetShiftState, P.X, P.Y + FHeight);
       end;
     WM_NCRBUTTONUP :
       if not (csDesigning in FOwner.ComponentState) then
@@ -1676,8 +1676,8 @@ begin
           P := FOwner.ScreenToClient(Point(XCursor, YCursor));
           if InHeader(P) then
           begin
-            HandleMessage := TVirtualTreeColumnsCracker(FColumns).HandleClick(P, mbRight, True, False);
-            TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp(mbRight, GetShiftState, P.X, P.Y + FHeight);
+            HandleMessage := TVirtualTreeColumnsCracker(FColumns).HandleClick(P, {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbRight, True, False);
+            TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp({$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbRight, GetShiftState, P.X, P.Y + FHeight);
           end;
           fWasDoubleClick := False;
         end;
@@ -1708,10 +1708,10 @@ begin
               with TVirtualTreeColumnsCracker(FColumns) do
               begin
                 if DownIndex > NoColumn then
-                  HandleClick(Point(XPos, YPos), mbLeft, False, False);
+                  HandleClick(Point(XPos, YPos), {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft, False, False);
               end;
               if FStates <> [] then
-                TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp(mbLeft, KeysToShiftState(Keys), XPos, YPos);
+                TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp({$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft, KeysToShiftState(Keys), XPos, YPos);
               fWasDoubleClick := False;
             end;
           WM_NCLBUTTONUP :
@@ -1721,8 +1721,8 @@ begin
               // Only handle a non-client header click if we previously got a header down event.
               // This prevents bogus column clicks after title-bar double-click maximize.
               if not fWasDoubleClick and (FColumns.DownIndex > NoColumn) then
-                TVirtualTreeColumnsCracker(FColumns).HandleClick(P, mbLeft, True, False);
-              TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp(mbLeft, GetShiftState, P.X, P.Y + FHeight);
+                TVirtualTreeColumnsCracker(FColumns).HandleClick(P, {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft, True, False);
+              TBaseVirtualTreeCracker(FOwner).DoHeaderMouseUp({$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft, GetShiftState, P.X, P.Y + FHeight);
               Result := True;
               fWasDoubleClick := False;
             end;
@@ -4589,7 +4589,7 @@ begin
       Include(HitInfo.HitPosition, hhiOnIcon);
       if Items[NewClickIndex].CheckBox then
       begin
-        if Button = mbLeft then
+        if Button = {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft then
           TBaseVirtualTreeCracker(FHeader.GetOwner).UpdateColumnCheckState(Items[NewClickIndex]);
         Include(HitInfo.HitPosition, hhiOnCheckbox);
       end;
@@ -4610,7 +4610,7 @@ begin
       TBaseVirtualTreeCracker(FHeader.GetOwner).DoHeaderClick(HitInfo);
   end
   else begin
-    if (hoHeaderClickAutoSort in Header.Options) and (HitInfo.Button = mbLeft) and not (hhiOnCheckbox in HitInfo.HitPosition) and (HitInfo.Column >= 0) then
+    if (hoHeaderClickAutoSort in Header.Options) and (HitInfo.Button = {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbLeft) and not (hhiOnCheckbox in HitInfo.HitPosition) and (HitInfo.Column >= 0) then
     begin
       // handle automatic setting of SortColumn and toggling of the sort order
       if HitInfo.Column <> Header.SortColumn then
@@ -4629,7 +4629,7 @@ begin
       Result := True;
     end;   //if
 
-    if (Button = mbRight) then
+    if (Button = {$IF CompilerVersion >= 20}TMouseButton.{$IFEND}mbRight) then
     begin
       Dec(P.Y, Header.Height);      // popup menus at actual clicked point
       FreeAndNil(FColumnPopupMenu); // Attention: Do not free the TVTHeaderPopupMenu at the end of this method, otherwise the clikc events of the menu item will not be fired.
@@ -5912,7 +5912,7 @@ begin
     TargetRect.Left := Target.X - R.Left + Items[Run].FLeft + RTLOffset;
     // TargetRect.Right will be set in the loop
 
-    ShowRightBorder := (Header.Style = hsThickButtons) or not (hoAutoResize in Header.Options) or (TBaseVirtualTreeCracker(FHeader.GetOwner).BevelKind = bkNone);
+    ShowRightBorder := (Header.Style = hsThickButtons) or not (hoAutoResize in Header.Options) or (TBaseVirtualTreeCracker(FHeader.GetOwner).BevelKind = {$IF CompilerVersion >= 20}TBevelKind.{$IFEND}bkNone);
 
     // Now go for each button.
     while (Run > NoColumn) and (TargetRect.Left < MaxX) do
@@ -6000,14 +6000,14 @@ begin
   lArrowWidth := TBaseVirtualTreeCracker(Self.Column.Owner.Header.GetOwner).ScaledPixels(5); // helper-free form for D7
   Y := Divide(PaintRectangle.Top + PaintRectangle.Bottom - 3 * lArrowWidth, 2);
   if DropMark = dmmLeft then
-    DrawArrow(TargetCanvas, sdLeft, Point(PaintRectangle.Left, Y), lArrowWidth)
+    DrawArrow(TargetCanvas, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdLeft, Point(PaintRectangle.Left, Y), lArrowWidth)
   else
-    DrawArrow(TargetCanvas, sdRight, Point(PaintRectangle.Right - lArrowWidth - Divide(lArrowWidth, 2) {spacing}, Y), lArrowWidth);
+    DrawArrow(TargetCanvas, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdRight, Point(PaintRectangle.Right - lArrowWidth - Divide(lArrowWidth, 2) {spacing}, Y), lArrowWidth);
 end;
 
 procedure THeaderPaintInfo.DrawSortArrow(pDirection : TSortDirection);
 const
-  cDirection : array [TSortDirection] of TScrollDirection = (sdUp, sdDown);
+  cDirection : array [TSortDirection] of TScrollDirection = ({$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdUp, {$IF CompilerVersion >= 20}TScrollDirection.{$IFEND}sdDown);
 var
   lOldColor : TColor;
 begin

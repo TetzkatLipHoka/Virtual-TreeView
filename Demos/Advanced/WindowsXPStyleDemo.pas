@@ -205,7 +205,7 @@ begin
     with Sender do
     begin
       if SortColumn > NoColumn then
-        Columns[SortColumn].Options := Columns[SortColumn].Options + [coParentColor];
+        Columns[SortColumn].Options := Columns[SortColumn].Options + [{$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coParentColor];
 
       // Do not sort the last column, it contains nothing to sort.
       if HitInfo.Column = 2 then
@@ -262,7 +262,7 @@ begin
   HintText := 'Size larger than 536 MB' + #13 +
     'Folders: addins, AppPatch, Config, Connection Wizard, ...' + #13 +
     'Files: 1280.bmp, 1280x1024.bmp, 2001 94 mars.bmp, ac3api.ini, ...';
-  LineBreakStyle := hlbForceMultiLine;
+  LineBreakStyle := {$IF CompilerVersion >= 20}TVTTooltipLineBreakStyle.{$IFEND}hlbForceMultiLine;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

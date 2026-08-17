@@ -165,7 +165,7 @@ implementation
 
 uses
   {$IF CompilerVersion < 23}CommCtrl{$ELSE}Winapi.CommCtrl{$IFEND},
-  {$IF CompilerVersion >= 23}{$IF CompilerVersion < 23}ShlObj{$ELSE}Winapi.ShlObj{$IFEND},{$IFEND}
+  {$IF CompilerVersion >= 23}Winapi.ShlObj,{$IFEND}
   {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
   {$IF CompilerVersion < 23}StrUtils{$ELSE}System.StrUtils{$IFEND},
   {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND};

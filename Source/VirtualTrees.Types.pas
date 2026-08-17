@@ -9,7 +9,8 @@ uses
   {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
   {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
-  {$IF CompilerVersion < 23}Controls,StdCtrls,{$ELSE}Vcl.Controls,Vcl.StdCtrls,{$IFEND} // StdCtrls: unscoped ss* compat consts (System.UITypes declares TScrollStyle scoped)
+  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}StdCtrls{$ELSE}Vcl.StdCtrls{$IFEND}, // unscoped ss* compat consts (System.UITypes declares TScrollStyle scoped)
   {$IF CompilerVersion < 23}GraphUtil{$ELSE}Vcl.GraphUtil{$IFEND},
   Vcl.Themes,
   {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
@@ -1391,18 +1392,18 @@ begin
   ContentRect := CellRect;
   if BidiMode = bdLeftToRight then
   begin
-    ContentRect.Left := CellRect.Left + Offsets[ofsLabel];
-    ImageInfo[iiNormal].XPos := CellRect.Left + Offsets[ofsImage];
-    ImageInfo[iiState].XPos := CellRect.Left + Offsets[ofsStateImage];
-    ImageInfo[iiCheck].XPos := CellRect.Left + Offsets[ofsCheckBox];
+    ContentRect.Left := CellRect.Left + Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel];
+    ImageInfo[iiNormal].XPos := CellRect.Left + Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage];
+    ImageInfo[iiState].XPos := CellRect.Left + Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage];
+    ImageInfo[iiCheck].XPos := CellRect.Left + Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox];
   end
   else
   begin
     /// Since images are still drawn from left to right, we need to substract the image sze as well.
-    ImageInfo[iiNormal].XPos := CellRect.Right - Offsets[ofsImage] - (Offsets[ofsLabel] - Offsets[ofsImage]);
-    ImageInfo[iiState].XPos := CellRect.Right - Offsets[ofsStateImage] - (Offsets[ofsImage] - Offsets[ofsStateImage]);
-    ImageInfo[iiCheck].XPos := CellRect.Right - Offsets[ofsCheckBox] - (Offsets[ofsStateImage] - Offsets[ofsCheckBox]);
-    ContentRect.Right := CellRect.Right - Offsets[ofsLabel];
+    ImageInfo[iiNormal].XPos := CellRect.Right - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage] - (Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel] - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage]);
+    ImageInfo[iiState].XPos := CellRect.Right - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage] - (Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsImage] - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage]);
+    ImageInfo[iiCheck].XPos := CellRect.Right - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox] - (Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsStateImage] - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsCheckBox]);
+    ContentRect.Right := CellRect.Right - Offsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel];
   end;
   if ImageInfo[iiNormal].Index > -1 then
     ImageInfo[iiNormal].YPos := CellRect.Top + VAlign - ImageInfo[iiNormal].Images.Height div 2;
@@ -1707,7 +1708,7 @@ begin
   FOwner := AOwner;
   FAlwaysVisible := False;
   FScrollBarStyle := sbmRegular;
-  FScrollBars := ssBoth;
+  FScrollBars := {$IF CompilerVersion >= 20}TScrollStyle.{$IFEND}ssBoth;
   FIncrementX := 20;
   FIncrementY := 20;
 end;

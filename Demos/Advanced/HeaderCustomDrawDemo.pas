@@ -163,9 +163,9 @@ begin
                 TargetCanvas.Font.Size := 60;
                 if IsHoverIndex then
                   TargetCanvas.Font.Color := $80FF;
-                // Webdings $FB = Weltkarte. Frueher ein direktes Zeichen im Quelltext -
-                // als Nicht-ASCII-Byte ueberlebt das keinen Werkzeugdurchlauf (D7 braucht
-                // die Datei ohne BOM, also ANSI; jedes UTF-8-Werkzeug zerstoert das Byte).
+                // Webdings $FB = world map glyph. Kept as Chr($FB) instead of a literal
+                // character: as a non-ASCII byte it would not survive round-trips between
+                // ANSI (needed by D7, no BOM) and UTF-8 tooling.
                 S := Chr($FB);
                 Size := TargetCanvas.TextExtent(S);
                 SetBkMode(TargetCanvas.Handle, TRANSPARENT);

@@ -140,36 +140,36 @@ const
   // Aliases for increased compatibility with V7, feel free to extend by pull requests
   NoColumn                 = VirtualTrees.Types.NoColumn;
   InvalidColumn            = VirtualTrees.Types.InvalidColumn;
-  sdAscending              = VirtualTrees.Types.sdAscending;
-  sdDescending             = VirtualTrees.Types.sdDescending;
-  toAutoSort               = VirtualTrees.Types.toAutoSort; // unqualified enum value: D7-compatible
-  toCheckSupport           = VirtualTrees.Types.toCheckSupport;
-  toEditable               = VirtualTrees.Types.toEditable;
-  toShowRoot               = VirtualTrees.Types.toShowRoot;
-  ctNone                   = VirtualTrees.Types.ctNone;
-  ctTriStateCheckBox       = VirtualTrees.Types.ctTriStateCheckBox;
-  ctCheckBox               = VirtualTrees.Types.ctCheckBox;
-  ctRadioButton            = VirtualTrees.Types.ctRadioButton;
-  ctButton                 = VirtualTrees.Types.ctButton;
+  sdAscending              = VirtualTrees.Types.{$IF CompilerVersion >= 20}TSortDirection.{$IFEND}sdAscending;
+  sdDescending             = VirtualTrees.Types.{$IF CompilerVersion >= 20}TSortDirection.{$IFEND}sdDescending;
+  toAutoSort               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTAutoOption.{$IFEND}toAutoSort;
+  toCheckSupport           = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTMiscOption.{$IFEND}toCheckSupport;
+  toEditable               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTMiscOption.{$IFEND}toEditable;
+  toShowRoot               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowRoot;
+  ctNone                   = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctNone;
+  ctTriStateCheckBox       = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctTriStateCheckBox;
+  ctCheckBox               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctCheckBox;
+  ctRadioButton            = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctRadioButton;
+  ctButton                 = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctButton;
 
-  csUncheckedNormal        = VirtualTrees.Types.csUncheckedNormal;
-  csUncheckedPressed       = VirtualTrees.Types.csUncheckedPressed;
-  csCheckedNormal          = VirtualTrees.Types.csCheckedNormal;
-  csCheckedPressed         = VirtualTrees.Types.csCheckedPressed;
-  csMixedNormal            = VirtualTrees.Types.csMixedNormal;
-  csMixedPressed           = VirtualTrees.Types.csMixedPressed;
-  csUncheckedDisabled      = VirtualTrees.Types.csUncheckedDisabled;
-  csCheckedDisabled        = VirtualTrees.Types.csCheckedDisabled;
-  csMixedDisable           = VirtualTrees.Types.csMixedDisabled;
+  csUncheckedNormal        = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedNormal;
+  csUncheckedPressed       = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedPressed;
+  csCheckedNormal          = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedNormal;
+  csCheckedPressed         = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedPressed;
+  csMixedNormal            = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedNormal;
+  csMixedPressed           = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedPressed;
+  csUncheckedDisabled      = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedDisabled;
+  csCheckedDisabled        = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedDisabled;
+  csMixedDisable           = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedDisabled;
 
-  coVisible                = VirtualTrees.Types.coVisible; // unqualified enum value: D7-compatible
-  vsDisabled               = VirtualTrees.Types.vsDisabled;
-  etHTML                   = VirtualTrees.Types.etHTML;
-  hiOnItemButton           = VirtualTrees.Types.hiOnItemButton;
-  dmOnNode                 = VirtualTrees.Types.dmOnNode;
-  hlbForceMultiLine        = VirtualTrees.Types.hlbForceMultiLine;
-  hmHintAndDefault         = VirtualTrees.Types.hmHintAndDefault;
-  hmTooltip                = VirtualTrees.Types.hmTooltip;
+  coVisible                = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coVisible;
+  vsDisabled               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVirtualNodeState.{$IFEND}vsDisabled;
+  etHTML                   = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etHTML;
+  hiOnItemButton           = VirtualTrees.Types.{$IF CompilerVersion >= 20}THitPosition.{$IFEND}hiOnItemButton;
+  dmOnNode                 = VirtualTrees.Types.{$IF CompilerVersion >= 20}TDropMode.{$IFEND}dmOnNode;
+  hlbForceMultiLine        = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTTooltipLineBreakStyle.{$IFEND}hlbForceMultiLine;
+  hmHintAndDefault         = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTHintMode.{$IFEND}hmHintAndDefault;
+  hmTooltip                = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTHintMode.{$IFEND}hmTooltip;
 
 type
   TCustomVirtualStringTree = class;
@@ -227,7 +227,7 @@ type
     StaticText: UnicodeString;
     StaticTextAlignment: TAlignment;
     ExportType: TVTExportType;
-    constructor Create(pNode: PVirtualNode; pColumn: TColumnIndex; pExportType: TVTExportType = etNone);
+    constructor Create(pNode: PVirtualNode; pColumn: TColumnIndex; pExportType: TVTExportType = {$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etNone);
   end;
 
   /// Event signature which is called when text is painted on the canvas or needed for the export.
@@ -266,7 +266,7 @@ type
     procedure GetDataFromGrid(const AStrings : TStringList; const IncludeHeading : Boolean = True);
   protected
     /// <summary>Contains the name of the UnicodeString that should be restored as selection</summary>
-    /// <seealso cref="toRestoreSelection">
+    /// <seealso cref="{$IF CompilerVersion >= 20}TVTSelectionOption.{$IFEND}toRestoreSelection">
     FPreviouslySelected: TStringList;
     procedure InitializeTextProperties(var PaintInfo: TVTPaintInfo);
     procedure PaintNormalText(var PaintInfo: TVTPaintInfo; TextOutFlags: Integer; Text: UnicodeString); virtual;
@@ -814,7 +814,7 @@ begin
     begin
       if not (tsUseExplorerTheme in TreeStates) then
       begin
-        Canvas.Font.Style := Canvas.Font.Style + [fsUnderline];
+        Canvas.Font.Style := Canvas.Font.Style + [{$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsUnderline];
         Canvas.Font.Color := Colors.HotColor;
       end;
     end;
@@ -1340,9 +1340,9 @@ begin
     OnGetCellText(Self, pEventArgs);
   end
   else if Assigned(FOnGetText) then begin
-    FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, ttNormal, pEventArgs.CellText);
+    FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, {$IF CompilerVersion >= 20}TVSTTextType.{$IFEND}ttNormal, pEventArgs.CellText);
     if toShowStaticText in TreeOptions.StringOptions then
-      FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, ttStatic, pEventArgs.StaticText);
+      FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, {$IF CompilerVersion >= 20}TVSTTextType.{$IFEND}ttStatic, pEventArgs.StaticText);
   end;
 end;
 
@@ -1445,7 +1445,7 @@ begin
   DefaultDraw := True;
   if not Assigned(FOnDrawTextEx) and Assigned(FOnDrawText) then
     FOnDrawText(Self, PaintInfo.Canvas, PaintInfo.Node, PaintInfo.Column, Text, CellRect, DefaultDraw);
-  if ((DrawFormat and DT_RIGHT) > 0) and (fsItalic in PaintInfo.Canvas.Font.Style) then
+  if ((DrawFormat and DT_RIGHT) > 0) and ({$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsItalic in PaintInfo.Canvas.Font.Style) then
     lText := Text + ' '
   else
     lText := Text;
@@ -1712,11 +1712,11 @@ begin
   PaintInfo.BidiMode := BidiMode;
   PaintInfo.Column := Column;
   PaintInfo.CellRect := Rect(0, 0, 0, 0);
-  GetOffsets(Node, lOffsets, ofsEndOfClientArea, Column);
+  GetOffsets(Node, lOffsets, {$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsEndOfClientArea, Column);
   if Column > NoColumn then
   begin
     PaintInfo.CellRect.Right := Header.Columns[Column].Width - 2 * TextMargin;
-    PaintInfo.CellRect.Left := lOffsets[ofsLabel];
+    PaintInfo.CellRect.Left := lOffsets[{$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsLabel];
   end
   else
     PaintInfo.CellRect.Right := ClientWidth;
@@ -1755,7 +1755,7 @@ function TCustomVirtualStringTree.ContentToHTML(Source: TVSTTextSourceType; cons
 
 // Renders the current tree content (depending on Source) as HTML text encoded in UTF-8.
 // If Caption is not empty then it is used to create and fill the header for the table built here.
-// Based on ideas and code from Frank van den Bergh and Andreas Hörstemeier.
+// Based on ideas and code from Frank van den Bergh and Andreas Hï¿½rstemeier.
 
 begin
   Result := VirtualTrees.Export.ContentToHTML(Self, Source, Caption);
@@ -1806,7 +1806,7 @@ end;
 function TCustomVirtualStringTree.ContentToRTF(Source: TVSTTextSourceType): RawByteString;
 
 // Renders the current tree content (depending on Source) as RTF (rich text).
-// Based on ideas and code from Frank van den Bergh and Andreas Hörstemeier.
+// Based on ideas and code from Frank van den Bergh and Andreas Hï¿½rstemeier.
 
 begin
   Result := VirtualTrees.Export.ContentToRTF(Self, Source);

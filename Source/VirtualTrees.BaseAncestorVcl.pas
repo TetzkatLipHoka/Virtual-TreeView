@@ -433,7 +433,7 @@ begin
         Res := GetThemePartSize(Theme, BM.Canvas.Handle, Details.Part, Details.State, nil, TS_TRUE, lSize) = S_OK;
       end
       else
-        Res := StyleServices.GetElementSize(BM.Canvas.Handle, StyleServices.GetElementDetails(tbCheckBoxUncheckedNormal), esActual, lSize {$IF CompilerVersion >= 34}, Self.CurrentPPI{$IFEND});
+        Res := StyleServices.GetElementSize(BM.Canvas.Handle, StyleServices.GetElementDetails(tbCheckBoxUncheckedNormal), {$IF CompilerVersion >= 20}TElementSize.{$IFEND}esActual, lSize {$IF CompilerVersion >= 34}, Self.CurrentPPI{$IFEND});
     if not Res then begin
       lSize.cx := GetSystemMetrics(SM_CXMENUCHECK); // TSize.Create needs XE2+
       lSize.cy := GetSystemMetrics(SM_CYMENUCHECK);

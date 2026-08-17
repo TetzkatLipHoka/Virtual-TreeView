@@ -46,8 +46,8 @@ var
 
 implementation
 
-// Siehe GeneralAbilitiesDemo: die VST hier benutzt AlignWithMargins/Margins (ab D2006),
-// fuer D7 deshalb eine generierte DFM-Variante (build\make-d7-dfm.sh).
+// See GeneralAbilitiesDemo: the VST here uses AlignWithMargins/Margins (D2006+),
+// hence a generated variant of the DFM for old compilers.
 {$IF CompilerVersion < 20}
 {$R Main.D7.dfm}
 {$ELSE}

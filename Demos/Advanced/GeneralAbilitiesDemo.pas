@@ -111,9 +111,9 @@ implementation
 uses
   ShellAPI, Main, States;
 
-// Eine DFM kennt keine {$IF}-Gates, dieses Formular benutzt aber Properties, die es
-// auf D7 noch nicht gab (Margins/AlignWithMargins ab D2006, TPanel.BevelEdges spaeter).
-// Deshalb fuer D7 eine generierte Variante, siehe build\make-d7-dfm.sh.
+// A DFM knows no {$IF} gates, but this form uses properties that older compilers
+// do not have (Margins/AlignWithMargins since D2006, TPanel.BevelEdges later).
+// Hence a generated variant of the DFM for old compilers.
 {$IF CompilerVersion < 20}
 {$R GeneralAbilitiesDemo.D7.dfm}
 {$ELSE}
@@ -221,7 +221,7 @@ begin
         E.CellText := Data.Caption;
         E.StaticText := Data.StaticText;
         if Sender.GetNodeLevel(E.Node) > 0 then
-          E.StaticTextAlignment := taRightJustify;
+          E.StaticTextAlignment := {$IF CompilerVersion >= 20}TAlignment.{$IFEND}taRightJustify;
       end;
     1,2:
       E.CellText := Data.ForeignText;
@@ -425,12 +425,12 @@ begin
   with Sender as TRadioGroup do
     if ItemIndex = 0 then
     begin
-      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions + [toShowTreeLines];
+      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions + [{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowTreeLines];
       VST2.ButtonStyle := bsRectangle;
     end
     else
     begin
-      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions - [toShowTreeLines];
+      VST2.TreeOptions.PaintOptions := VST2.TreeOptions.PaintOptions - [{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowTreeLines];
       VST2.ButtonStyle := bsTriangle;
     end;
 end;
@@ -468,11 +468,11 @@ begin
   with VST2.TreeOptions do
     if ThemeRadioGroup.ItemIndex = 0 then
     begin
-      PaintOptions := PaintOptions + [toThemeAware];
+      PaintOptions := PaintOptions + [{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toThemeAware];
       VST2.CheckImageKind := ckSystemDefault;
     end
     else
-      PaintOptions := PaintOptions - [toThemeAware];
+      PaintOptions := PaintOptions - [{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toThemeAware];
 
   RadioGroup1.Enabled := ThemeRadioGroup.ItemIndex = 1;
   RadioGroup2.Enabled := ThemeRadioGroup.ItemIndex = 1;

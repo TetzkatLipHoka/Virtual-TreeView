@@ -22,7 +22,7 @@ implementation
 
 uses
   {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
-  {$IF CompilerVersion < 23}SysUtils,{$ELSE}System.SysUtils,{$IFEND} // D2009 alias double-registration makes IntToStr calls ambiguous (E2251), see VirtualTrees.Header.pas
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}, // D2009 alias double-registration makes IntToStr calls ambiguous (E2251), see VirtualTrees.Header.pas
   {$IF CompilerVersion < 23}StrUtils{$ELSE}System.StrUtils{$IFEND},
   System.UITypes,
   {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
@@ -108,9 +108,9 @@ var
     else
       Buffer.Add(Format('font-size: %dpt; ', [Font.Size]));
 
-    Buffer.Add(Format('font-style: %s; ', [IfThen(fsItalic in Font.Style, 'italic', 'normal')]));
-    Buffer.Add(Format('font-weight: %s; ', [IfThen(fsBold in Font.Style, 'bold', 'normal')]));
-    Buffer.Add(Format('text-decoration: %s; ', [IfThen(fsUnderline in Font.Style, 'underline', 'none')]));
+    Buffer.Add(Format('font-style: %s; ', [IfThen({$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsItalic in Font.Style, 'italic', 'normal')]));
+    Buffer.Add(Format('font-weight: %s; ', [IfThen({$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsBold in Font.Style, 'bold', 'normal')]));
+    Buffer.Add(Format('text-decoration: %s; ', [IfThen({$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsUnderline in Font.Style, 'underline', 'none')]));
 
     Buffer.Add('color: ');
     WriteColorAsHex(Font.Color);
@@ -147,9 +147,9 @@ var
 begin
   CrackTree := TCustomVirtualStringTreeCracker(Tree);
 
-  CrackTree.StartOperation(okExport);
+  CrackTree.StartOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
   Buffer := TBufferedString.Create;
-  lGetCellTextEventArgs.ExportType := etHtml;
+  lGetCellTextEventArgs.ExportType := {$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etHtml;
   try
     // For customization by the application or descendants we use again the redirected font change event.
     CrackTree.RedirectFontChangeEvent(CrackTree.Canvas);
@@ -161,7 +161,7 @@ begin
     // Add title if adviced so by giving a caption.
     if Length(Caption) > 0 then
       AddHeader := AddHeader + 'caption="' + Caption + '"';
-    if CrackTree.Borderstyle <> bsNone then
+    if CrackTree.Borderstyle <> {$IF CompilerVersion >= 20}TFormBorderStyle.{$IFEND}bsNone then
       AddHeader := AddHeader + Format(' border="%d" frame=box', [CrackTree.BorderWidth + 1]);
 
     Buffer.Add('<META http-equiv="Content-Type" content="text/html; charset=utf-8">');
@@ -460,7 +460,7 @@ begin
 
     Result := Buffer.AsString;
   finally
-    CrackTree.EndOperation(okExport);
+    CrackTree.EndOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
     Buffer.Free;
   end;
 end;
@@ -547,13 +547,13 @@ var
   begin
     if Length(Text) > 0 then
     begin
-      UseUnderline := fsUnderline in Font.Style;
+      UseUnderline := {$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsUnderline in Font.Style;
       if UseUnderline then
         Buffer.Add('\ul');
-      UseItalic := fsItalic in Font.Style;
+      UseItalic := {$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsItalic in Font.Style;
       if UseItalic then
         Buffer.Add('\i');
-      UseBold := fsBold in Font.Style;
+      UseBold := {$IF CompilerVersion >= 20}TFontStyle.{$IFEND}fsBold in Font.Style;
       if UseBold then
         Buffer.Add('\b');
       SelectFont(Font.Name);
@@ -612,8 +612,8 @@ begin
   CrackTree := TCustomVirtualStringTreeCracker(Tree);
 
   Buffer := TBufferedRawByteString.Create;
-  lGetCellTextEventArgs.ExportType := etRtf;
-  CrackTree.StartOperation(okExport);
+  lGetCellTextEventArgs.ExportType := {$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etRtf;
+  CrackTree.StartOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
   try
     // For customization by the application or descendants we use again the redirected font change event.
     CrackTree.RedirectFontChangeEvent(CrackTree.Canvas);
@@ -820,7 +820,7 @@ begin
 
     CrackTree.RestoreFontChangeEvent(CrackTree.Canvas);
   finally
-    CrackTree.EndOperation(okExport);
+    CrackTree.EndOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
     Buffer.Free;
   end;
 end;
@@ -860,8 +860,8 @@ begin
   CrackTree := TCustomVirtualStringTreeCracker(Tree);
 
   Buffer := TBufferedString.Create;
-  lGetCellTextEventArgs.ExportType := etText;
-  CrackTree.StartOperation(okExport);
+  lGetCellTextEventArgs.ExportType := {$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etText;
+  CrackTree.StartOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
   try
     Columns := nil;
     RenderColumns := CrackTree.Header.UseColumns;
@@ -966,7 +966,7 @@ begin
     end;
     Result := Buffer.AsString;
   finally
-    CrackTree.EndOperation(okExport);
+    CrackTree.EndOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
     Buffer.Free;
   end;
 end;
@@ -1108,7 +1108,7 @@ var
 begin
   CrackTree := TCustomVirtualStringTreeCracker(Tree);
 
-  CrackTree.StartOperation(okExport);
+  CrackTree.StartOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
   try
     Columns := nil;
     CrackTree.GetRenderStartValues(Source, Run, GetNextNode);
@@ -1164,7 +1164,7 @@ begin
     if Assigned(CrackTree.OnAfterTreeExport) then
       CrackTree.OnAfterTreeExport(CrackTree, etCustom);
   finally
-    CrackTree.EndOperation(okExport);
+    CrackTree.EndOperation({$IF CompilerVersion >= 20}TVTOperationKind.{$IFEND}okExport);
   end;
 end;
 
