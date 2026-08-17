@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.AccessibilityFactory;
+unit VirtualTrees.AccessibilityFactory;
 
 // The contents of this file are subject to the Mozilla Public License
 // Version 1.1 (the "License"); you may not use this file except in compliance
@@ -30,7 +30,7 @@
 // the AccessibleItem is returned when the Accessible is being asked for the first child
 // To create your own IAccessibles, use the VTStandardAccessible unit as a reference,
 // and assign your Accessibles to the variables in the unit's initialization.
-// You only need to add the unit to your project, and voilá, you have an accessible string tree!
+// You only need to add the unit to your project, and voil�, you have an accessible UnicodeString tree!
 //
 // Written by Marco Zehe. (c) 2007
 
@@ -40,6 +40,7 @@ uses
   {$IF CompilerVersion < 23}oleacc{$ELSE}Winapi.oleacc{$IFEND},
   {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  VirtualTrees.Types,
   VirtualTrees.BaseTree;
 
 type
@@ -49,10 +50,14 @@ type
   end;
 
   TVTAccessibilityFactory = class(TObject)
-  strict private class var
+  {$IFDEF UNICODE}
+  {$IFDEF UNICODE}strict{$ENDIF} private class var
     FAccessibilityAvailable: Boolean;
     FVTAccessibleFactory: TVTAccessibilityFactory;
-  strict private
+  {$IFDEF UNICODE}strict{$ENDIF} private
+  {$ELSE}
+  private // class vars need D2006+; the two singleton fields live as unit vars in the implementation on D7
+  {$ENDIF}
     FAccessibleProviders: TInterfaceList;
   private
     class procedure FreeFactory;
@@ -60,13 +65,19 @@ type
     constructor Create;
     destructor Destroy; override;
     function CreateIAccessible(ATree: TCustomControl): IAccessible;
-    class function GetAccessibilityFactory: TVTAccessibilityFactory; static;
+    class function GetAccessibilityFactory: TVTAccessibilityFactory; {$IF CompilerVersion >= 18}static;{$IFEND}
     procedure RegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
     procedure UnRegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
   end;
 
 
 implementation
+
+{$IFNDEF UNICODE}
+var
+  FAccessibilityAvailable: Boolean;
+  FVTAccessibleFactory: TVTAccessibilityFactory;
+{$ENDIF}
 
 { TVTAccessibilityFactory }
 

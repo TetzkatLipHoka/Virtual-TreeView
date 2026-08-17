@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.Accessibility;
+unit VirtualTrees.Accessibility;
 
 // This unit implements iAccessible interfaces for the VirtualTree visual components
 // and the currently focused node.
@@ -8,8 +8,8 @@
 interface
 
 uses
-  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, Winapi.ActiveX, Winapi.oleacc,
-  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.Types,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND}, {$IF CompilerVersion < 23}oleacc{$ELSE}Winapi.oleacc{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
   {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
   VirtualTrees, VirtualTrees.AccessibilityFactory, VirtualTrees.BaseTree;
 
@@ -75,7 +75,7 @@ type
   end;
 
   TVTMultiColumnItemAccessibility = class(TVirtualTreeItemAccessibility, IAccessible)
-  strict private
+  {$IFDEF UNICODE}strict{$ENDIF} private
     function GetItemDescription(varChild: OleVariant; out pszDescription: WideString; IncludeMainColumn: boolean): HResult; stdcall;
   public
     { IAccessibility }
@@ -101,7 +101,7 @@ type
 implementation
 
 uses
-  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}, System.Variants, System.Math,
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}, {$IF CompilerVersion < 23}Variants{$ELSE}System.Variants{$IFEND}, {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND},
   {$IF CompilerVersion < 23}Forms{$ELSE}Vcl.Forms{$IFEND},
   VirtualTrees.Types;
 
@@ -411,7 +411,7 @@ var
 begin
   lIndexToSelect := varChild;
   if lIndexToSelect >= Self.FVirtualTree.TotalCount then
-    Exit(E_INVALIDARG);
+    begin Result := E_INVALIDARG; Exit; end; // Exit(x) needs D2009+
   lNode := FVirtualTree.GetFirst();
   for i := 0 to Integer(lIndexToSelect) - 1 do
     lNode := FVirtualTree.GetNext(lNode);

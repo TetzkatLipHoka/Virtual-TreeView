@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.WorkerThread;
+unit VirtualTrees.WorkerThread;
 
 interface
 
@@ -15,6 +15,11 @@ type
     FWaiterList: TThreadList;
     FRefCount: Integer;
     FWorkEvent: THandle;
+    {$IFNDEF UNICODE}
+    FPendingException: TObject;   // classic rethrow path: no closures before D2009
+    FPendingExceptAddr: Pointer;
+    procedure RethrowPendingException;
+    {$ENDIF}
     class procedure EnsureCreated();
     class procedure Dispose(CanBlock: Boolean);
     procedure WaitForValidationTermination(Tree: TBaseVirtualTree);
@@ -134,6 +139,13 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+{$IFNDEF UNICODE}
+procedure TWorkerThread.RethrowPendingException;
+begin
+  raise FPendingException at FPendingExceptAddr;
+end;
+{$ENDIF}
+
 procedure TWorkerThread.Execute();
 
 // Does some background tasks, like validating tree caches.
@@ -188,10 +200,16 @@ begin
     begin
       lExceptAddr := ExceptAddr;
       lException := AcquireExceptionObject;
+      {$IFDEF UNICODE}
       TThread.Synchronize(nil, procedure
         begin
           raise lException at lExceptAddr;
         end);
+      {$ELSE}
+      FPendingException := lException;
+      FPendingExceptAddr := lExceptAddr;
+      Synchronize(RethrowPendingException);
+      {$ENDIF}
       Continue; //the thread should continue to run
     end;
   end;//while

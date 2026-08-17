@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.DataObject;
+unit VirtualTrees.DataObject;
 
 interface
 
@@ -360,7 +360,7 @@ begin
     GlobalUnLock(Medium.HGlobal);
     Medium.tymed := TYMED_HGLOBAL;
     Medium.unkForRelease := nil;
-    Exit(S_OK);
+    begin Result := S_OK; Exit; end; // Exit(x) needs D2009+
   end; // if CF_VTHEADERREFERENCE
 
 
@@ -380,7 +380,7 @@ begin
       GlobalUnLock(Medium.HGlobal);
       Medium.tymed := TYMED_HGLOBAL;
       Medium.unkForRelease := nil;
-      Exit(S_OK);
+      begin Result := S_OK; Exit; end; // Exit(x) needs D2009+
     end;
   end; // if CF_VTREFERENCE
 

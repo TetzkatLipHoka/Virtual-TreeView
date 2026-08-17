@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.Actions;
+unit VirtualTrees.Actions;
 
 interface
 
@@ -12,13 +12,13 @@ uses
 
 type
   TVirtualTreeAction = class(TCustomAction)
-  strict private
+  {$IFDEF UNICODE}strict{$ENDIF} private
     fTree: TBaseVirtualTree; // Member variable for the property "Control"
     fTreeAutoDetect: Boolean; // True if a potential Virtual TreeView should be detected automatically, false if a specific Tree was assigned to the property "Tree"
     fOnAfterExecute: TNotifyEvent; // Member variable for the OnAfterExecute event
     function GetSelectedOnly: Boolean; // Setter for the property "SelectedOnly"
     procedure SetSelectedOnly(const Value: Boolean); // Getter for the property "SelectedOnly"
-  strict protected
+  {$IFDEF UNICODE}strict{$ENDIF} protected
     fFilter: TVirtualNodeStates; // Apply only of nodes which match these states
     procedure SetControl(Value: TBaseVirtualTree); // Setter for the property "Control"
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -46,10 +46,10 @@ type
   end;
 
   TVirtualTreePerItemAction = class(TVirtualTreeAction)
-  strict private
+  {$IFDEF UNICODE}strict{$ENDIF} private
     fOnBeforeExecute: TNotifyEvent;
     fOldCursor: TCursor;
-  strict protected
+  {$IFDEF UNICODE}strict{$ENDIF} protected
     fToExecute: TVTGetNodeProc; // method which is executed per item to perform this action
     procedure DoBeforeExecute();
     procedure DoAfterExecute(); override;// Fires the event "OnAfterExecute"
@@ -64,6 +64,7 @@ type
   TVirtualTreeCheckAll = class(TVirtualTreePerItemAction)
   protected
     fDesiredCheckState: TCheckState;
+    procedure CheckNodeProc(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
   public
     constructor Create(AOwner: TComponent); override;
   published
@@ -136,15 +137,15 @@ end;
 
 function TVirtualTreeAction.GetSelectedOnly: Boolean;
 begin
-  exit(TVirtualNodeState.vsSelected in fFilter);
+  Result := vsSelected in fFilter; // Exit(x) needs D2009+
 end;
 
 procedure TVirtualTreeAction.SetSelectedOnly(const Value: Boolean);
 begin
   if Value then
-    Include(fFilter, TVirtualNodeState.vsSelected)
+    Include(fFilter, vsSelected)
   else
-    Exclude(fFilter, TVirtualNodeState.vsSelected);
+    Exclude(fFilter, vsSelected);
 end;
 
 procedure TVirtualTreeAction.DoAfterExecute;
@@ -160,7 +161,7 @@ end;
 
 function TVirtualTreeAction.Update(): Boolean;
 begin
-  Result := inherited;
+  Result := inherited Update(); // bare inherited-as-expression needs D2009+
   // If an OnUpdate event handler is assigned, TBasicAction.Update() will return True and so TBasicAction.UpdateTarget() will not be called.
   // We would then end up with Control == nil. So trigger update of action manually.
   if Result and Assigned(OnUpdate) then
@@ -246,11 +247,13 @@ begin
   Hint := 'Check all items in the list';
   Caption := 'Check &All';
   fDesiredCheckState := csCheckedNormal;
-  fToExecute := procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean)
-                begin
-                  if not IsCheckStateDisabled(Control.CheckState[Node]) then
-                    Control.CheckState[Node] := fDesiredCheckState;
-                end;
+  fToExecute := CheckNodeProc; // plain method instead of a closure: works from D7 up
+end;
+
+procedure TVirtualTreeCheckAll.CheckNodeProc(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
+begin
+  if not IsCheckStateDisabled(Control.CheckState[Node]) then
+    Control.CheckState[Node] := fDesiredCheckState;
 end;
 
 

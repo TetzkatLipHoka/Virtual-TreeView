@@ -78,7 +78,7 @@ type
   //     (+) Access to external classes with data to copy to EditLink editor.
   //     (-) Lesser encapsulation
   TBaseEditLink = class(TInterfacedObject, IVTEditLink)
-  strict protected
+  {$IFDEF UNICODE}strict{$ENDIF} protected
     FEdit: TControl;                          // One of the property editor classes.
     FTree : TCustomVirtualStringTree;         //A back reference to the tree calling.
     FNode : PVirtualNode;                     //The node to be edited.
@@ -182,7 +182,7 @@ constructor TVTEdit.Create(Link : TStringEditLink);
 begin
   inherited Create(nil);
   if not Assigned(Link) then
-    raise EArgumentException.Create('Parameter Link must not be nil.');
+    raise {$IF CompilerVersion >= 20}EArgumentException{$ELSE}Exception{$IFEND}.Create('Parameter Link must not be nil.');
   ShowHint := False;
   ParentShowHint := False;
   //This assignment increases the reference count for the interface.
@@ -273,7 +273,7 @@ procedure TVTEdit.WMDestroy(var Message : TWMDestroy);
 begin
   //If editing stopped by other means than accept or cancel then we have to do default processing for
   //pending changes.
-  if Assigned(FLink) and not FLink.Stopping and not (csRecreating in Self.ControlState) then
+  if Assigned(FLink) and not FLink.Stopping {$IF CompilerVersion >= 18}and not (csRecreating in Self.ControlState){$IFEND} then
   begin
     with TCustomVirtualStringTreeCracker(FLink.Tree) do
     begin
@@ -675,7 +675,7 @@ end;
 
 function TWinControlEditLink.BeginEdit: Boolean;
 begin
-  Result := inherited;
+  Result := inherited BeginEdit; // bare inherited-as-expression needs D2009+
   if Result then
   begin
     Edit.Show;
@@ -687,7 +687,7 @@ end;
 
 function TWinControlEditLink.CancelEdit: Boolean;
 begin
-  Result := inherited;
+  Result := inherited CancelEdit; // bare inherited-as-expression needs D2009+
   if Result then
   begin
     Edit.Hide;
@@ -712,7 +712,7 @@ end;
 
 function TWinControlEditLink.EndEdit: Boolean;
 begin
-  Result := inherited;
+  Result := inherited EndEdit; // bare inherited-as-expression needs D2009+
   if Result then
   begin
     Edit.Hide;
@@ -758,7 +758,7 @@ end;
 
 function TStringEditLink.BeginEdit : Boolean;
 begin
-  Result := inherited;
+  Result := inherited BeginEdit; // bare inherited-as-expression needs D2009+
   if Result then
   begin
     InitializeSelection;
@@ -770,7 +770,7 @@ end;
 
 function TStringEditLink.CancelEdit : Boolean;
 begin
-  Result := inherited;
+  Result := inherited CancelEdit; // bare inherited-as-expression needs D2009+
   if Result then
   begin
     Edit.ClearLink;
@@ -782,7 +782,7 @@ end;
 
 function TStringEditLink.EndEdit : Boolean;
 begin
-  Result := inherited;
+  Result := inherited EndEdit; // bare inherited-as-expression needs D2009+
   if Result then
   try
     if Edit.Modified then
@@ -799,9 +799,9 @@ end;
 
 function TStringEditLink.PrepareEdit(Tree : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex) : Boolean;
 var
-  Text : string;
+  Text : UnicodeString;
 begin
-  Result := inherited;
+  Result := inherited PrepareEdit(Tree, Node, Column); // bare inherited-as-expression needs D2009+
   if Result then
   begin
     Edit := TVTEdit.Create(Self);

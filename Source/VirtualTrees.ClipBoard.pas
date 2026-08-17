@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.ClipBoard;
+unit VirtualTrees.ClipBoard;
 
 // The contents of this file are subject to the Mozilla Public License
 // Version 1.1 (the "License"); you may not use this file except in compliance
@@ -32,12 +32,13 @@ uses
   {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
   {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
   {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
+  VirtualTrees.Types,
   VirtualTrees.BaseTree;
 
 type
   TClipboardFormatEntry = record
     ID: Word;
-    Description: string;
+    Description: UnicodeString;
   end;
 
 var
@@ -65,9 +66,9 @@ var
 // OLE Clipboard and drag'n drop helper
 procedure EnumerateVTClipboardFormats(TreeClass: TVirtualTreeClass; const List: TStrings); overload;
 procedure EnumerateVTClipboardFormats(TreeClass: TVirtualTreeClass; var Formats: TFormatEtcArray); overload;
-function GetVTClipboardFormatDescription(AFormat: Word): string;
+function GetVTClipboardFormatDescription(AFormat: Word): UnicodeString;
 procedure RegisterVTClipboardFormat(AFormat: Word; TreeClass: TVirtualTreeClass; Priority: Cardinal); overload;
-function RegisterVTClipboardFormat(const Description: string; TreeClass: TVirtualTreeClass; Priority: Cardinal;
+function RegisterVTClipboardFormat(const Description: UnicodeString; TreeClass: TVirtualTreeClass; Priority: Cardinal;
                                    tymed: Integer = TYMED_HGLOBAL; ptd: PDVTargetDevice = nil;
                                    dwAspect: Integer = DVASPECT_CONTENT; lindex: Integer = -1): Word; overload;
 
@@ -76,26 +77,31 @@ function RegisterVTClipboardFormat(const Description: string; TreeClass: TVirtua
 type
   TClipboardFormatListEntry = class
   public
-    Description: string;               // The string used to register the format with {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.
+    Description: UnicodeString;               // The UnicodeString used to register the format with {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.
     TreeClass: TVirtualTreeClass;      // The tree class which supports rendering this format.
     Priority: Cardinal;                // Number which determines the order of formats used in IDataObject.
     FormatEtc: TFormatEtc;             // The definition of the format in the IDataObject.
   end;
 
   TClipboardFormatList = class
-  strict private
-    class function GetList(): TList; static;
+  {$IFDEF UNICODE}strict{$ENDIF} private
+    class function GetList(): TList; {$IF CompilerVersion >= 18}static;{$IFEND}
+    {$IFDEF UNICODE}
     class property List: TList read GetList;
+    {$ELSE}
+    // property-call-compatible replacement: class properties need D2006+
+    class function List(): TList;
+    {$ENDIF}
   protected
    class procedure Sort;
   public
-    class procedure Add(const FormatString: string; AClass: TVirtualTreeClass; Priority: Cardinal; AFormatEtc: TFormatEtc);
+    class procedure Add(const FormatString: UnicodeString; AClass: TVirtualTreeClass; Priority: Cardinal; AFormatEtc: TFormatEtc);
     class procedure Clear;
     class procedure EnumerateFormats(TreeClass: TVirtualTreeClass; var Formats: TFormatEtcArray;  const AllowedFormats: TClipboardFormats = nil); overload;
     class procedure EnumerateFormats(TreeClass: TVirtualTreeClass; const Formats: TStrings); overload;
-    class function FindFormat(const FormatString: string): TClipboardFormatListEntry; overload;
-    class function FindFormat(const FormatString: string; var Fmt: Word): TVirtualTreeClass; overload;
-    class function FindFormat(Fmt: Word; var Description: string): TVirtualTreeClass; overload;
+    class function FindFormat(const FormatString: UnicodeString): TClipboardFormatListEntry; overload;
+    class function FindFormat(const FormatString: UnicodeString; var Fmt: Word): TVirtualTreeClass; overload;
+    class function FindFormat(Fmt: Word; var Description: UnicodeString): TVirtualTreeClass; overload;
   end;
 
 var
@@ -134,7 +140,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function GetVTClipboardFormatDescription(AFormat: Word): string;
+function GetVTClipboardFormatDescription(AFormat: Word): UnicodeString;
 
 begin
   if TClipboardFormatList.FindFormat(AFormat, Result) = nil then
@@ -161,8 +167,8 @@ begin
   FormatEtc.lindex := -1;
   FormatEtc.tymed := TYMED_HGLOBAL;
 
-  // Determine description string of the given format. For predefined formats we need the lookup table because they
-  // don't have a description string. For registered formats the description string is the string which was used
+  // Determine description UnicodeString of the given format. For predefined formats we need the lookup table because they
+  // don't have a description UnicodeString. For registered formats the description UnicodeString is the UnicodeString which was used
   // to register them.
   if AFormat < CF_MAX then
   begin
@@ -182,7 +188,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function RegisterVTClipboardFormat(const Description: string; TreeClass: TVirtualTreeClass; Priority: Cardinal;
+function RegisterVTClipboardFormat(const Description: UnicodeString; TreeClass: TVirtualTreeClass; Priority: Cardinal;
   tymed: Integer = TYMED_HGLOBAL; ptd: PDVTargetDevice = nil; dwAspect: Integer = DVASPECT_CONTENT;
   lindex: Integer = -1): Word;
 
@@ -249,7 +255,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TClipboardFormatList.Add(const FormatString: string; AClass: TVirtualTreeClass; Priority: Cardinal; AFormatEtc: TFormatEtc);
+class procedure TClipboardFormatList.Add(const FormatString: UnicodeString; AClass: TVirtualTreeClass; Priority: Cardinal; AFormatEtc: TFormatEtc);
 
 // Adds the given data to the internal list. The priority value is used to sort formats for importance. Larger priority
 // values mean less priority.
@@ -337,7 +343,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class function TClipboardFormatList.FindFormat(const FormatString: string): TClipboardFormatListEntry;
+class function TClipboardFormatList.FindFormat(const FormatString: UnicodeString): TClipboardFormatListEntry;
 
 var
   I: Integer;
@@ -358,7 +364,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class function TClipboardFormatList.FindFormat(const FormatString: string; var Fmt: Word): TVirtualTreeClass;
+class function TClipboardFormatList.FindFormat(const FormatString: UnicodeString; var Fmt: Word): TVirtualTreeClass;
 
 var
   I: Integer;
@@ -380,7 +386,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class function TClipboardFormatList.FindFormat(Fmt: Word; var Description: string): TVirtualTreeClass;
+class function TClipboardFormatList.FindFormat(Fmt: Word; var Description: UnicodeString): TVirtualTreeClass;
 
 var
   I: Integer;
@@ -405,8 +411,15 @@ class function TClipboardFormatList.GetList: TList;
 begin
   if not Assigned(_List) then
     _List :=  TList.Create;
-  Exit(_List);
+  Result := _List; // Exit(x) needs D2009+
 end;
+
+{$IFNDEF UNICODE}
+class function TClipboardFormatList.List: TList;
+begin
+  Result := GetList;
+end;
+{$ENDIF}
 
 initialization
 

@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.DragImage;
+unit VirtualTrees.DragImage;
 
 interface
 

@@ -13,9 +13,9 @@ unit VirtualTrees.BaseAncestorFMX;
 interface
 uses
   {$IFDEF MSWINDOWS}
-  WinApi.Windows,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
   {$ENDIF}
-  System.Classes, System.UITypes,
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.UITypes,
   FMX.Objects, FMX.Graphics, FMX.Controls, FMX.StdCtrls, FMX.Forms, FMX.ImgList,
   VirtualTrees.Types, VirtualTrees.FMX;
 
@@ -101,7 +101,7 @@ type
     /// <summary>
     /// Alias for IsFocused to make same as Vcl Focused
     /// </summary>
-    function Focused(): Boolean; inline;
+    function Focused(): Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
     /// <summary>
     /// Convert mouse message to TMouseButton
@@ -114,28 +114,28 @@ type
     /// <summary>
     /// Alias for Repaint on FMX to be compatible with VCL
     /// </summary>
-    procedure Invalidate(); inline;
+    procedure Invalidate(); {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Alias for Repaint on FMX to be compatible with VCL
     /// </summary>
-    function InvalidateRect(lpRect: PRect; bErase: Boolean): Boolean; inline;
+    function InvalidateRect(lpRect: PRect; bErase: Boolean): Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Alias for Repaint on FMX to be compatible with VCL
     /// </summary>
-    function UpdateWindow(): Boolean; inline;
+    function UpdateWindow(): Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Alias for Repaint on FMX to be compatible with VCL
     /// </summary>
-    function RedrawWindow(lprcUpdate: PRect; hrgnUpdate: NativeUInt; flags: UINT): Boolean; overload; inline;
+    function RedrawWindow(lprcUpdate: PRect; hrgnUpdate: NativeUInt; flags: UINT): Boolean; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Alias for Repaint on FMX to be compatible with VCL
     /// </summary>
-    function RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: NativeUInt; flags: UINT): Boolean; overload; inline;
+    function RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: NativeUInt; flags: UINT): Boolean; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
     /// <summary>
     /// Alias for Repaint on FMX to be compatible with VCL
     /// </summary>
-    function SendWM_SETREDRAW(Updating: Boolean): NativeUInt; inline;
+    function SendWM_SETREDRAW(Updating: Boolean): NativeUInt; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
     /// <summary>
     /// Simulate Windows GetSystemMetrics
@@ -175,7 +175,7 @@ const
 implementation
 uses FMX.TextLayout, FMX.Utils
   {$IFNDEF MSWINDOWS}
-  , WinApi.Windows
+  , {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}
   {$ENDIF}
   ;
 

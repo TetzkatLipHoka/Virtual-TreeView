@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.StyleHooks;
+unit VirtualTrees.StyleHooks;
 
 // The contents of this file are subject to the Mozilla Public License
 // Version 1.1 (the "License"); you may not use this file except in compliance
@@ -51,10 +51,10 @@ type
   // XE2+ VCL Style
   TVclStyleScrollBarsHook = class(TScrollingStyleHook)
   {$ifdef NOT_USE_VCL_STYLEHOOK}
-  strict private type
+  {$IFDEF UNICODE}strict{$ENDIF} private type
   {$REGION 'TVclStyleScrollBarWindow'}
       TScrollWindow = class(TWinControl)
-      strict private
+      {$IFDEF UNICODE}strict{$ENDIF} private
         FStyleHook: TVclStyleScrollBarsHook;
         FVertical: Boolean;
         procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;

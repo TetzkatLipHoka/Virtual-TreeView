@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.HeaderPopup;
+unit VirtualTrees.HeaderPopup;
 
 //----------------------------------------------------------------------------------------------------------------------
 //
@@ -82,14 +82,14 @@ type
   TColumnChangeEvent = procedure(const Sender: TObject; const Column: TColumnIndex; Visible: Boolean) of object;
 
   TVTHeaderPopupMenu = class(TPopupMenu)
-  strict private
+  {$IFDEF UNICODE}strict{$ENDIF} private
     FOptions: TVTHeaderPopupOptions;
 
     FOnHeaderAddPopupItem: TVTHeaderAddPopupItemEvent;
     FOnColumnChange: TColumnChangeEvent;
     procedure ResizeColumnToFit(Sender: TObject);
     procedure ResizeToFit(Sender: TObject);
-  strict protected
+  {$IFDEF UNICODE}strict{$ENDIF} protected
     procedure DoAddHeaderPopupItem(const Column: TColumnIndex; out Cmd: TAddPopupItemType); virtual;
     procedure DoColumnChange(Column: TColumnIndex; Visible: Boolean); virtual;
     procedure OnMenuItemClick(Sender: TObject); virtual;
@@ -119,7 +119,7 @@ resourcestring
 type
   TVTMenuItem = class(TMenuItem)
   public
-    constructor Create(AOwner: TComponent; const ACaption: string; AClickHandler: TNotifyEvent = nil); reintroduce;
+    constructor Create(AOwner: TComponent; const ACaption: UnicodeString; AClickHandler: TNotifyEvent = nil); reintroduce;
   end;
 
 //----------------- TVTHeaderPopupMenu ---------------------------------------------------------------------------------
@@ -265,7 +265,7 @@ end;
 
 { TVTMenuItem }
 
-constructor TVTMenuItem.Create(AOwner: TComponent; const ACaption: string; AClickHandler: TNotifyEvent);
+constructor TVTMenuItem.Create(AOwner: TComponent; const ACaption: UnicodeString; AClickHandler: TNotifyEvent);
 begin
   Inherited Create(AOwner);
   Caption := ACaption;

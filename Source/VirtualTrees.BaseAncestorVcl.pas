@@ -1,6 +1,6 @@
 unit VirtualTrees.BaseAncestorVCL;
 
-{$SCOPEDENUMS ON}
+{$IF CompilerVersion >= 20}{$SCOPEDENUMS ON}{$IFEND}
 
 {****************************************************************************************************************}
 { Project          : VirtualTrees                                                                                }
@@ -23,12 +23,12 @@ uses
   VirtualTrees.Types;
 
 type
-  TVTBaseAncestorVcl = class abstract(TCustomControl)
+  TVTBaseAncestorVcl = class {$IFDEF UNICODE}abstract{$ENDIF}(TCustomControl)
   private
     // MSAA support
     FAccessible: IAccessible;                    // The IAccessible interface to the window itself.
     FAccessibleItem: IAccessible;                // The IAccessible to the item that currently has focus.
-    FAccessibleName: string;                     // The name the window is given for screen readers.
+    FAccessibleName: UnicodeString;                     // The name the window is given for screen readers.
     FDottedBrushTreeLines: TBrush;               // used to paint dotted lines without special pens
 
     procedure WMGetObject(var Message: TMessage); message WM_GETOBJECT;
@@ -38,7 +38,7 @@ type
     procedure NotifyAccessibleEvent(pEvent: DWord = EVENT_OBJECT_STATECHANGE);
     function PrepareDottedBrush(CurrentDottedBrush: TBrush; Bits: Pointer; const BitsLinesCount: Word): TBrush; virtual;
     function CreateSystemImageSet(): TImageList;
-    procedure SetWindowTheme(const Theme: string); virtual;
+    procedure SetWindowTheme(const Theme: UnicodeString); virtual;
     //// Abtract method that are implemented in TBaseVirtualTree, keep in sync with TVTBaseAncestorFMX
     function GetSelectedCount(): Integer; virtual; abstract;
 
@@ -67,24 +67,24 @@ type
     /// <summary>
     /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.InvalidateRect
     /// </summary>
-    function InvalidateRect(lpRect: PRect; bErase: BOOL): BOOL; inline;
+    function InvalidateRect(lpRect: PRect; bErase: BOOL): BOOL; {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.UpdateWindow
     /// </summary>
-    function UpdateWindow(): BOOL; inline;
+    function UpdateWindow(): BOOL; {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow
     /// </summary>
-    function RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL; overload; inline;
+    function RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
     /// <summary>
     /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow
     /// </summary>
-    function RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL; overload; inline;
+    function RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
     /// <summary>
     /// Handle less and with limited parameters version
     /// </summary>
-    function SendWM_SETREDRAW(Updating: Boolean): LRESULT; inline;
+    function SendWM_SETREDRAW(Updating: Boolean): LRESULT; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
     /// <summary>
     /// Handle less alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.ShowScrollBar
@@ -105,11 +105,11 @@ type
     /// <summary>
     /// Canvas based without HDC alias for {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.GetTextMetrics
     /// </summary>
-    function GetTextMetrics(Canvas: TCanvas; var TM: TTextMetric): BOOL; overload; inline;
+    function GetTextMetrics(Canvas: TCanvas; var TM: TTextMetric): BOOL; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
   public //properties
     property Accessible: IAccessible read FAccessible write FAccessible;
     property AccessibleItem: IAccessible read FAccessibleItem write FAccessibleItem;
-    property AccessibleName: string read FAccessibleName write FAccessibleName;
+    property AccessibleName: UnicodeString read FAccessibleName write FAccessibleName;
   end;
 
 implementation
@@ -140,7 +140,7 @@ const
   SysGrays: array[0..3] of TColor = (clWindow, clBtnFace, clBtnShadow, clBtnText);
 
 //not used curently anywhere, moved to VCL, to remove ifdef (gWatcher is declared in VirtualTrees.BaseTree)
-procedure ConvertImageList(gWatcher: TCriticalSection; BaseVirtualTreeClass: TClass; IL: TImageList; const ImageName: string; ColorRemapping: Boolean = True);
+procedure ConvertImageList(gWatcher: TCriticalSection; BaseVirtualTreeClass: TClass; IL: TImageList; const ImageName: UnicodeString; ColorRemapping: Boolean = True);
 
 // Loads a bunch of images given by ImageName into IL. If ColorRemapping = True then a mapping of gray values to
 // system colors is performed.
@@ -260,7 +260,7 @@ begin
         ResPointer := TMemoryStream(VCLStream).Memory;
         ResSize := VCLStream.Position;
 
-        // Allocate memory to hold the string.
+        // Allocate memory to hold the UnicodeString.
         if ResSize > 0 then
         begin
           Medium.hGlobal := GlobalAlloc(GHND or GMEM_SHARE, ResSize + SizeOf(Cardinal));
@@ -422,7 +422,7 @@ begin
         Res := GetThemePartSize(Theme, BM.Canvas.Handle, Details.Part, Details.State, nil, TS_TRUE, lSize) = S_OK;
       end
       else
-        Res := StyleServices.GetElementSize(BM.Canvas.Handle, StyleServices.GetElementDetails(tbCheckBoxUncheckedNormal), TElementSize.esActual, lSize {$IF CompilerVersion >= 34}, Self.CurrentPPI{$IFEND});
+        Res := StyleServices.GetElementSize(BM.Canvas.Handle, StyleServices.GetElementDetails(tbCheckBoxUncheckedNormal), esActual, lSize {$IF CompilerVersion >= 34}, Self.CurrentPPI{$IFEND});
     if not Res then begin
       lSize.cx := GetSystemMetrics(SM_CXMENUCHECK); // TSize.Create needs XE2+
       lSize.cy := GetSystemMetrics(SM_CYMENUCHECK);
@@ -438,7 +438,7 @@ begin
     Result.BkColor := clWhite;
 
     // Make the bitmap the same size as the image list is to avoid problems when adding.
-    BM.SetSize(Result.Width, Result.Height);
+    BM.Width := Result.Width; BM.Height := Result.Height; // .SetSize needs D2006+
     BM.Canvas.Brush.Color := MaskColor;
     BM.Canvas.Brush.Style := bsSolid;
     BM.Canvas.FillRect(Rect(0, 0, BM.Width, BM.Height));
@@ -506,14 +506,14 @@ end;
 
 function TVTBaseAncestorVcl.RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
-  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, @lprcUpdate, hrgnUpdate, flags); // PRect form works on every compiler
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVTBaseAncestorVcl.RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
-  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, @lprcUpdate, hrgnUpdate, flags); // PRect form works on every compiler
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -581,7 +581,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTBaseAncestorVcl.SetWindowTheme(const Theme: string);
+procedure TVTBaseAncestorVcl.SetWindowTheme(const Theme: UnicodeString);
 begin
   {$IF CompilerVersion < 23}UxTheme{$ELSE}Winapi.UxTheme{$IFEND}.SetWindowTheme(Handle, PWideChar(Theme), nil);
 end;

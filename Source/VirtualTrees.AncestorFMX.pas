@@ -13,7 +13,7 @@ unit VirtualTrees.AncestorFMX;
 interface
 
 uses
-    System.Classes, System.UITypes,
+    {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.UITypes,
     FMX.Graphics,
     VirtualTrees.FMX, VirtualTrees.BaseTree;
 
@@ -50,7 +50,7 @@ type
 
 implementation
 uses
-  System.SysUtils,
+  {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
   FMX.Forms,
   VirtualTrees.Header,
   VirtualTrees.Types;

@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.Colors;
+unit VirtualTrees.Colors;
 
 interface
 
@@ -9,10 +9,8 @@ uses
   {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND};
 
 type
-  //class to collect all switchable colors into one place
-  TVTColors = class(TPersistent)
-  private type
-    TVTColorEnum = (
+  // Unit-level instead of a nested type (nested types need D2006+); only used inside this unit anyway.
+  TVTColorEnum = (
 	    cDisabledColor
 	  , cDropMarkColor
 	  , cDropTargetColor
@@ -34,8 +32,8 @@ type
 
     //Please make sure that the published Color properties at the corresponding index
     //have the same color if you change anything here!
-  const
-    cDefaultColors : array [TVTColorEnum] of TColor = (
+const
+  cDefaultColors : array [TVTColorEnum] of TColor = (
 	  clBtnShadow,            //DisabledColor
       clHighlight,            //DropMarkColor
       clHighlight,            //DropTargetColor
@@ -54,6 +52,10 @@ type
       clHighlightText,        //SelectionTextColor
       clInactiveCaptionText   //UnfocusedColor  [IPK]
     );
+
+type
+  //class to collect all switchable colors into one place
+  TVTColors = class(TPersistent)
   private
     FOwner  : TCustomControl;
     FColors : array [TVTColorEnum] of TColor; //[IPK] 15 -> 16
@@ -110,9 +112,11 @@ uses
 type
   TBaseVirtualTreeCracker = class(TBaseVirtualTree);
 
+  {$IFDEF UNICODE}
   TVTColorsHelper = class helper for TVTColors
     function TreeView : TBaseVirtualTreeCracker;
   end;
+  {$ENDIF}
 
   //----------------- TVTColors ------------------------------------------------------------------------------------------
 
@@ -130,10 +134,10 @@ end;
 function TVTColors.GetBackgroundColor : TColor;
 begin
   //XE2 VCL Style
-  if TreeView.VclStyleEnabled and (seClient in FOwner.StyleElements) then
+  if {$IF CompilerVersion >= 18}TBaseVirtualTreeCracker(FOwner).VclStyleEnabled and (seClient in FOwner.StyleElements){$ELSE}False{$IFEND} then // no styles, no helper on D7
     Result := StyleServices.GetStyleColor(scTreeView)
   else
-    Result := TreeView.Color;
+    Result := TBaseVirtualTreeCracker(FOwner).Color;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -142,7 +146,7 @@ function TVTColors.GetColor(const Index : TVTColorEnum) : TColor;
 begin
   //Only try to fetch the color via StyleServices if theses are enabled
   //Return default/user defined color otherwise
-  if not (csDesigning in TreeView.ComponentState) { see issue #1185 } and TreeView.VclStyleEnabled then
+  if not (csDesigning in TBaseVirtualTreeCracker(FOwner).ComponentState) { see issue #1185 } and TBaseVirtualTreeCracker(FOwner).VclStyleEnabled then
   begin
     //If the ElementDetails are not defined, fall back to the SystemColor
     case Index of
@@ -153,7 +157,7 @@ begin
         if not StyleServices.GetElementColor(StyleServices.GetElementDetails(ttBranch), ecBorderColor, Result) then
           Result := StyleServices.GetSystemColor(FColors[Index]);
       cBorderColor :
-        if (seBorder in FOwner.StyleElements) then
+        if {$IF CompilerVersion >= 18}(seBorder in FOwner.StyleElements){$ELSE}True{$IFEND} then
           Result := StyleServices.GetSystemColor(FColors[Index])
         else
           Result := FColors[Index];
@@ -182,20 +186,20 @@ end;
 function TVTColors.GetHeaderFontColor : TColor;
 begin
   //XE2+ VCL Style
-  if TreeView.VclStyleEnabled and (seFont in FOwner.StyleElements) then
+  if {$IF CompilerVersion >= 18}TBaseVirtualTreeCracker(FOwner).VclStyleEnabled and (seFont in FOwner.StyleElements){$ELSE}False{$IFEND} then
     StyleServices.GetElementColor(StyleServices.GetElementDetails(thHeaderItemNormal), ecTextColor, Result)
   else
-    Result := TreeView.Header.Font.Color;
+    Result := TBaseVirtualTreeCracker(FOwner).Header.Font.Color;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 function TVTColors.GetNodeFontColor : TColor;
 begin
-  if TreeView.VclStyleEnabled and (seFont in FOwner.StyleElements) then
+  if {$IF CompilerVersion >= 18}TBaseVirtualTreeCracker(FOwner).VclStyleEnabled and (seFont in FOwner.StyleElements){$ELSE}False{$IFEND} then
     StyleServices.GetElementColor(StyleServices.GetElementDetails(ttItemNormal), ecTextColor, Result)
   else
-    Result := TreeView.Font.Color;
+    Result := TBaseVirtualTreeCracker(FOwner).Font.Color;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -204,7 +208,7 @@ function TVTColors.GetSelectedNodeFontColor(Focused : boolean) : TColor;
 begin
   if Focused then
   begin
-    if (tsUseExplorerTheme in TreeView.TreeStates) and not IsHighContrastEnabled then
+    if (tsUseExplorerTheme in TBaseVirtualTreeCracker(FOwner).TreeStates) and not IsHighContrastEnabled then
     begin
       Result := NodeFontColor
     end
@@ -228,13 +232,13 @@ begin
       case Index of
         cTreeLineColor :
           begin
-            TreeView.PrepareBitmaps(True, False);
+            TBaseVirtualTreeCracker(FOwner).PrepareBitmaps(True, False);
             FOwner.Invalidate;
           end;
         cBorderColor :
           RedrawWindow(FOwner.Handle, nil, 0, RDW_FRAME or RDW_INVALIDATE or RDW_NOERASE or RDW_NOCHILDREN)
       else
-        if not (tsPainting in TreeView.TreeStates) then // See issue #1186
+        if not (tsPainting in TBaseVirtualTreeCracker(FOwner).TreeStates) then // See issue #1186
           FOwner.Invalidate;
       end;//case
     end;// if
@@ -257,8 +261,8 @@ begin
   if Source is TVTColors then
   begin
     FColors := TVTColors(Source).FColors;
-    if TreeView.UpdateCount = 0 then
-      TreeView.Invalidate;
+    if TBaseVirtualTreeCracker(FOwner).UpdateCount = 0 then
+      TBaseVirtualTreeCracker(FOwner).Invalidate;
   end
   else
     inherited;
@@ -266,9 +270,11 @@ end;
 
 { TVTColorsHelper }
 
+{$IFDEF UNICODE}
 function TVTColorsHelper.TreeView : TBaseVirtualTreeCracker;
 begin
   Result := TBaseVirtualTreeCracker(FOwner);
 end;
+{$ENDIF}
 
 end.

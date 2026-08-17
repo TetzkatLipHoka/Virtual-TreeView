@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.DrawTree;
+unit VirtualTrees.DrawTree;
 
 interface
 
@@ -270,7 +270,7 @@ type
     property OnCanResize;
     {$IF CompilerVersion >= 21}property OnGesture;{$IFEND}
     {$IF CompilerVersion >= 21}property Touch;{$IFEND}
-    property StyleElements;
+    {$IF CompilerVersion >= 18}property StyleElements;{$IFEND}
   end;
 
 

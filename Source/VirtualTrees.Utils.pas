@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.Utils;
+unit VirtualTrees.Utils;
 
 // The contents of this file are subject to the Mozilla Public License
 // Version 1.1 (the "License"); you may not use this file except in compliance
@@ -31,7 +31,7 @@ interface
 uses
   {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
   {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
-  {$IF CompilerVersion < 23}Winapi.ShlObj,{$IFEND} { IDragSourceHelper for the compat declarations below }
+  {$IF CompilerVersion < 23}ShlObj,{$IFEND} { IDragSourceHelper for the compat declarations below }
   {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
   {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
   {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND},
@@ -72,10 +72,10 @@ procedure AlphaBlend(Source, Destination: HDC; R: TRect; Target: TPoint; Mode: T
 function GetRGBColor(Value: TColor): DWORD;
 procedure PrtStretchDrawDIB(Canvas: TCanvas; DestRect: TRect; ABitmap: TBitmap);
 
-procedure SetBrushOrigin(Canvas: TCanvas; X, Y: Integer); inline;
+procedure SetBrushOrigin(Canvas: TCanvas; X, Y: Integer); {$IF CompilerVersion >= 18}inline;{$IFEND}
 
 
-procedure SetCanvasOrigin(Canvas: TCanvas; X, Y: Integer); inline;
+procedure SetCanvasOrigin(Canvas: TCanvas; X, Y: Integer); {$IF CompilerVersion >= 18}inline;{$IFEND}
 
 /// <summary>
 /// Clip a given canvas to ClipRect while transforming the given rect to device coordinates.
@@ -85,32 +85,32 @@ procedure ClipCanvas(Canvas: TCanvas; ClipRect: TRect; VisibleRegion: HRGN = 0);
 procedure DrawImage(ImageList: TCustomImageList; Index: Integer; Canvas: TCanvas; X, Y: Integer; Style: Cardinal; Enabled: Boolean);
 
 /// <summary>
-/// Adjusts the given string S so that it fits into the given width. EllipsisWidth gives the width of
-/// the three points to be added to the shorted string. If this value is 0 then it will be determined implicitely.
+/// Adjusts the given UnicodeString S so that it fits into the given width. EllipsisWidth gives the width of
+/// the three points to be added to the shorted UnicodeString. If this value is 0 then it will be determined implicitely.
 /// For higher speed (and multiple entries to be shorted) specify this value explicitely.
 /// </summary>
-function ShortenString(DC: HDC; const S: string; Width: TDimension; EllipsisWidth: TDimension = 0): string; overload;
+function ShortenString(DC: HDC; const S: UnicodeString; Width: TDimension; EllipsisWidth: TDimension = 0): UnicodeString; overload;
 
 //--------------------------
 // ShortenString similar to VTV's version, except:
 // -- Does not assume using three dots or any particular character for ellipsis
-// -- Does not add ellipsis to string, so could be added anywhere
+// -- Does not add ellipsis to UnicodeString, so could be added anywhere
 // -- Requires EllipsisWidth, and zero does nothing special
 // Returns:
 //   ShortenedString as var param
 //   True if shortened (ie: add ellipsis somewhere), otherwise false
-function ShortenString(TargetCanvasDC: HDC; const StrIn: string; const AllowedWidth_px: Integer; const EllipsisWidth_px: Integer; var ShortenedString: string): boolean; overload;
+function ShortenString(TargetCanvasDC: HDC; const StrIn: UnicodeString; const AllowedWidth_px: Integer; const EllipsisWidth_px: Integer; var ShortenedString: UnicodeString): boolean; overload;
 
 /// <summary>
-/// Wrap the given string S so that it fits into a space of given width.
+/// Wrap the given UnicodeString S so that it fits into a space of given width.
 /// RTL determines if right-to-left reading is active.
 /// </summary>
-function WrapString(DC: HDC; const S: string; const Bounds: TRect; RTL: Boolean; DrawFormat: Cardinal): string;
+function WrapString(DC: HDC; const S: UnicodeString; const Bounds: TRect; RTL: Boolean; DrawFormat: Cardinal): UnicodeString;
 
 /// <summary>
-/// Calculates bounds of a drawing rectangle for the given string
+/// Calculates bounds of a drawing rectangle for the given UnicodeString
 /// </summary>
-procedure GetStringDrawRect(DC: HDC; const S: string; var Bounds: TRect; DrawFormat: Cardinal);
+procedure GetStringDrawRect(DC: HDC; const S: UnicodeString; var Bounds: TRect; DrawFormat: Cardinal);
 
 /// <summary>
 /// Converts the incoming rectangle so that left and top are always less than or equal to right and bottom.
@@ -152,14 +152,14 @@ function IsHighContrastEnabled(): Boolean;
 /// <code>Integer uses div</code>
 /// <code>Single uses /</code>
 /// </summary>
-function Divide(const Dimension: Integer; const DivideBy: Integer): Integer; overload; inline;
+function Divide(const Dimension: Integer; const DivideBy: Integer): Integer; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
 /// <summary>
 /// Divide depend of parameter type uses different division operator:
 /// <code>Integer uses div</code>
 /// <code>Single uses /</code>
 /// </summary>
-function Divide(const Dimension: Single; const DivideBy: Integer): Single; overload; inline;
+function Divide(const Dimension: Single; const DivideBy: Integer): Single; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
 implementation
 
@@ -195,7 +195,7 @@ begin
       // Create drag image
 
       if not Assigned(pBitmap) then
-        Exit();
+        Exit;
       DragInfo.crColorKey := clBlack;
       DragInfo.sizeDragImage.cx := pBitmap.Width;
       DragInfo.sizeDragImage.cy := pBitmap.Height;
@@ -292,7 +292,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-procedure GetStringDrawRect(DC: HDC; const S: string; var Bounds: TRect; DrawFormat: Cardinal);
+procedure GetStringDrawRect(DC: HDC; const S: UnicodeString; var Bounds: TRect; DrawFormat: Cardinal);
 
 begin
   Bounds.Right := Bounds.Left + 1;
@@ -304,7 +304,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-function ShortenString(DC: HDC; const S: string; Width: TDimension; EllipsisWidth: TDimension = 0): string;
+function ShortenString(DC: HDC; const S: UnicodeString; Width: TDimension; EllipsisWidth: TDimension = 0): UnicodeString;
 
 var
   Size: TSize;
@@ -327,7 +327,7 @@ begin
     end;
 
     begin
-      // Do a binary search for the optimal string length which fits into the given width.
+      // Do a binary search for the optimal UnicodeString length which fits into the given width.
       L := 0;
       N := 0;
       W := Width;
@@ -357,7 +357,7 @@ end;
 
 
 //--------------------------
-function ShortenString(TargetCanvasDC: HDC; const StrIn: string; const AllowedWidth_px: Integer; const EllipsisWidth_px: Integer; var ShortenedString: string): boolean;
+function ShortenString(TargetCanvasDC: HDC; const StrIn: UnicodeString; const AllowedWidth_px: Integer; const EllipsisWidth_px: Integer; var ShortenedString: UnicodeString): boolean;
 //--------------------------
 var
   Size_px_x_px: TSize;  // cx, cy
@@ -375,11 +375,11 @@ begin
   if (AllowedWidth_px <= 0) then
   Begin
     ShortenedString := '';
-    Result := True;  // Ellipsis needed, since non-empty string replaced.
+    Result := True;  // Ellipsis needed, since non-empty UnicodeString replaced.
                      // But likely will get clipped if AllowedWidth is really zero
   End else
   begin
-      // Do a binary search for the optimal string length which fits into the given width.
+      // Do a binary search for the optimal UnicodeString length which fits into the given width.
       LoLen := 0;
       TestLen := 0;
       TestWidth_px := AllowedWidth_px;
@@ -398,7 +398,7 @@ begin
           LoLen := TestLen      // Low bound must be at least as much as TestLen
         End else
         Begin
-          HiLen := TestLen - 1; // Continue until Hi bound string produces width below AllowedWidth_px
+          HiLen := TestLen - 1; // Continue until Hi bound UnicodeString produces width below AllowedWidth_px
         End;
       end;
 
@@ -426,7 +426,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-function WrapString(DC: HDC; const S: string; const Bounds: TRect; RTL: Boolean; DrawFormat: Cardinal): string;
+function WrapString(DC: HDC; const S: UnicodeString; const Bounds: TRect; RTL: Boolean; DrawFormat: Cardinal): UnicodeString;
 
 var
   Width,
@@ -435,8 +435,8 @@ var
   WordsInLine,
   I, W: Integer;
   Buffer,
-  Line: string;
-  Words: array of string;
+  Line: UnicodeString;
+  Words: array of UnicodeString;
   R: TRect;
 
 begin
@@ -450,7 +450,7 @@ begin
   Width := Bounds.Right - Bounds.Left;
   R := Rect(0, 0, 0, 0);
 
-  // Count the words in the string.
+  // Count the words in the UnicodeString.
   WordCounter := 1;
   for I := 1 to Len do
     if Buffer[I] = ' ' then
@@ -459,7 +459,7 @@ begin
 
   if RTL then
   begin
-    // At first we split the string into words with the last word being the
+    // At first we split the UnicodeString into words with the last word being the
     // first element in Words.
     W := 0;
     for I := 1 to Len do
@@ -515,7 +515,7 @@ begin
   end
   else
   begin
-    // At first we split the string into words with the last word being the
+    // At first we split the UnicodeString into words with the last word being the
     // first element in Words.
     W := WordCounter - 1;
     for I := 1 to Len do
@@ -1031,7 +1031,7 @@ asm
         DB      $0F, $77               /// EMMS
 end;
 {$else}
-inline;
+{$IF CompilerVersion >= 18}inline;{$IFEND}
 begin
 
 end;
@@ -1697,7 +1697,8 @@ begin
     TmpImgList.Assign(ImgList);
 
     ImgList.Clear;
-    ImgList.SetSize(MulDiv(ImgList.Width, M, D), MulDiv(ImgList.Height, M, D));
+    ImgList.Width := MulDiv(ImgList.Width, M, D); // .SetSize needs D2006+
+    ImgList.Height := MulDiv(ImgList.Height, M, D);
 
     //add images back to original ImageList stretched (if DPI scaling > 150%) or centered (if DPI scaling <= 150%)
     for ii := 0 to -1 + TmpImgList.Count do
@@ -1705,10 +1706,10 @@ begin
       ib := TBitmap.Create;
       mb := TBitmap.Create;
       try
-        ib.SetSize(TmpImgList.Width, TmpImgList.Height);
+        ib.Width := TmpImgList.Width; ib.Height := TmpImgList.Height;
         ib.Canvas.FillRect(ib.Canvas.ClipRect);
 
-        mb.SetSize(TmpImgList.Width, TmpImgList.Height);
+        mb.Width := TmpImgList.Width; mb.Height := TmpImgList.Height;
         mb.Canvas.FillRect(mb.Canvas.ClipRect);
 
         ImageList_DrawEx(TmpImgList.Handle, ii, ib.Canvas.Handle, 0, 0, ib.Width, ib.Height, CLR_NONE, CLR_NONE, ILD_NORMAL);
@@ -1717,9 +1718,9 @@ begin
         sib := TBitmap.Create; //stretched (or centered) image
         smb := TBitmap.Create; //stretched (or centered) mask
         try
-          sib.SetSize(ImgList.Width, ImgList.Height);
+          sib.Width := ImgList.Width; sib.Height := ImgList.Height;
           sib.Canvas.FillRect(sib.Canvas.ClipRect);
-          smb.SetSize(ImgList.Width, ImgList.Height);
+          smb.Width := ImgList.Width; smb.Height := ImgList.Height;
           smb.Canvas.FillRect(smb.Canvas.ClipRect);
 
           if M * 100 / D >= 150 then //stretch if >= 150%

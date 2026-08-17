@@ -1,4 +1,4 @@
-ï»¿unit VirtualTrees;
+unit VirtualTrees;
 
 // The contents of this file are subject to the Mozilla Public License
 // Version 1.1 (the "License"); you may not use this file except in compliance
@@ -48,7 +48,7 @@
 
 interface
 
-{$if CompilerVersion < 20}{$MESSAGE FATAL 'This version supports only RAD Studio XE3 and higher. Please use V5 from  http://www.jam-software.com/virtual-treeview/VirtualTreeViewV5.5.3.zip  or  https://github.com/Virtual-TreeView/Virtual-TreeView/archive/V5_stable.zip'}{$ifend}
+{$if CompilerVersion < 15}{$MESSAGE FATAL 'This version supports only RAD Studio XE3 and higher. Please use V5 from  http://www.jam-software.com/virtual-treeview/VirtualTreeViewV5.5.3.zip  or  https://github.com/Virtual-TreeView/Virtual-TreeView/archive/V5_stable.zip'}{$ifend}
 
 {$booleval off} // Use fastest possible boolean evaluation
 
@@ -61,9 +61,9 @@ interface
 {$WARN UNSUPPORTED_CONSTRUCT      OFF}
 
 uses
-  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, Winapi.Messages, Winapi.ActiveX,
-  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, System.SysUtils,
-  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}, Vcl.Controls, Vcl.ImgList, Vcl.Menus, Vcl.Themes,
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}, {$IF CompilerVersion < 23}Messages{$ELSE}Winapi.Messages{$IFEND}, {$IF CompilerVersion < 23}ActiveX{$ELSE}Winapi.ActiveX{$IFEND},
+  {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}, {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
+  {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}, {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND}, {$IF CompilerVersion < 23}ImgList{$ELSE}Vcl.ImgList{$IFEND}, {$IF CompilerVersion < 23}Menus{$ELSE}Vcl.Menus{$IFEND}, Vcl.Themes,
   VirtualTrees.Types,
   VirtualTrees.Header,
   VirtualTrees.BaseTree,
@@ -140,36 +140,36 @@ const
   // Aliases for increased compatibility with V7, feel free to extend by pull requests
   NoColumn                 = VirtualTrees.Types.NoColumn;
   InvalidColumn            = VirtualTrees.Types.InvalidColumn;
-  sdAscending              = VirtualTrees.Types.TSortDirection.sdAscending;
-  sdDescending             = VirtualTrees.Types.TSortDirection.sdDescending;
-  toAutoSort               = VirtualTrees.Types.TVTAutoOption.toAutoSort;
-  toCheckSupport           = VirtualTrees.Types.TVTMiscOption.toCheckSupport;
-  toEditable               = VirtualTrees.Types.TVTMiscOption.toEditable;
-  toShowRoot               = VirtualTrees.Types.TVTPaintOption.toShowRoot;
-  ctNone                   = VirtualTrees.Types.TCheckType.ctNone;
-  ctTriStateCheckBox       = VirtualTrees.Types.TCheckType.ctTriStateCheckBox;
-  ctCheckBox               = VirtualTrees.Types.TCheckType.ctCheckBox;
-  ctRadioButton            = VirtualTrees.Types.TCheckType.ctRadioButton;
-  ctButton                 = VirtualTrees.Types.TCheckType.ctButton;
+  sdAscending              = VirtualTrees.Types.sdAscending;
+  sdDescending             = VirtualTrees.Types.sdDescending;
+  toAutoSort               = VirtualTrees.Types.toAutoSort; // unqualified enum value: D7-compatible
+  toCheckSupport           = VirtualTrees.Types.toCheckSupport;
+  toEditable               = VirtualTrees.Types.toEditable;
+  toShowRoot               = VirtualTrees.Types.toShowRoot;
+  ctNone                   = VirtualTrees.Types.ctNone;
+  ctTriStateCheckBox       = VirtualTrees.Types.ctTriStateCheckBox;
+  ctCheckBox               = VirtualTrees.Types.ctCheckBox;
+  ctRadioButton            = VirtualTrees.Types.ctRadioButton;
+  ctButton                 = VirtualTrees.Types.ctButton;
 
-  csUncheckedNormal        = VirtualTrees.Types.TCheckState.csUncheckedNormal;
-  csUncheckedPressed       = VirtualTrees.Types.TCheckState.csUncheckedPressed;
-  csCheckedNormal          = VirtualTrees.Types.TCheckState.csCheckedNormal;
-  csCheckedPressed         = VirtualTrees.Types.TCheckState.csCheckedPressed;
-  csMixedNormal            = VirtualTrees.Types.TCheckState.csMixedNormal;
-  csMixedPressed           = VirtualTrees.Types.TCheckState.csMixedPressed;
-  csUncheckedDisabled      = VirtualTrees.Types.TCheckState.csUncheckedDisabled;
-  csCheckedDisabled        = VirtualTrees.Types.TCheckState.csCheckedDisabled;
-  csMixedDisable           = VirtualTrees.Types.TCheckState.csMixedDisabled;
+  csUncheckedNormal        = VirtualTrees.Types.csUncheckedNormal;
+  csUncheckedPressed       = VirtualTrees.Types.csUncheckedPressed;
+  csCheckedNormal          = VirtualTrees.Types.csCheckedNormal;
+  csCheckedPressed         = VirtualTrees.Types.csCheckedPressed;
+  csMixedNormal            = VirtualTrees.Types.csMixedNormal;
+  csMixedPressed           = VirtualTrees.Types.csMixedPressed;
+  csUncheckedDisabled      = VirtualTrees.Types.csUncheckedDisabled;
+  csCheckedDisabled        = VirtualTrees.Types.csCheckedDisabled;
+  csMixedDisable           = VirtualTrees.Types.csMixedDisabled;
 
-  coVisible                = VirtualTrees.Types.TVTColumnOption.coVisible;
-  vsDisabled               = VirtualTrees.Types.TVirtualNodeState.vsDisabled;
-  etHTML                   = VirtualTrees.Types.TVTExportType.etHTML;
-  hiOnItemButton           = VirtualTrees.Types.THitPosition.hiOnItemButton;
-  dmOnNode                 = VirtualTrees.Types.TDropMode.dmOnNode;
-  hlbForceMultiLine        = VirtualTrees.Types.TVTTooltipLineBreakStyle.hlbForceMultiLine;
-  hmHintAndDefault         = VirtualTrees.Types.TVTHintMode.hmHintAndDefault;
-  hmTooltip                = VirtualTrees.Types.TVTHintMode.hmTooltip;
+  coVisible                = VirtualTrees.Types.coVisible; // unqualified enum value: D7-compatible
+  vsDisabled               = VirtualTrees.Types.vsDisabled;
+  etHTML                   = VirtualTrees.Types.etHTML;
+  hiOnItemButton           = VirtualTrees.Types.hiOnItemButton;
+  dmOnNode                 = VirtualTrees.Types.dmOnNode;
+  hlbForceMultiLine        = VirtualTrees.Types.hlbForceMultiLine;
+  hmHintAndDefault         = VirtualTrees.Types.hmHintAndDefault;
+  hmTooltip                = VirtualTrees.Types.hmTooltip;
 
 type
   TCustomVirtualStringTree = class;
@@ -180,7 +180,7 @@ type
   TVTAncestor = TVTAncestorVcl;
 {$ENDIF}
 
-  // Describes the source to use when converting a string tree into a string for clipboard etc.
+  // Describes the source to use when converting a UnicodeString tree into a UnicodeString for clipboard etc.
   TVSTTextSourceType = (
     tstAll,             // All nodes are rendered. Initialization is done on the fly.
     tstInitialized,     // Only initialized nodes are rendered.
@@ -191,43 +191,43 @@ type
   );
 
   TVSTGetTextEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-    TextType: TVSTTextType; var CellText: string) of object;
+    TextType: TVSTTextType; var CellText: UnicodeString) of object;
   TVSTGetHintEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-    var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string) of object;
+    var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: UnicodeString) of object;
   // New text can only be set for variable caption.
   TVSTNewTextEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-    NewText: string) of object;
-  /// <summary>String tree event for custom handling of string abbreviations.</summary>
+    NewText: UnicodeString) of object;
+  /// <summary>UnicodeString tree event for custom handling of UnicodeString abbreviations.</summary>
   /// <param name="Sender">The instance that fired the event.</param>
   /// <param name="TargetCanvas">Teh canvas on that the sending control will paint.</param>
   /// <param name="Node">The Node that is going to be painted.</param>
   /// <param name="Column">The column index that is going to be painted.</param>
-  /// <param name="Result">Var parameter that contains the caption or string that should be used.</param>
-  /// <param name="Done">Boolean var paramter: Assign True if a string is passed in the Result parameter. Leave the default value False if no shorting is need or the control shuld do it. </param>
+  /// <param name="Result">Var parameter that contains the caption or UnicodeString that should be used.</param>
+  /// <param name="Done">Boolean var paramter: Assign True if a UnicodeString is passed in the Result parameter. Leave the default value False if no shorting is need or the control shuld do it. </param>
   /// <remarks>
   ///  If the text of a node does not fit into its cell (in grid mode) or is too wide for the width of the tree view it is being abbreviated with an ellipsis (...). By default the ellipsis is added to the end of the node text.
-  ///  Occasionally you may want to shorten the node text at a different position, for example if the node text is a path string and not the last folder or filename should be cut off but rather some mid level folders if possible.
+  ///  Occasionally you may want to shorten the node text at a different position, for example if the node text is a path UnicodeString and not the last folder or filename should be cut off but rather some mid level folders if possible.
   /// </remarks>
   TVSTShortenStringEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
-    Column: TColumnIndex; const S: string; TextSpace: TDimension; var Result: string;
+    Column: TColumnIndex; const S: UnicodeString; TextSpace: TDimension; var Result: UnicodeString;
     var Done: Boolean) of object;
   TVTMeasureTextEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
-    Column: TColumnIndex; const Text: string; var Extent: TDimension) of object;
+    Column: TColumnIndex; const Text: UnicodeString; var Extent: TDimension) of object;
   TVTDrawTextEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
-    Column: TColumnIndex; const Text: string; const CellRect: TRect; var DefaultDraw: Boolean) of object;
+    Column: TColumnIndex; const Text: UnicodeString; const CellRect: TRect; var DefaultDraw: Boolean) of object;
   TVTDrawTextExEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
-    Column: TColumnIndex; const Text: string; const CellRect: TRect;
+    Column: TColumnIndex; const Text: UnicodeString; const CellRect: TRect;
     var DefaultDraw: Boolean; var DrawFormat: Cardinal) of object;
 
   /// Event arguments of the OnGetCellText event
-  TVSTGetCellTextEventArgs = record
+  TVSTGetCellTextEventArgs = {$IFDEF UNICODE}record{$ELSE}object{$ENDIF}
     Node: PVirtualNode;
     Column: TColumnIndex;
-    CellText: string;
-    StaticText: string;
+    CellText: UnicodeString;
+    StaticText: UnicodeString;
     StaticTextAlignment: TAlignment;
     ExportType: TVTExportType;
-    constructor Create(pNode: PVirtualNode; pColumn: TColumnIndex; pExportType: TVTExportType = TVTExportType.etNone);
+    constructor Create(pNode: PVirtualNode; pColumn: TColumnIndex; pExportType: TVTExportType = etNone);
   end;
 
   /// Event signature which is called when text is painted on the canvas or needed for the export.
@@ -235,16 +235,16 @@ type
 
   TCustomVirtualStringTree = class(TVTAncestor)
   private
-    FInternalDataOffset: Cardinal;        // offset to the internal data of the string tree
-    FDefaultText: string;                   // text to show if there's no OnGetText event handler (e.g. at design time)
+    FInternalDataOffset: Cardinal;        // offset to the internal data of the UnicodeString tree
+    FDefaultText: UnicodeString;                   // text to show if there's no OnGetText event handler (e.g. at design time)
     FTextHeight: Integer;                          // true size of the font
     FEllipsisWidth: Integer;                       // width of '...' for the current font
 
-    FOnGetText: TVSTGetTextEvent;                  // used to retrieve the string to be displayed for a specific node
+    FOnGetText: TVSTGetTextEvent;                  // used to retrieve the UnicodeString to be displayed for a specific node
     fOnGetCellText: TVSTGetCellTextEvent;             // used to retrieve the normal and static text of a tree node
     FOnGetHint: TVSTGetHintEvent;                  // used to retrieve the hint to be displayed for a specific node
     FOnNewText: TVSTNewTextEvent;                  // used to notify the application about an edited node caption
-    FOnShortenString: TVSTShortenStringEvent;      // used to allow the application a customized string shortage
+    FOnShortenString: TVSTShortenStringEvent;      // used to allow the application a customized UnicodeString shortage
     FOnMeasureTextWidth: TVTMeasureTextEvent;      // used to adjust the width of the cells
     FOnMeasureTextHeight: TVTMeasureTextEvent;
     FOnDrawText: TVTDrawTextEvent;                 // used to custom draw the node text
@@ -252,45 +252,45 @@ type
     /// Returns True if the property DefaultText has a value that differs from the default value, False otherwise.
     function IsDefaultTextStored(): Boolean;
     function GetImageText(Node: PVirtualNode; Kind: TVTImageKind;
-      Column: TColumnIndex): string;
+      Column: TColumnIndex): UnicodeString;
     function GetOptions: TCustomStringTreeOptions;
-    function GetStaticText(Node: PVirtualNode; Column: TColumnIndex): string;
-    function GetText(Node: PVirtualNode; Column: TColumnIndex): string;
+    function GetStaticText(Node: PVirtualNode; Column: TColumnIndex): UnicodeString;
+    function GetText(Node: PVirtualNode; Column: TColumnIndex): UnicodeString;
     procedure ReadText(Reader: TReader);
     procedure WriteText(Writer: TWriter);
     procedure ResetInternalData(Node: PVirtualNode; Recursive: Boolean);
-    procedure SetDefaultText(const Value: string);
+    procedure SetDefaultText(const Value: UnicodeString);
     procedure SetOptions(const Value: TCustomStringTreeOptions);
-    procedure SetText(Node: PVirtualNode; Column: TColumnIndex; const Value: string);
+    procedure SetText(Node: PVirtualNode; Column: TColumnIndex; const Value: UnicodeString);
     procedure WMSetFont(var Msg: TWMSetFont); message WM_SETFONT;
     procedure GetDataFromGrid(const AStrings : TStringList; const IncludeHeading : Boolean = True);
   protected
-    /// <summary>Contains the name of the string that should be restored as selection</summary>
-    /// <seealso cref="TVTSelectionOption.toRestoreSelection">
+    /// <summary>Contains the name of the UnicodeString that should be restored as selection</summary>
+    /// <seealso cref="toRestoreSelection">
     FPreviouslySelected: TStringList;
     procedure InitializeTextProperties(var PaintInfo: TVTPaintInfo);
-    procedure PaintNormalText(var PaintInfo: TVTPaintInfo; TextOutFlags: Integer; Text: string); virtual;
-    procedure PaintStaticText(const PaintInfo: TVTPaintInfo; pStaticTextAlignment: TAlignment; const Text: string); virtual; // [IPK] - private to protected
+    procedure PaintNormalText(var PaintInfo: TVTPaintInfo; TextOutFlags: Integer; Text: UnicodeString); virtual;
+    procedure PaintStaticText(const PaintInfo: TVTPaintInfo; pStaticTextAlignment: TAlignment; const Text: UnicodeString); virtual; // [IPK] - private to protected
     procedure AdjustPaintCellRect(var PaintInfo: TVTPaintInfo; var NextNonEmpty: TColumnIndex); override;
     function CanExportNode(Node: PVirtualNode): Boolean;
-    function CalculateStaticTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string): TDimension; virtual;
-    function CalculateTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string): TDimension; virtual;
+    function CalculateStaticTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString): TDimension; virtual;
+    function CalculateTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString): TDimension; virtual;
     function ColumnIsEmpty(Node: PVirtualNode; Column: TColumnIndex): Boolean; override;
     procedure DefineProperties(Filer: TFiler); override;
     function DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex): IVTEditLink; override;
     procedure DoAddToSelection(Node: PVirtualNode); override;
-    function DoGetNodeHint(Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle): string; override;
-    function DoGetNodeTooltip(Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle): string; override;
+    function DoGetNodeHint(Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle): UnicodeString; override;
+    function DoGetNodeTooltip(Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle): UnicodeString; override;
     function DoGetNodeExtraWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension; override;
     function DoGetNodeWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension; override;
     procedure DoGetText(var pEventArgs: TVSTGetCellTextEventArgs); virtual;
-    function DoIncrementalSearch(Node: PVirtualNode; const Text: string): Integer; override;
-    procedure DoNewText(Node: PVirtualNode; Column: TColumnIndex; const Text: string); virtual;
+    function DoIncrementalSearch(Node: PVirtualNode; const Text: UnicodeString): Integer; override;
+    procedure DoNewText(Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString); virtual;
     procedure DoPaintNode(var PaintInfo: TVTPaintInfo); override;
-    function DoShortenString(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const S: string; Width: TDimension;
-      EllipsisWidth: TDimension = 0): string; virtual;
-    procedure DoTextDrawing(var PaintInfo: TVTPaintInfo; const Text: string; CellRect: TRect; DrawFormat: Cardinal); virtual;
-    function DoTextMeasuring(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string): TSize; virtual;
+    function DoShortenString(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const S: UnicodeString; Width: TDimension;
+      EllipsisWidth: TDimension = 0): UnicodeString; virtual;
+    procedure DoTextDrawing(var PaintInfo: TVTPaintInfo; const Text: UnicodeString; CellRect: TRect; DrawFormat: Cardinal); virtual;
+    function DoTextMeasuring(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString): TSize; virtual;
     function GetOptionsClass: TTreeOptionsClass; override;
     procedure GetRenderStartValues(Source: TVSTTextSourceType; var Node: PVirtualNode;
       var NextNodeProc: TGetNextNodeProc);
@@ -303,7 +303,7 @@ type
     procedure SetChildCount(Node: PVirtualNode; NewChildCount: Cardinal); override;
     procedure WriteChunks(Stream: TStream; Node: PVirtualNode); override;
 
-    property DefaultText: string read FDefaultText write SetDefaultText stored False;// Stored via own writer
+    property DefaultText: UnicodeString read FDefaultText write SetDefaultText stored False;// Stored via own writer
     property EllipsisWidth: Integer read FEllipsisWidth;
     property TreeOptions: TCustomStringTreeOptions read GetOptions write SetOptions;
 
@@ -320,26 +320,26 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
     function AddChild(Parent: PVirtualNode; UserData: Pointer = nil): PVirtualNode; override;
-    function ComputeNodeHeight(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; S: string = ''): TDimension; virtual;
+    function ComputeNodeHeight(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; S: UnicodeString = ''): TDimension; virtual;
     function ContentToClipboard(Format: Word; Source: TVSTTextSourceType): HGLOBAL;
     procedure ContentToCustom(Source: TVSTTextSourceType);
-    function ContentToHTML(Source: TVSTTextSourceType; const Caption: string = ''): String;
+    function ContentToHTML(Source: TVSTTextSourceType; const Caption: UnicodeString = ''): UnicodeString;
     function ContentToRTF(Source: TVSTTextSourceType): RawByteString;
-    function ContentToText(Source: TVSTTextSourceType; Separator: Char): String; overload;
-    function ContentToUnicode(Source: TVSTTextSourceType; Separator: WideChar): string; overload; deprecated 'Use ContentToText instead';
-    function ContentToText(Source: TVSTTextSourceType; const Separator: string): string; overload;
+    function ContentToText(Source: TVSTTextSourceType; Separator: Char): UnicodeString; overload;
+    function ContentToUnicode(Source: TVSTTextSourceType; Separator: WideChar): UnicodeString; overload; deprecated {$IF CompilerVersion >= 20}'Use ContentToText instead'{$IFEND};
+    function ContentToText(Source: TVSTTextSourceType; const Separator: UnicodeString): UnicodeString; overload;
     procedure GetTextInfo(Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
-      var Text: string); override;
+      var Text: UnicodeString); override;
     function InvalidateNode(Node: PVirtualNode): TRect; override;
-    function Path(Node: PVirtualNode; Column: TColumnIndex; Delimiter: Char): string;
+    function Path(Node: PVirtualNode; Column: TColumnIndex; Delimiter: Char): UnicodeString;
     procedure ReinitNode(Node: PVirtualNode; Recursive: Boolean; ForceReinit:
         Boolean = False); override;
     procedure RemoveFromSelection(Node: PVirtualNode); override;
     function SaveToCSVFile(const FileNameWithPath : TFileName; const IncludeHeading : Boolean) : Boolean;
     /// Alternate text for images used in Accessibility.
-    property ImageText[Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex]: string read GetImageText;
-    property StaticText[Node: PVirtualNode; Column: TColumnIndex]: string read GetStaticText;
-    property Text[Node: PVirtualNode; Column: TColumnIndex]: string read GetText write SetText;
+    property ImageText[Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex]: UnicodeString read GetImageText;
+    property StaticText[Node: PVirtualNode; Column: TColumnIndex]: UnicodeString read GetStaticText;
+    property Text[Node: PVirtualNode; Column: TColumnIndex]: UnicodeString read GetText write SetText;
   end;
 
   {$if CompilerVersion >= 33}
@@ -431,7 +431,7 @@ type
     property SelectionCurveRadius;
     property ShowHint;
     property StateImages;
-    property StyleElements;
+    {$IF CompilerVersion >= 18}property StyleElements;{$IFEND}
     {$if CompilerVersion >= 34}property StyleName;{$ifend}
     property TabOrder;
     property TabStop default True;
@@ -626,7 +626,7 @@ begin
     exit;
 
   // Clipboard format registration.
-  // Specialized string tree formats.
+  // Specialized UnicodeString tree formats.
   CF_HTML := RegisterVTClipboardFormat(CFSTR_HTML, TCustomVirtualStringTree, 80);
   CF_VRTFNOOBJS := RegisterVTClipboardFormat(CFSTR_RTFNOOBJS, TCustomVirtualStringTree, 84);
   CF_VRTF := RegisterVTClipboardFormat(CFSTR_RTF, TCustomVirtualStringTree, 85);
@@ -694,8 +694,8 @@ procedure TCustomVirtualStringTree.GetDataFromGrid(const AStrings: TStringList;
 var
   LColIndex   : Integer;
   LStartIndex : Integer;
-  LAddString  : string;
-  LCellText   : string;
+  LAddString  : UnicodeString;
+  LCellText   : UnicodeString;
   LChildNode  : PVirtualNode;
 begin
   { Start from the First column. }
@@ -737,7 +737,7 @@ begin
 end;
 
 function TCustomVirtualStringTree.GetImageText(Node: PVirtualNode;
-  Kind: TVTImageKind; Column: TColumnIndex): string;
+  Kind: TVTImageKind; Column: TColumnIndex): UnicodeString;
 begin
   Assert(Assigned(Node), 'Node must not be nil.');
 
@@ -758,32 +758,40 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.GetStaticText(Node: PVirtualNode; Column: TColumnIndex): string;
+function TCustomVirtualStringTree.GetStaticText(Node: PVirtualNode; Column: TColumnIndex): UnicodeString;
 
 var
   lEventArgs: TVSTGetCellTextEventArgs;
 
 begin
   Assert(Assigned(Node), 'Node must not be nil.');
+  {$IFDEF UNICODE}
   lEventArgs := TVSTGetCellTextEventArgs.Create(Node, Column);
+  {$ELSE}
+  lEventArgs.Create(Node, Column); // old-style object constructor call
+  {$ENDIF}
   DoGetText(lEventArgs);
-  Exit(lEventArgs.StaticText);
+  begin Result := lEventArgs.StaticText; Exit; end; // Exit(x) needs D2009+
 end;
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.GetText(Node: PVirtualNode; Column: TColumnIndex): string;
+function TCustomVirtualStringTree.GetText(Node: PVirtualNode; Column: TColumnIndex): UnicodeString;
 
 var
   lEventArgs: TVSTGetCellTextEventArgs;
 
 begin
   Assert(Assigned(Node), 'Node must not be nil.');
+  {$IFDEF UNICODE}
   lEventArgs := TVSTGetCellTextEventArgs.Create(Node, Column);
+  {$ELSE}
+  lEventArgs.Create(Node, Column); // old-style object constructor call
+  {$ENDIF}
   lEventArgs.CellText := FDefaultText;
   DoGetText(lEventArgs);
-  Exit(lEventArgs.CellText)
+  Result := lEventArgs.CellText; // Exit(x) needs D2009+
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -806,7 +814,7 @@ begin
     begin
       if not (tsUseExplorerTheme in TreeStates) then
       begin
-        Canvas.Font.Style := Canvas.Font.Style + [TFontStyle.fsUnderline];
+        Canvas.Font.Style := Canvas.Font.Style + [fsUnderline];
         Canvas.Font.Color := Colors.HotColor;
       end;
     end;
@@ -834,7 +842,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TCustomVirtualStringTree.PaintNormalText(var PaintInfo: TVTPaintInfo; TextOutFlags: Integer;
-  Text: string);
+  Text: UnicodeString);
 
 // This method is responsible for painting the given text to target canvas (under consideration of the given rectangles).
 // The text drawn here is considered as the normal text in a node.
@@ -922,7 +930,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualStringTree.PaintStaticText(const PaintInfo: TVTPaintInfo; pStaticTextAlignment: TAlignment; const Text: string);
+procedure TCustomVirtualStringTree.PaintStaticText(const PaintInfo: TVTPaintInfo; pStaticTextAlignment: TAlignment; const Text: UnicodeString);
 
 // This method retrives and draws the static text bound to a particular node.
 
@@ -1014,7 +1022,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualStringTree.SetDefaultText(const Value: string);
+procedure TCustomVirtualStringTree.SetDefaultText(const Value: UnicodeString);
 
 begin
   if FDefaultText <> Value then
@@ -1035,7 +1043,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualStringTree.SetText(Node: PVirtualNode; Column: TColumnIndex; const Value: string);
+procedure TCustomVirtualStringTree.SetText(Node: PVirtualNode; Column: TColumnIndex; const Value: UnicodeString);
 
 begin
   DoNewText(Node, Column, Value);
@@ -1086,7 +1094,7 @@ end;
 
 function TCustomVirtualStringTree.AddChild(Parent: PVirtualNode; UserData: Pointer): PVirtualNode;
 var
-  NewNodeText: string;
+  NewNodeText: UnicodeString;
 begin
   Result := inherited AddChild(Parent, UserData);
   // Restore the prviously restored node if the caption of this node is knwon and no other node was selected
@@ -1141,7 +1149,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.CalculateStaticTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string): TDimension;
+function TCustomVirtualStringTree.CalculateStaticTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString): TDimension;
 
 begin
   Result := 0;
@@ -1157,7 +1165,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TCustomVirtualStringTree.CalculateTextWidth(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  const Text: string): TDimension;
+  const Text: UnicodeString): TDimension;
 
 // Determines the width of the given text.
 
@@ -1196,7 +1204,7 @@ begin
 
   // For backwards compatiblity
   Filer.DefineProperty('WideDefaultText', ReadText, nil, False);
-  // Delphi does never store an empty string unless we define the property in code.
+  // Delphi does never store an empty UnicodeString unless we define the property in code.
   Filer.DefineProperty('DefaultText', ReadText, WriteText, IsDefaultTextStored);
   Filer.DefineProperty('StringOptions', ReadOldStringOptions, nil, False);
 end;
@@ -1213,7 +1221,7 @@ end;
 
 procedure TCustomVirtualStringTree.DoAddToSelection(Node: PVirtualNode);
 var
-  lSelectedNodeCaption: string;
+  lSelectedNodeCaption: UnicodeString;
 begin
   inherited;
   if (toRestoreSelection in TreeOptions.SelectionOptions) and Assigned(Self.OnGetText) and not (tsPreviouslySelectedLocked in TreeStates) then
@@ -1245,7 +1253,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TCustomVirtualStringTree.DoGetNodeHint(Node: PVirtualNode; Column: TColumnIndex;
-  var LineBreakStyle: TVTTooltipLineBreakStyle): string;
+  var LineBreakStyle: TVTTooltipLineBreakStyle): UnicodeString;
 
 begin
   Result := inherited DoGetNodeHint(Node, Column, LineBreakStyle);
@@ -1256,7 +1264,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TCustomVirtualStringTree.DoGetNodeTooltip(Node: PVirtualNode; Column: TColumnIndex;
-  var LineBreakStyle: TVTTooltipLineBreakStyle): string;
+  var LineBreakStyle: TVTTooltipLineBreakStyle): UnicodeString;
 
 begin
   Result := inherited DoGetNodeToolTip(Node, Column, LineBreakStyle);
@@ -1273,7 +1281,7 @@ function TCustomVirtualStringTree.DoGetNodeExtraWidth(Node: PVirtualNode; Column
 
 begin
   if not (toShowStaticText in TreeOptions.StringOptions) then
-    Exit(0);
+    begin Result := 0; Exit; end; // Exit(x) needs D2009+
   if Canvas = nil then
     Canvas := Self.Canvas;
   Result := CalculateStaticTextWidth(Canvas, Node, Column, StaticText[Node, Column]);
@@ -1332,17 +1340,17 @@ begin
     OnGetCellText(Self, pEventArgs);
   end
   else if Assigned(FOnGetText) then begin
-    FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, TVSTTextType.ttNormal, pEventArgs.CellText);
+    FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, ttNormal, pEventArgs.CellText);
     if toShowStaticText in TreeOptions.StringOptions then
-      FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, TVSTTextType.ttStatic, pEventArgs.StaticText);
+      FOnGetText(Self, pEventArgs.Node, pEventArgs.Column, ttStatic, pEventArgs.StaticText);
   end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.DoIncrementalSearch(Node: PVirtualNode; const Text: string): Integer;
+function TCustomVirtualStringTree.DoIncrementalSearch(Node: PVirtualNode; const Text: UnicodeString): Integer;
 
-// Since the string tree has access to node text it can do incremental search on its own. Use the event to
+// Since the UnicodeString tree has access to node text it can do incremental search on its own. Use the event to
 // override the default behavior.
 
 begin
@@ -1350,14 +1358,14 @@ begin
   if Assigned(OnIncrementalSearch) then
     OnIncrementalSearch(Self, Node, Text, Result)
   else
-    // Default behavior is to match the search string with the start of the node text.
-    if not StartsText(Text, GetText(Node, FocusedColumn)) then
+    // Default behavior is to match the search UnicodeString with the start of the node text.
+    if not {$IF CompilerVersion >= 18}StartsText{$ELSE}AnsiStartsText{$IFEND}(Text, GetText(Node, FocusedColumn)) then
       Result := 1;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualStringTree.DoNewText(Node: PVirtualNode; Column: TColumnIndex; const Text: string);
+procedure TCustomVirtualStringTree.DoNewText(Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString);
 
 begin
   if Assigned(FOnNewText) then
@@ -1387,7 +1395,11 @@ begin
 
     // Determine main text direction as well as other text properties.
     TextOutFlags := ETO_CLIPPED or RTLFlag[PaintInfo.BidiMode <> bdLeftToRight];
+    {$IFDEF UNICODE}
     lEventArgs := TVSTGetCellTextEventArgs.Create(PaintInfo.Node, PaintInfo.Column);
+    {$ELSE}
+    lEventArgs.Create(PaintInfo.Node, PaintInfo.Column); // old-style object constructor call
+    {$ENDIF}
 
     lEventArgs.CellText := FDefaultText;
     lEventArgs.StaticTextAlignment := PaintInfo.Alignment;
@@ -1408,7 +1420,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TCustomVirtualStringTree.DoShortenString(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  const S: string; Width: TDimension; EllipsisWidth: TDimension = 0): string;
+  const S: UnicodeString; Width: TDimension; EllipsisWidth: TDimension = 0): UnicodeString;
 
 var
   Done: Boolean;
@@ -1423,17 +1435,17 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualStringTree.DoTextDrawing(var PaintInfo: TVTPaintInfo; const Text: string; CellRect: TRect;
+procedure TCustomVirtualStringTree.DoTextDrawing(var PaintInfo: TVTPaintInfo; const Text: UnicodeString; CellRect: TRect;
   DrawFormat: Cardinal);
 
 var
   DefaultDraw: Boolean;
-  lText: string;
+  lText: UnicodeString;
 begin
   DefaultDraw := True;
   if not Assigned(FOnDrawTextEx) and Assigned(FOnDrawText) then
     FOnDrawText(Self, PaintInfo.Canvas, PaintInfo.Node, PaintInfo.Column, Text, CellRect, DefaultDraw);
-  if ((DrawFormat and DT_RIGHT) > 0) and (TFontStyle.fsItalic in PaintInfo.Canvas.Font.Style) then
+  if ((DrawFormat and DT_RIGHT) > 0) and (fsItalic in PaintInfo.Canvas.Font.Style) then
     lText := Text + ' '
   else
     lText := Text;
@@ -1446,7 +1458,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TCustomVirtualStringTree.DoTextMeasuring(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  const Text: string): TSize;
+  const Text: UnicodeString): TSize;
 
 var
   R: TRect;
@@ -1486,9 +1498,9 @@ begin
   if (Node = nil) or (FInternalDataOffset = 0) then
     Result := nil
   else if Node = RootNode then
-    Result := PByte(Node) + FInternalDataOffset
+    Result := PAnsiChar(Node) + FInternalDataOffset // PByte arithmetic needs POINTERMATH (D2009+)
   else
-    Result := PByte(Node) + Self.NodeDataSize + FInternalDataOffset;
+    Result := PAnsiChar(Node) + Self.NodeDataSize + FInternalDataOffset;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1521,7 +1533,7 @@ function TCustomVirtualStringTree.ReadChunk(Stream: TStream; Version: Integer; N
 // read in the caption chunk if there is one
 
 var
-  NewText: string;
+  NewText: UnicodeString;
 
 begin
   case ChunkType of
@@ -1533,7 +1545,7 @@ begin
           SetLength(NewText, ChunkSize div 2);
           Stream.Read(PWideChar(NewText)^, ChunkSize);
         end;
-        // Do a new text event regardless of the caption content to allow removing the default string.
+        // Do a new text event regardless of the caption content to allow removing the default UnicodeString.
         Text[Node, Header.MainColumn] := NewText;
         Result := True;
       end;
@@ -1554,7 +1566,7 @@ procedure TCustomVirtualStringTree.ReadOldStringOptions(Reader: TReader);
 
 var
   OldOption: TOldVTStringOption;
-  EnumName: string;
+  EnumName: UnicodeString;
 
 begin
   // If we are at design time currently then let the designer know we changed something.
@@ -1590,7 +1602,7 @@ end;
 function TCustomVirtualStringTree.RenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium;
   ForClipboard: Boolean): HResult;
 
-// Returns string expressions of all currently selected nodes in the Medium structure.
+// Returns UnicodeString expressions of all currently selected nodes in the Medium structure.
 
 begin
   Result := inherited RenderOLEData(FormatEtcIn, Medium, ForClipboard);
@@ -1625,7 +1637,7 @@ procedure TCustomVirtualStringTree.WriteChunks(Stream: TStream; Node: PVirtualNo
 
 var
   ChunkHeader: TChunkHeader;
-  S: string;
+  S: UnicodeString;
   Len: Integer;
 
 begin
@@ -1656,13 +1668,13 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TCustomVirtualStringTree.ComputeNodeHeight(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
- S: string): TDimension;
+ S: UnicodeString): TDimension;
 
 // Default node height calculation for multi line nodes. This method can be used by the application to delegate the
-// computation to the string tree.
+// computation to the UnicodeString tree.
 // Canvas is used to compute that value by using its current font settings.
 // Node and Column describe the cell to be used for the computation.
-// S is the string for which the height must be computed. If this string is empty the cell text is used instead.
+// S is the UnicodeString for which the height must be computed. If this UnicodeString is empty the cell text is used instead.
 
 var
   DrawFormat: Cardinal;
@@ -1700,11 +1712,11 @@ begin
   PaintInfo.BidiMode := BidiMode;
   PaintInfo.Column := Column;
   PaintInfo.CellRect := Rect(0, 0, 0, 0);
-  GetOffsets(Node, lOffsets, TVTElement.ofsEndOfClientArea, Column);
+  GetOffsets(Node, lOffsets, ofsEndOfClientArea, Column);
   if Column > NoColumn then
   begin
     PaintInfo.CellRect.Right := Header.Columns[Column].Width - 2 * TextMargin;
-    PaintInfo.CellRect.Left := lOffsets[TVTElement.ofsLabel];
+    PaintInfo.CellRect.Left := lOffsets[ofsLabel];
   end
   else
     PaintInfo.CellRect.Right := ClientWidth;
@@ -1722,7 +1734,7 @@ end;
 
 function TCustomVirtualStringTree.ContentToClipboard(Format: Word; Source: TVSTTextSourceType): HGLOBAL;
 
-// This method constructs a shareable memory object filled with string data in the required format. Supported are:
+// This method constructs a shareable memory object filled with UnicodeString data in the required format. Supported are:
 // CF_TEXT - plain ANSI text (Unicode text is converted using the user's current locale)
 // CF_UNICODETEXT - plain Unicode text
 // CF_CSV - comma separated plain ANSI text
@@ -1739,11 +1751,11 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.ContentToHTML(Source: TVSTTextSourceType; const Caption: string = ''): String;
+function TCustomVirtualStringTree.ContentToHTML(Source: TVSTTextSourceType; const Caption: UnicodeString = ''): UnicodeString;
 
 // Renders the current tree content (depending on Source) as HTML text encoded in UTF-8.
 // If Caption is not empty then it is used to create and fill the header for the table built here.
-// Based on ideas and code from Frank van den Bergh and Andreas HÃ¶rstemeier.
+// Based on ideas and code from Frank van den Bergh and Andreas Hörstemeier.
 
 begin
   Result := VirtualTrees.Export.ContentToHTML(Self, Source, Caption);
@@ -1772,7 +1784,7 @@ end;
 
 procedure TCustomVirtualStringTree.RemoveFromSelection(Node: PVirtualNode);
 var
-  lSelectedNodeCaption: string;
+  lSelectedNodeCaption: UnicodeString;
   lIndex: Integer;
 begin
   inherited;
@@ -1794,7 +1806,7 @@ end;
 function TCustomVirtualStringTree.ContentToRTF(Source: TVSTTextSourceType): RawByteString;
 
 // Renders the current tree content (depending on Source) as RTF (rich text).
-// Based on ideas and code from Frank van den Bergh and Andreas HÃ¶rstemeier.
+// Based on ideas and code from Frank van den Bergh and Andreas Hörstemeier.
 
 begin
   Result := VirtualTrees.Export.ContentToRTF(Self, Source);
@@ -1812,24 +1824,24 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.ContentToText(Source: TVSTTextSourceType; Separator: Char): String;
+function TCustomVirtualStringTree.ContentToText(Source: TVSTTextSourceType; Separator: Char): UnicodeString;
 
 begin
-  Result := ContentToText(Source, string(Separator));
+  Result := ContentToText(Source, UnicodeString(Separator));
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
-function TCustomVirtualStringTree.ContentToUnicode(Source: TVSTTextSourceType; Separator: Char): string;
+function TCustomVirtualStringTree.ContentToUnicode(Source: TVSTTextSourceType; Separator: WideChar): UnicodeString;
 
 begin
-  Result := Self.ContentToText(Source, string(Separator));
+  Result := Self.ContentToText(Source, UnicodeString(Separator));
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.ContentToText(Source: TVSTTextSourceType; const Separator: string): string;
+function TCustomVirtualStringTree.ContentToText(Source: TVSTTextSourceType; const Separator: UnicodeString): UnicodeString;
 
 // Renders the current tree content (depending on Source) as Unicode text.
 // If an entry contains the separator char then it is wrapped with double quotation marks.
@@ -1841,7 +1853,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 procedure TCustomVirtualStringTree.GetTextInfo(Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
-  var Text: string);
+  var Text: UnicodeString);
 
 // Returns the font, the text and its bounding rectangle to the caller. R is returned as the closest
 // bounding rectangle around Text.
@@ -1894,14 +1906,14 @@ end;
 
 function TCustomVirtualStringTree.IsDefaultTextStored: Boolean;
 begin
-  Exit(DefaultText <> cDefaultText);
+  begin Result := DefaultText <> cDefaultText; Exit; end; // Exit(x) needs D2009+
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualStringTree.Path(Node: PVirtualNode; Column: TColumnIndex; Delimiter: Char): string;
+function TCustomVirtualStringTree.Path(Node: PVirtualNode; Column: TColumnIndex; Delimiter: Char): UnicodeString;
 
-// Constructs a string containing the node and all its parents. The last character in the returned path is always the
+// Constructs a UnicodeString containing the node and all its parents. The last character in the returned path is always the
 // given delimiter.
 
 begin

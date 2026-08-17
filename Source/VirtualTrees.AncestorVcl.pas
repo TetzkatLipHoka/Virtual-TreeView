@@ -1,6 +1,6 @@
 unit VirtualTrees.AncestorVCL;
 
-{$SCOPEDENUMS ON}
+{$IF CompilerVersion >= 20}{$SCOPEDENUMS ON}{$IFEND}
 
 {****************************************************************************************************************}
 { Project          : VirtualTrees                                                                                }
@@ -26,13 +26,13 @@ type
   TVTRenderOLEDataEvent = procedure(Sender: TBaseVirtualTree; const FormatEtcIn: TFormatEtc; out Medium: TStgMedium;
     ForClipboard: Boolean; var Result: HRESULT) of object;
 
-  TVTAncestorVcl = class abstract(TBaseVirtualTree)
+  TVTAncestorVcl = class {$IFDEF UNICODE}abstract{$ENDIF}(TBaseVirtualTree)
   private
     FOnRenderOLEData: TVTRenderOLEDataEvent;     // application/descendant defined clipboard formats
 
   protected
     function GetHintWindowClass: THintWindowClass; override;
-    class function GetTreeFromDataObject(const DataObject: TVTDragDataObject): TBaseVirtualTree; deprecated 'Use class TVTDragManager.GetTreeFromDataObject() instead';
+    class function GetTreeFromDataObject(const DataObject: TVTDragDataObject): TBaseVirtualTree; deprecated {$IF CompilerVersion >= 20}'Use class TVTDragManager.GetTreeFromDataObject() instead'{$IFEND};
     function DoRenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium; ForClipboard: Boolean): HRESULT; override;
     property OnRenderOLEData: TVTRenderOLEDataEvent read FOnRenderOLEData write FOnRenderOLEData;
   public //methods
@@ -41,18 +41,18 @@ type
 
    // The trees need an own hint window class because of Unicode output and adjusted font.
   TVirtualTreeHintWindow = class(THintWindow)
-  strict private
+  {$IFDEF UNICODE}strict{$ENDIF} private
     FHintData: TVTHintData;
     FTextHeight: TDimension;
     procedure CMTextChanged(var Message: TMessage); message CM_TEXTCHANGED;
     procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
-  strict protected
+  {$IFDEF UNICODE}strict{$ENDIF} protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
     // Mitigator function to use the correct style service for this context (either the style assigned to the control for Delphi > 10.4 or the application style)
     function StyleServices(AControl: TControl = nil): TCustomStyleServices;
   public
-    function CalcHintRect(MaxWidth: TDimension; const AHint: string; AData: Pointer): TRect; override;
+    function CalcHintRect(MaxWidth: TDimension; const AHint: string; AData: Pointer): TRect; override; // native string: must match THintWindow on every compiler
     function IsHintMsg(var Msg: TMsg): Boolean; override;
   end;
 
@@ -197,7 +197,7 @@ procedure TVirtualTreeHintWindow.Paint();
 var
   R: TRect;
   Y: Integer;
-  S: string;
+  S: UnicodeString;
   DrawFormat: Cardinal;
   HintKind: TVTHintKind;
   LClipRect: TRect;
@@ -377,7 +377,7 @@ begin
             begin
               // Determine actual line break style depending on what was returned by the methods and what's in the node.
               if LineBreakStyle = hlbDefault then
-                if (vsMultiline in Node.States) or (Pos(#13, HintText) > 0) then // .Contains needs XE3+ string helpers
+                if (vsMultiline in Node.States) or (Pos(#13, HintText) > 0) then // .Contains needs XE3+ UnicodeString helpers
                   LineBreakStyle := hlbForceMultiLine
                 else
                   LineBreakStyle := hlbForceSingleLine;

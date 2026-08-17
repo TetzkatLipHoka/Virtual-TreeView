@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.FMX;
+unit VirtualTrees.FMX;
 
 {$SCOPEDENUMS ON}
 
@@ -12,11 +12,11 @@
 
 interface
 uses
-    System.Classes
+    {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND}
   , System.UITypes
-  , System.Types
+  , {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}
   , System.ImageList
-  , System.Math.Vectors
+  , {$IF CompilerVersion < 23}Math{$ELSE}System.Math{$IFEND}.Vectors
   , FMX.ImgList
   , FMX.Graphics
   , FMX.Controls
@@ -26,12 +26,12 @@ uses
 //-------- type aliasing -------------------------------------------------------------------------------------------------------------------
 
 type
-  TRect = System.Types.TRectF;
-  PRect = System.Types.PRectF;
-  TPoint = System.Types.TPointF;
-  PPoint = System.Types.PPointF;
-  PSize = System.Types.PSizeF;
-  TSize = System.Types.TSizeF;
+  TRect = {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.TRectF;
+  PRect = {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.PRectF;
+  TPoint = {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.TPointF;
+  PPoint = {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.PPointF;
+  PSize = {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.PSizeF;
+  TSize = {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.TSizeF;
   TColor = System.UITypes.TAlphaColor;
   PAnsiChar = System.MarshaledAString;
   UINT = LongWord;
@@ -229,8 +229,8 @@ type
 
   TChangeLink = class(TImageLink)
   private
-    function GetSender: TCustomImageList; inline;
-    procedure SetSender(const Value: TCustomImageList); inline;
+    function GetSender: TCustomImageList; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    procedure SetSender(const Value: TCustomImageList); {$IF CompilerVersion >= 18}inline;{$IFEND}
   public
     constructor Create; override;
     property Sender: TCustomImageList read GetSender write SetSender;
@@ -485,9 +485,9 @@ type
 
 //-------- function aliassing --------------------------------------------------------------------------------------------------------------
 
-function Rect(ALeft, ATop, ARight, ABottom: Single): TRect; overload; inline;
-function Rect(const ATopLeft, ABottomRight: TPoint): TRect; overload; inline;
-function Point(AX, AY: Single): TPoint; overload; inline;
+function Rect(ALeft, ATop, ARight, ABottom: Single): TRect; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
+function Rect(const ATopLeft, ABottomRight: TPoint): TRect; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
+function Point(AX, AY: Single): TPoint; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
 
 procedure Inc(Var V: Single; OIle: Single=1.0); overload;
 procedure Dec(Var V: Single; OIle: Single=1.0); overload;
@@ -513,13 +513,13 @@ procedure FillSystemCheckImages(Parent: TFmxObject; List: TImageList);
 type
   TCanvasHelper = class helper for TCanvas
   private
-    function GetBrush: TBrush; inline;
-    function GetPen: TStrokeBrush; inline;
+    function GetBrush: TBrush; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function GetPen: TStrokeBrush; {$IF CompilerVersion >= 18}inline;{$IFEND}
   public
     property Brush: TBrush read GetBrush;
     property Pen: TStrokeBrush read GetPen;
-    procedure FillRect(const ARect: TRectF); overload; inline;
-    procedure DrawRect(const ARect: TRectF); overload; inline;
+    procedure FillRect(const ARect: TRectF); overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    procedure DrawRect(const ARect: TRectF); overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
     procedure DrawFocusRect(const AFocusRect: TRect);
     procedure FrameRect(const AFocusRect: TRect);
     procedure RoundRect(X1, Y1, X2, Y2: Single; const XRadius, YRadius: Single); overload;
@@ -552,7 +552,7 @@ function timeGetTime: Int64;
 
 implementation
 uses
-    System.SysUtils
+    {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND}
   , FMX.TextLayout
   , FMX.MultiResBitmap
   , FMX.Objects
@@ -692,7 +692,7 @@ var
   fBitmapData  : TBitmapData;
   X, Y         : Integer;
   ReplaceColor : TAlphaColor;
-  Stack        : Array of System.Types.TPoint;
+  Stack        : Array of {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND}.TPoint;
   fHeight      : Integer;
   fWidth       : Integer;
 
@@ -1611,7 +1611,7 @@ begin
     TM.tmMaxCharWidth:= R.Width;
 
     //------------------------------------
-    tx.Text:= 'Ó';
+    tx.Text:= '�';
     p.Clear;
     tx.ConvertToPath(p);
     R:= P.GetBounds();

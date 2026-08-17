@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.Types;
+unit VirtualTrees.Types;
 
 interface
 
@@ -9,7 +9,7 @@ uses
   {$IF CompilerVersion < 23}Types{$ELSE}System.Types{$IFEND},
   {$IF CompilerVersion < 23}Classes{$ELSE}System.Classes{$IFEND},
   {$IF CompilerVersion < 23}SysUtils{$ELSE}System.SysUtils{$IFEND},
-  {$IF CompilerVersion < 23}Controls{$ELSE}Vcl.Controls{$IFEND},
+  {$IF CompilerVersion < 23}Controls,StdCtrls,{$ELSE}Vcl.Controls,Vcl.StdCtrls,{$IFEND} // StdCtrls: unscoped ss* compat consts (System.UITypes declares TScrollStyle scoped)
   {$IF CompilerVersion < 23}GraphUtil{$ELSE}Vcl.GraphUtil{$IFEND},
   Vcl.Themes,
   {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND},
@@ -86,6 +86,9 @@ const
   // Virtual Treeview does not need to be subclassed by an eventual Theme Manager instance as it handles
   // Windows XP theme painting itself. Hence the special message is used to prevent subclassing.
   CM_DENYSUBCLASSING       = CM_BASE + 2000;
+  CM_VTSYNCSTATECHANGE     = CM_BASE + 2001; // classic Synchronize replacement for pre-D2009, see TBaseVirtualTree.ChangeTreeStatesAsync
+  CM_VTQUEUEDSCROLLBARUPDATE = CM_BASE + 2002; // classic TThread.Queue replacement for pre-D2009
+  CM_VTSYNCMEASURENODE     = CM_BASE + 2003; // classic Synchronize replacement for pre-D2009 (MeasureItemHeight)
 
   // Decoupling message for auto-adjusting the internal edit window.
   CM_AUTOADJUST            = CM_BASE + 2005;
@@ -118,19 +121,28 @@ const
   hcTFCannotSetUserData    = 2008;
 
   // Header standard split cursor.
-  crHeaderSplit            = crHSplit deprecated 'Use vrHSplit instead';
+  crHeaderSplit            = crHSplit deprecated {$IF CompilerVersion >= 20}'Use vrHSplit instead'{$IFEND};
 
   // Height changing cursor.
-  crVertSplit              = crVSplit deprecated 'Use vrVSplit instead';
+  crVertSplit              = crVSplit deprecated {$IF CompilerVersion >= 20}'Use vrVSplit instead'{$IFEND};
 
   // chunk IDs
   NodeChunk = 1;
   BaseChunk = 2;        // chunk containing node state, check state, child node count etc.
                         // this chunk is immediately followed by all child nodes
-  CaptionChunk = 3;     // used by the string tree to store a node's caption
+  CaptionChunk = 3;     // used by the UnicodeString tree to store a node's caption
   UserChunk = 4;        // used for data supplied by the application
 
 type
+{$IF CompilerVersion < 20}
+  // Pointer-sized integers; D7 has no usable NativeInt/NativeUInt (see Delphi_Eigenheiten.md, Kompat-Alias-Regel:
+  // this alias only reaches units that use VirtualTrees.Types).
+  NativeInt  = Integer;
+  NativeUInt = Cardinal;
+  UnicodeString = WideString; // the D7 Unicode strategy: string declarations in VT use UnicodeString
+  RawByteString = AnsiString;
+{$IFEND}
+
 {$IFDEF VT_FMX}
   TDimension = Single;
   PDimension = ^Single;
@@ -221,14 +233,14 @@ type
   /// Adds some convenience methods to type TCheckState
   TCheckStateHelper = record helper for TCheckState
   public
-    function GetPressed() : TCheckState; inline;
-    function GetUnpressed() : TCheckState; inline;
-    function GetEnabled() : TCheckState; inline;
-    function GetToggled() : TCheckState; inline;
-    function IsDisabled() : Boolean; inline;
-    function IsChecked() : Boolean; inline;
-    function IsUnChecked() : Boolean; inline;
-    function IsMixed() : Boolean; inline;
+    function GetPressed() : TCheckState; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function GetUnpressed() : TCheckState; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function GetEnabled() : TCheckState; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function GetToggled() : TCheckState; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function IsDisabled() : Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function IsChecked() : Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function IsUnChecked() : Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
+    function IsMixed() : Boolean; {$IF CompilerVersion >= 18}inline;{$IFEND}
   end;
 {$IFEND}
 
@@ -292,7 +304,7 @@ type
   TSortDirectionHelper = record helper for VirtualTrees.Types.TSortDirection
   public
     /// Returns +1 for ascending and -1 for descending sort order.
-    function ToInt() : Integer; inline;
+    function ToInt() : Integer; {$IF CompilerVersion >= 18}inline;{$IFEND}
   end;
 {$IFEND}
 
@@ -304,8 +316,8 @@ function SortDirectionToInt(SD : TSortDirection) : Integer; {$IF CompilerVersion
 
 {$IF CompilerVersion < 23}
 // Intrinsics since XE2; mapped to the classic interlocked API here.
-function AtomicIncrement(var Target : Integer) : Integer; inline;
-function AtomicDecrement(var Target : Integer) : Integer; inline;
+function AtomicIncrement(var Target : Integer) : Integer; {$IF CompilerVersion >= 18}inline;{$IFEND}
+function AtomicDecrement(var Target : Integer) : Integer; {$IF CompilerVersion >= 18}inline;{$IFEND}
 {$IFEND}
 
 type
@@ -471,7 +483,7 @@ type
     ttStatic       // static (non-editable) text after the normal text
   );
 
-  // Options regarding strings (useful only for the string tree and descendants):
+  // Options regarding strings (useful only for the UnicodeString tree and descendants):
   TVTStringOption = (
     toSaveCaptions,                  // If set then the caption is automatically saved with the tree node, regardless of what is
                                      // saved in the user data.
@@ -631,7 +643,7 @@ type
   }
   TVTHintMode = (
     hmDefault,            // show the hint of the control
-    hmHint,               // show node specific hint string returned by the application
+    hmHint,               // show node specific hint UnicodeString returned by the application
     hmHintAndDefault,     // same as hmHint but show the control's hint if no node is concerned
     hmTooltip             // show the text of the node if it isn't already fully shown
   );
@@ -935,7 +947,7 @@ type
   published
     property AlwaysVisible       : Boolean read FAlwaysVisible write SetAlwaysVisible default False;
     property HorizontalIncrement : TVTScrollIncrement read FIncrementX write FIncrementX default 20;
-    property ScrollBars          : TScrollStyle read FScrollBars write SetScrollBars default TScrollStyle.ssBoth;
+    property ScrollBars          : TScrollStyle read FScrollBars write SetScrollBars default ssBoth; // unqualified: via StdCtrls compat consts, works D7..13
     property ScrollBarStyle      : TScrollBarStyle read FScrollBarStyle write SetScrollBarStyle default sbmRegular;
     property VerticalIncrement   : TVTScrollIncrement read FIncrementY write FIncrementY default 20;
   end;
@@ -946,14 +958,46 @@ type
   end;
 {$IFEND}
 
-{$IF CompilerVersion < 21}
-  // Declared in System.pas since Delphi 2010.
+{$IF CompilerVersion < 20}
+  // Win2000+ shell drag helper API, completely absent from D7's ShlObj.
+  PSHDragImage = ^TSHDragImage;
+  TSHDragImage = packed record
+    sizeDragImage: TSize;
+    ptOffset: TPoint;
+    hbmpDragImage: HBITMAP;
+    crColorKey: COLORREF;
+  end;
+  SHDRAGIMAGE = TSHDragImage;
+
+  IDragSourceHelper = interface(IUnknown)
+    ['{DE5BF786-477A-11D2-839D-00C04FD918D0}']
+    function InitializeFromBitmap(SHDragImage: PSHDragImage; pDataObject: IDataObject): HRESULT; stdcall;
+    function InitializeFromWindow(Window: HWND; var ppt: TPoint; pDataObject: IDataObject): HRESULT; stdcall;
+  end;
+
+  IDropTargetHelper = interface(IUnknown)
+    ['{4657278B-411B-11D2-839A-00C04FD918D0}']
+    function DragEnter(hwndTarget: HWND; pDataObject: IDataObject; var ppt: TPoint; dwEffect: Integer): HRESULT; stdcall;
+    function DragLeave: HRESULT; stdcall;
+    function DragOver(var ppt: TPoint; dwEffect: Integer): HRESULT; stdcall;
+    function Drop(pDataObject: IDataObject; var ppt: TPoint; dwEffect: Integer): HRESULT; stdcall;
+    function Show(fShow: BOOL): HRESULT; stdcall;
+  end;
+
+const
+  CLSID_DragDropHelper: TGUID = (D1: $4657278A; D2: $411B; D3: $11D2; D4: ($83, $9A, $00, $C0, $4F, $D9, $18, $D0));
+
+type
+{$IFEND}
+
+{$IF (CompilerVersion >= 20) and (CompilerVersion < 21)}
+  // Declared in System.pas since Delphi 2010; D2009 has generics, D7 has not.
   TArray<T> = array of T;
 {$IFEND}
 
   PVirtualNode = ^TVirtualNode;
 
-  TVirtualNode = packed record
+  TVirtualNode = {$IFDEF UNICODE}packed record{$ELSE}packed object{$ENDIF} // D7: object = record with methods, breakfast included
   private
     fIndex: Cardinal;         // index of node with regard to its parent
     fChildCount: Cardinal;    // number of child nodes
@@ -979,14 +1023,14 @@ type
   private
     fLastChild: PVirtualNode;   // link to the node's last child...
   public
-    procedure SetParent(const pParent: PVirtualNode); inline; //internal method, do not call directly but use Parent[Node] := x on tree control.
-    procedure SetPrevSibling(const pPrevSibling: PVirtualNode); inline; //internal method, do not call directly
-    procedure SetNextSibling(const pNextSibling: PVirtualNode); inline; //internal method, do not call directly
-    procedure SetFirstChild(const pFirstChild: PVirtualNode); inline; //internal method, do not call directly
-    procedure SetLastChild(const pLastChild: PVirtualNode); inline; //internal method, do not call directly
-    procedure SetIndex(const pIndex: Cardinal); inline;       //internal method, do not call directly.
-    procedure SetChildCount(const pCount: Cardinal); inline; //internal method, do not call directly.
-    procedure SetNodeHeight(const pNodeHeight: TNodeHeight); inline; //internal method, do not call directly.
+    procedure SetParent(const pParent: PVirtualNode); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly but use Parent[Node] := x on tree control.
+    procedure SetPrevSibling(const pPrevSibling: PVirtualNode); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly
+    procedure SetNextSibling(const pNextSibling: PVirtualNode); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly
+    procedure SetFirstChild(const pFirstChild: PVirtualNode); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly
+    procedure SetLastChild(const pLastChild: PVirtualNode); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly
+    procedure SetIndex(const pIndex: Cardinal); {$IF CompilerVersion >= 18}inline;{$IFEND}       //internal method, do not call directly.
+    procedure SetChildCount(const pCount: Cardinal); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly.
+    procedure SetNodeHeight(const pNodeHeight: TNodeHeight); {$IF CompilerVersion >= 18}inline;{$IFEND} //internal method, do not call directly.
     property Index: Cardinal read fIndex;
     property ChildCount: Cardinal read fChildCount;
     property Parent: PVirtualNode read fParent;
@@ -1000,7 +1044,7 @@ type
     function IsAssigned(): Boolean; {$IF CompilerVersion >= 21}inline;{$IFEND} // D2009 cannot resolve cross-unit inline record methods called via pointer (E2008)
     function GetData(): Pointer; overload; {$IF CompilerVersion >= 21}inline;{$IFEND}
     {$IF CompilerVersion >= 21} // D2009 generics cannot instantiate cross-unit generic record methods (E2506)
-    function GetData<T>(): T; overload; inline;
+    function GetData<T>(): T; overload; {$IF CompilerVersion >= 18}inline;{$IFEND}
     {$IFEND}
     procedure SetData(pUserData: Pointer); overload;
     {$IF CompilerVersion >= 21}
@@ -1072,10 +1116,17 @@ type
   TVTCell = record
     Node: PVirtualNode;
     Column: TColumnIndex;
+    {$IFDEF UNICODE} // record constructors need D2006+; internal call sites use MakeVTCell instead
     constructor Create(ANode: PVirtualNode; AColumn: TColumnIndex);
+    {$ENDIF}
   end;
 
   TVTCellArray = array of TVTCell;
+
+/// Portable twin of TVTCell.Create.
+function MakeVTCell(ANode: PVirtualNode; AColumn: TColumnIndex): TVTCell;
+
+type
 
   TVTHeaderStyle = (
     hsThickButtons,                 //TButton look and feel
@@ -1138,7 +1189,7 @@ type
   TVTOffsets = array [TVTElement] of TDimension;
 
   // For painting a node and its columns/cells a lot of information must be passed frequently around.
-  TVTImageInfo = record
+  TVTImageInfo = {$IFDEF UNICODE}record{$ELSE}object{$ENDIF}
     Index: TImageIndex;       // Index in the associated image list.
     XPos,                     // Horizontal position in the current target canvas.
     YPos: TDimension;         // Vertical position in the current target canvas.
@@ -1168,7 +1219,7 @@ type
   );
   TVTInternalPaintOptions = set of TVTInternalPaintOption;
 
-  TVTPaintInfo = record
+  TVTPaintInfo = {$IFDEF UNICODE}record{$ELSE}object{$ENDIF}
     Canvas: TCanvas;              // the canvas to paint on
     PaintOptions: TVTInternalPaintOptions;  // a copy of the paint options passed to PaintTree
     Node: PVirtualNode;           // the node to paint
@@ -1232,7 +1283,7 @@ function TVirtualNode.IsAssigned: Boolean;
 // Returns False if this node is nil, True otherwise
 
 begin
-  Exit(@Self <> nil);
+  Result := @Self <> nil; // Exit(x) needs D2009+
 end;
 
 procedure TVirtualNode.SetNodeHeight(const pNodeHeight: TNodeHeight);
@@ -1340,18 +1391,18 @@ begin
   ContentRect := CellRect;
   if BidiMode = bdLeftToRight then
   begin
-    ContentRect.Left := CellRect.Left + Offsets[TVTElement.ofsLabel];
-    ImageInfo[iiNormal].XPos := CellRect.Left + Offsets[TVTElement.ofsImage];
-    ImageInfo[iiState].XPos := CellRect.Left + Offsets[TVTElement.ofsStateImage];
-    ImageInfo[iiCheck].XPos := CellRect.Left + Offsets[TVTElement.ofsCheckBox];
+    ContentRect.Left := CellRect.Left + Offsets[ofsLabel];
+    ImageInfo[iiNormal].XPos := CellRect.Left + Offsets[ofsImage];
+    ImageInfo[iiState].XPos := CellRect.Left + Offsets[ofsStateImage];
+    ImageInfo[iiCheck].XPos := CellRect.Left + Offsets[ofsCheckBox];
   end
   else
   begin
     /// Since images are still drawn from left to right, we need to substract the image sze as well.
-    ImageInfo[iiNormal].XPos := CellRect.Right - Offsets[TVTElement.ofsImage] - (Offsets[TVTElement.ofsLabel] - Offsets[TVTElement.ofsImage]);
-    ImageInfo[iiState].XPos := CellRect.Right - Offsets[TVTElement.ofsStateImage] - (Offsets[TVTElement.ofsImage] - Offsets[TVTElement.ofsStateImage]);
-    ImageInfo[iiCheck].XPos := CellRect.Right - Offsets[TVTElement.ofsCheckBox] - (Offsets[TVTElement.ofsStateImage] - Offsets[TVTElement.ofsCheckBox]);
-    ContentRect.Right := CellRect.Right - Offsets[TVTElement.ofsLabel];
+    ImageInfo[iiNormal].XPos := CellRect.Right - Offsets[ofsImage] - (Offsets[ofsLabel] - Offsets[ofsImage]);
+    ImageInfo[iiState].XPos := CellRect.Right - Offsets[ofsStateImage] - (Offsets[ofsImage] - Offsets[ofsStateImage]);
+    ImageInfo[iiCheck].XPos := CellRect.Right - Offsets[ofsCheckBox] - (Offsets[ofsStateImage] - Offsets[ofsCheckBox]);
+    ContentRect.Right := CellRect.Right - Offsets[ofsLabel];
   end;
   if ImageInfo[iiNormal].Index > -1 then
     ImageInfo[iiNormal].YPos := CellRect.Top + VAlign - ImageInfo[iiNormal].Images.Height div 2;
@@ -1656,7 +1707,7 @@ begin
   FOwner := AOwner;
   FAlwaysVisible := False;
   FScrollBarStyle := sbmRegular;
-  FScrollBars := TScrollStyle.ssBoth;
+  FScrollBars := ssBoth;
   FIncrementX := 20;
   FIncrementY := 20;
 end;
@@ -1855,10 +1906,18 @@ end;
 
 { TVTCell }
 
+{$IFDEF UNICODE}
 constructor TVTCell.Create(ANode: PVirtualNode; AColumn: TColumnIndex);
 begin
   Node := ANode;
   Column := AColumn;
+end;
+{$ENDIF}
+
+function MakeVTCell(ANode: PVirtualNode; AColumn: TColumnIndex): TVTCell;
+begin
+  Result.Node := ANode;
+  Result.Column := AColumn;
 end;
 
 end.

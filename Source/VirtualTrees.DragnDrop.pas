@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.DragnDrop;
+unit VirtualTrees.DragnDrop;
 
 interface
 
@@ -28,6 +28,10 @@ type
   end;
 
   // TVTDragManager is a class to manage drag and drop in a Virtual Treeview.
+  {$IFNDEF UNICODE}
+  TBaseVirtualTreeCracker = class(TBaseVirtualTree); // interface-visible on D7: no class helpers there
+  {$ENDIF}
+
   TVTDragManager = class(TInterfacedObject, IVTDragManager, IDropSource, IDropTarget)
   private
     FOwner,                                // The tree which is responsible for drag management.
@@ -37,6 +41,9 @@ type
     FDataObject       : IDataObject;       // A reference to the data object passed in by DragEnter (only used when the owner tree is the current drop target).
     FDropTargetHelper : IDropTargetHelper; // Win2k > Drag image support
     FFullDragging     : BOOL;              // True, if full dragging is currently enabled in the system.
+    {$IFNDEF UNICODE}
+    function TreeView: TBaseVirtualTreeCracker; // helper replacement for D7
+    {$ENDIF}
 
     function GetDataObject : IDataObject; stdcall;
     function GetDragSource : TBaseVirtualTree; stdcall;
@@ -75,12 +82,14 @@ uses
   VirtualTrees.Clipboard,
   VirtualTrees.DataObject;
 
+{$IFDEF UNICODE} // on D7 the cracker is interface-visible and TreeView is a real method, see above
 type
   TBaseVirtualTreeCracker = class(TBaseVirtualTree);
 
   TVTDragManagerHelper = class helper for TVTDragManager
     function TreeView : TBaseVirtualTreeCracker;
   end;
+{$ENDIF}
 
 
   //----------------- TEnumFormatEtc -------------------------------------------------------------------------------------
@@ -367,11 +376,19 @@ begin
       Result := S_OK;
 end;
 
+{$IFDEF UNICODE}
 { TVTDragManagerHelper }
 
 function TVTDragManagerHelper.TreeView : TBaseVirtualTreeCracker;
 begin
   Result := TBaseVirtualTreeCracker(FOwner);
 end;
+{$ELSE}
+
+function TVTDragManager.TreeView : TBaseVirtualTreeCracker;
+begin
+  Result := TBaseVirtualTreeCracker(FOwner);
+end;
+{$ENDIF}
 
 end.

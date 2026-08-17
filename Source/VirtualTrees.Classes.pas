@@ -1,4 +1,4 @@
-﻿unit VirtualTrees.Classes;
+unit VirtualTrees.Classes;
 
 // The contents of this file are subject to the Mozilla Public License
 // Version 1.1 (the "License"); you may not use this file except in compliance
@@ -29,7 +29,8 @@ interface
 {$WARN UNSAFE_CODE OFF}
 
 uses
-  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND};
+  {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND},
+  VirtualTrees.Types;
 
 type
   // Helper classes to speed up rendering text formats for clipboard and drag'n drop transfers.
@@ -53,14 +54,14 @@ type
     FStart,
     FPosition,
     FEnd: PWideChar;
-    function GetAsString: string;
+    function GetAsString: UnicodeString;
   public
     destructor Destroy; override;
 
-    procedure Add(const S: string);
+    procedure Add(const S: UnicodeString);
     procedure AddNewLine;
 
-    property AsString: string read GetAsString;
+    property AsString: UnicodeString read GetAsString;
   end;
 
 
@@ -97,7 +98,7 @@ var
 
 begin
   Len := Length(S);
-  // Make room for the new string.
+  // Make room for the new UnicodeString.
   if FEnd - FPosition <= Len then
   begin
     // Round up NewLen so it is always a multiple of AllocIncrement.
@@ -149,7 +150,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBufferedString.GetAsString: string;
+function TBufferedString.GetAsString: UnicodeString;
 
 begin
   SetString(Result, FStart, FPosition - FStart);
@@ -157,7 +158,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBufferedString.Add(const S: string);
+procedure TBufferedString.Add(const S: UnicodeString);
 
 var
   NewLen,
@@ -168,7 +169,7 @@ begin
   Len := Length(S);
   if Len = 0 then
     exit;//Nothing to do
-  // Make room for the new string.
+  // Make room for the new UnicodeString.
   if FEnd - FPosition <= Len then
   begin
     // Round up NewLen so it is always a multiple of AllocIncrement.
