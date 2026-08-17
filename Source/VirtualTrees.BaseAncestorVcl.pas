@@ -524,7 +524,7 @@ end;
 
 function TVTBaseAncestorVcl.RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
-  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, @lprcUpdate, hrgnUpdate, flags); // PRect form works on every compiler
+  Result:= {$IF CompilerVersion < 23}Windows{$ELSE}Winapi.Windows{$IFEND}.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags); // parameter is already a PRect - do NOT take its address
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
