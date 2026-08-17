@@ -20,6 +20,7 @@ uses
   VTPaintTreeIssue1074Tests in 'VTPaintTreeIssue1074Tests.pas',
   VTFocusRectIssue765Tests in 'VTFocusRectIssue765Tests.pas',
   VTScrollRangeIssue983Tests in 'VTScrollRangeIssue983Tests.pas',
+  VTFocusChangedIssue1379Tests in 'VTFocusChangedIssue1379Tests.pas',
   VTCellSelectionTests in 'VTCellSelectionTests.pas',
   VTSelectedCountIssue1197Tests in 'VTSelectedCountIssue1197Tests.pas',
 =======
