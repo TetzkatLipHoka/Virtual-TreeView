@@ -19,6 +19,7 @@ uses
   VTBandsIssue1091Tests in 'VTBandsIssue1091Tests.pas',
   VTPaintTreeIssue1074Tests in 'VTPaintTreeIssue1074Tests.pas',
   VTFocusRectIssue765Tests in 'VTFocusRectIssue765Tests.pas',
+  VTScrollRangeIssue983Tests in 'VTScrollRangeIssue983Tests.pas',
   VTCellSelectionTests in 'VTCellSelectionTests.pas',
   VTSelectedCountIssue1197Tests in 'VTSelectedCountIssue1197Tests.pas',
 =======
