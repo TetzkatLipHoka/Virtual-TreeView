@@ -4654,7 +4654,11 @@ begin
     FDarkNativeScrollBars := Value;
     if HandleAllocated then
       if Value then
-        TryEnableDarkScrollBars(Handle)
+      begin
+        FChangingTheme := True; // suppress the theme-changed timer, its RecreateWnd would re-enter CreateWnd
+        TryEnableDarkScrollBars(Handle);
+        FChangingTheme := False; // WMThemeChanged already reset it; this covers the helper bailing out early
+      end
       else
         RecreateWnd; // there is no documented way back - a fresh window starts with the regular theme
   end;
@@ -9216,7 +9220,11 @@ begin
 
   // The dark rendering is a per-window uxtheme state and dies with the window - re-apply on every handle creation.
   if FDarkNativeScrollBars then
+  begin
+    FChangingTheme := True; // suppress the theme-changed timer, its RecreateWnd would loop right back here
     TryEnableDarkScrollBars(Handle);
+    FChangingTheme := False; // WMThemeChanged already reset it; this covers the helper bailing out early
+  end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

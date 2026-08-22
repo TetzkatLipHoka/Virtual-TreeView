@@ -1776,7 +1776,6 @@ type
   TSetWindowTheme = function(Wnd: HWND; pszSubAppName, pszSubIdList: PWideChar): HRESULT; stdcall;
 const
   ForceDarkAppMode: array[Boolean] of Integer = (1 {AllowDark}, 2 {ForceDark});
-  WM_THEMECHANGED = $031A; // this unit does not use Messages
 var
   UxThemeLib: HMODULE;
   SetPreferredAppMode: TSetPreferredAppMode;
@@ -1813,9 +1812,11 @@ begin
   ModeResult := SetPreferredAppMode(ForceDarkAppMode[Force]);
   AllowResult := AllowDarkModeForWindow(Window, True);
   RefreshImmersiveColorPolicyState;
+  // SetWindowTheme itself delivers WM_THEMECHANGED to the window - do NOT send another one here:
+  // a second message re-arms TBaseVirtualTree's theme-changed timer after WMThemeChanged has
+  // consumed its FChangingTheme suppression, causing a RecreateWnd loop.
   ThemeResult := SetWindowTheme(Window, 'DarkMode_Explorer', nil);
   Result := ThemeResult = S_OK;
-  SendMessage(Window, WM_THEMECHANGED, 0, 0);
   // Without a frame recalc the non-client area keeps its old rendering until something else triggers one.
   SetWindowPos(Window, 0, 0, 0, 0, 0,
     SWP_NOMOVE or SWP_NOSIZE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_FRAMECHANGED);
