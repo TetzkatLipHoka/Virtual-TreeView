@@ -148,6 +148,15 @@ procedure ScaleImageList(const ImgList: TImageList; M, D: Integer);
 function IsHighContrastEnabled(): Boolean;
 
 /// <summary>
+/// Switches the native (non-client) scroll bars of the given window to the system dark
+/// rendering (Windows 10 1809+, undocumented uxtheme API). Force also darkens when the
+/// system app mode is light; note the app-mode part acts process-wide. Returns False when
+/// the OS does not support it - the window then keeps its regular scroll bars.
+/// Re-apply after a window recreation.
+/// </summary>
+function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean;
+
+/// <summary>
 /// Divide depend of parameter type uses different division operator:
 /// <code>Integer uses div</code>
 /// <code>Single uses /</code>
@@ -1749,6 +1758,49 @@ var
 begin
   l.cbSize := SizeOf(l);
   Result := SystemParametersInfo(SPI_GETHIGHCONTRAST, 0, @l, 0) and ((l.dwFlags and HCF_HIGHCONTRASTON) <> 0);
+end;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean;
+
+// Everything is bound dynamically: the ordinals only exist on Windows 10 1809+ and none of the
+// involved functions is declared in any RTL's UxTheme unit (which D7 lacks anyway).
+
+type
+  TSetPreferredAppMode = function(Mode: Integer): Integer; stdcall;            // ordinal 135 (1903+; on 1809 this is AllowDarkModeForApp(BOOL) - passing 1 fits both)
+  TAllowDarkModeForWindow = function(Wnd: HWND; Allow: BOOL): BOOL; stdcall;   // ordinal 133
+  TRefreshImmersiveColorPolicyState = procedure; stdcall;                      // ordinal 104
+  TSetWindowTheme = function(Wnd: HWND; pszSubAppName, pszSubIdList: PWideChar): HRESULT; stdcall;
+const
+  ForceDarkAppMode: array[Boolean] of Integer = (1 {AllowDark}, 2 {ForceDark});
+  WM_THEMECHANGED = $031A; // this unit does not use Messages
+var
+  UxThemeLib: HMODULE;
+  SetPreferredAppMode: TSetPreferredAppMode;
+  AllowDarkModeForWindow: TAllowDarkModeForWindow;
+  RefreshImmersiveColorPolicyState: TRefreshImmersiveColorPolicyState;
+  SetWindowTheme: TSetWindowTheme;
+begin
+  Result := False;
+  UxThemeLib := GetModuleHandle('uxtheme.dll');
+  if UxThemeLib = 0 then
+    UxThemeLib := LoadLibrary('uxtheme.dll');
+  if UxThemeLib = 0 then
+    Exit;
+  SetPreferredAppMode := TSetPreferredAppMode(GetProcAddress(UxThemeLib, PAnsiChar(135)));
+  AllowDarkModeForWindow := TAllowDarkModeForWindow(GetProcAddress(UxThemeLib, PAnsiChar(133)));
+  RefreshImmersiveColorPolicyState := TRefreshImmersiveColorPolicyState(GetProcAddress(UxThemeLib, PAnsiChar(104)));
+  SetWindowTheme := TSetWindowTheme(GetProcAddress(UxThemeLib, 'SetWindowTheme'));
+  if not (Assigned(SetPreferredAppMode) and Assigned(AllowDarkModeForWindow) and
+    Assigned(RefreshImmersiveColorPolicyState) and Assigned(SetWindowTheme)) then
+    Exit;
+
+  SetPreferredAppMode(ForceDarkAppMode[Force]);
+  AllowDarkModeForWindow(Window, True);
+  RefreshImmersiveColorPolicyState;
+  Result := SetWindowTheme(Window, 'DarkMode_Explorer', nil) = S_OK;
+  SendMessage(Window, WM_THEMECHANGED, 0, 0);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
