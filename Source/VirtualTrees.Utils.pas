@@ -152,9 +152,11 @@ function IsHighContrastEnabled(): Boolean;
 /// rendering (Windows 10 1809+, undocumented uxtheme API). Force also darkens when the
 /// system app mode is light; note the app-mode part acts process-wide. Returns False when
 /// the OS does not support it - the window then keeps its regular scroll bars.
-/// Re-apply after a window recreation.
+/// Re-apply after a window recreation (TBaseVirtualTree.DarkNativeScrollBars does that
+/// automatically). The Diag overload reports every step for measuring in foreign hosts.
 /// </summary>
-function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean;
+function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean; overload;
+function TryEnableDarkScrollBars(Window: HWND; Force: Boolean; out Diag: string): Boolean; overload;
 
 /// <summary>
 /// Divide depend of parameter type uses different division operator:
@@ -1762,7 +1764,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean;
+function TryEnableDarkScrollBars(Window: HWND; Force: Boolean; out Diag: string): Boolean;
 
 // Everything is bound dynamically: the ordinals only exist on Windows 10 1809+ and none of the
 // involved functions is declared in any RTL's UxTheme unit (which D7 lacks anyway).
@@ -1781,26 +1783,54 @@ var
   AllowDarkModeForWindow: TAllowDarkModeForWindow;
   RefreshImmersiveColorPolicyState: TRefreshImmersiveColorPolicyState;
   SetWindowTheme: TSetWindowTheme;
+  ModeResult: Integer;
+  AllowResult: BOOL;
+  ThemeResult: HRESULT;
 begin
   Result := False;
+  Diag := '';
   UxThemeLib := GetModuleHandle('uxtheme.dll');
   if UxThemeLib = 0 then
     UxThemeLib := LoadLibrary('uxtheme.dll');
   if UxThemeLib = 0 then
+  begin
+    Diag := 'uxtheme.dll not loadable';
     Exit;
+  end;
   SetPreferredAppMode := TSetPreferredAppMode(GetProcAddress(UxThemeLib, PAnsiChar(135)));
   AllowDarkModeForWindow := TAllowDarkModeForWindow(GetProcAddress(UxThemeLib, PAnsiChar(133)));
   RefreshImmersiveColorPolicyState := TRefreshImmersiveColorPolicyState(GetProcAddress(UxThemeLib, PAnsiChar(104)));
   SetWindowTheme := TSetWindowTheme(GetProcAddress(UxThemeLib, 'SetWindowTheme'));
   if not (Assigned(SetPreferredAppMode) and Assigned(AllowDarkModeForWindow) and
     Assigned(RefreshImmersiveColorPolicyState) and Assigned(SetWindowTheme)) then
+  begin
+    Diag := Format('ordinals missing: 135=%d 133=%d 104=%d SetWindowTheme=%d',
+      [Ord(Assigned(SetPreferredAppMode)), Ord(Assigned(AllowDarkModeForWindow)),
+       Ord(Assigned(RefreshImmersiveColorPolicyState)), Ord(Assigned(SetWindowTheme))]);
     Exit;
+  end;
 
-  SetPreferredAppMode(ForceDarkAppMode[Force]);
-  AllowDarkModeForWindow(Window, True);
+  ModeResult := SetPreferredAppMode(ForceDarkAppMode[Force]);
+  AllowResult := AllowDarkModeForWindow(Window, True);
   RefreshImmersiveColorPolicyState;
-  Result := SetWindowTheme(Window, 'DarkMode_Explorer', nil) = S_OK;
+  ThemeResult := SetWindowTheme(Window, 'DarkMode_Explorer', nil);
+  Result := ThemeResult = S_OK;
   SendMessage(Window, WM_THEMECHANGED, 0, 0);
+  // Without a frame recalc the non-client area keeps its old rendering until something else triggers one.
+  SetWindowPos(Window, 0, 0, 0, 0, 0,
+    SWP_NOMOVE or SWP_NOSIZE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_FRAMECHANGED);
+  RedrawWindow(Window, nil, 0, RDW_INVALIDATE or RDW_FRAME or RDW_UPDATENOW);
+  Diag := Format('mode(%d)=%d allow=%d theme=$%x', [ForceDarkAppMode[Force], ModeResult, Ord(AllowResult), ThemeResult]);
+end;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean;
+
+var
+  Diag: string;
+begin
+  Result := TryEnableDarkScrollBars(Window, Force, Diag);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

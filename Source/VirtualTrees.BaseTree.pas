@@ -414,6 +414,7 @@ type
   private
     FTotalInternalDataSize: Cardinal;            // Cache of the sum of the necessary internal data size for all tree
     FBorderStyle: TBorderStyle;
+    FDarkNativeScrollBars: Boolean;              // switch native scroll bars to the system dark rendering (see TryEnableDarkScrollBars)
     FHeader: TVTHeader;
     FRoot: PVirtualNode;
     FDefaultNodeHeight,
@@ -812,6 +813,7 @@ type
     procedure SetBackgroundOffset(const Index: Integer; const Value: TDimension);
     procedure SetBorderStyle(Value: TBorderStyle);
     procedure SetBottomNode(Node: PVirtualNode);
+    procedure SetDarkNativeScrollBars(const Value: Boolean);
     procedure SetBottomSpace(const Value: TDimension);
     procedure SetButtonFillMode(const Value: TVTButtonFillMode);
     procedure SetButtonStyle(const Value: TVTButtonStyle);
@@ -1770,6 +1772,7 @@ type
     property ChildCount[Node: PVirtualNode]: Cardinal read GetChildCount write SetChildCount;
     property ChildrenInitialized[Node: PVirtualNode]: Boolean read GetChildrenInitialized;
     property CutCopyCount: Integer read GetCutCopyCount;
+    property DarkNativeScrollBars: Boolean read FDarkNativeScrollBars write SetDarkNativeScrollBars;
     property DragManager: IVTDragManager read GetDragManager;
     property DropTargetNode: PVirtualNode read FDropTargetNode write FDropTargetNode;
     property EditLink: IVTEditLink read FEditLink;
@@ -4638,6 +4641,22 @@ begin
   begin
     FBorderStyle := Value;
     RecreateWnd;
+  end;
+end;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+procedure TBaseVirtualTree.SetDarkNativeScrollBars(const Value: Boolean);
+
+begin
+  if FDarkNativeScrollBars <> Value then
+  begin
+    FDarkNativeScrollBars := Value;
+    if HandleAllocated then
+      if Value then
+        TryEnableDarkScrollBars(Handle)
+      else
+        RecreateWnd; // there is no documented way back - a fresh window starts with the regular theme
   end;
 end;
 
@@ -9194,6 +9213,10 @@ begin
 
   UpdateScrollBars(True);
   UpdateHeaderRect;
+
+  // The dark rendering is a per-window uxtheme state and dies with the window - re-apply on every handle creation.
+  if FDarkNativeScrollBars then
+    TryEnableDarkScrollBars(Handle);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
