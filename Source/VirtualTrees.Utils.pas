@@ -159,6 +159,16 @@ function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean; 
 function TryEnableDarkScrollBars(Window: HWND; Force: Boolean; out Diag: string): Boolean; overload;
 
 /// <summary>
+/// Paints a horizontal data bar with heat coloring (cool to warm by fraction) into a cell
+/// rectangle - the Excel data bar / profiler in-tree bar idiom. Intended to be called from
+/// OnBeforeCellPaint so the tree paints the cell text on top afterwards; combine with
+/// toUseBlendedSelection to keep the bar visible under the selection. Fraction is clamped
+/// to 0..1; nothing is painted for Fraction <= 0. DarkBackground selects the color ramp
+/// variant (on light backgrounds the colors are darkened for contrast).
+/// </summary>
+procedure DrawDataBar(Canvas: TCanvas; const CellRect: TRect; Fraction: Double; DarkBackground: Boolean);
+
+/// <summary>
 /// Divide depend of parameter type uses different division operator:
 /// <code>Integer uses div</code>
 /// <code>Single uses /</code>
@@ -1832,6 +1842,54 @@ var
   Diag: string;
 begin
   Result := TryEnableDarkScrollBars(Window, Force, Diag);
+end;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+procedure DrawDataBar(Canvas: TCanvas; const CellRect: TRect; Fraction: Double; DarkBackground: Boolean);
+
+// Two-segment heat ramp with its knee at 0.5: blue-gray to yellow, then yellow to red.
+
+var
+  R: TRect;
+  T: Double;
+  Red, Green, Blue: Integer;
+begin
+  if Fraction <= 0 then
+    Exit;
+  if Fraction > 1 then
+    Fraction := 1;
+
+  R := CellRect;
+  InflateRect(R, -2, -2);
+  R.Right := R.Left + Round((R.Right - R.Left) * Fraction);
+  if (R.Right <= R.Left) or (R.Bottom <= R.Top) then
+    Exit;
+
+  if Fraction < 0.5 then
+  begin
+    T := Fraction / 0.5;
+    Red := 90 + Round(T * (210 - 90));
+    Green := 120 + Round(T * (190 - 120));
+    Blue := 150 + Round(T * (70 - 150));
+  end
+  else
+  begin
+    T := (Fraction - 0.5) / 0.5;
+    Red := 210 + Round(T * (215 - 210));
+    Green := 190 + Round(T * (60 - 190));
+    Blue := 70 + Round(T * (55 - 70));
+  end;
+  if not DarkBackground then
+  begin
+    // stronger colors against a light background
+    Red := Round(Red * 0.85);
+    Green := Round(Green * 0.85);
+    Blue := Round(Blue * 0.85);
+  end;
+
+  Canvas.Brush.Color := TColor(RGB(Red, Green, Blue));
+  Canvas.FillRect(R);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
