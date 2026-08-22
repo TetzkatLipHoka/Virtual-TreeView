@@ -154,6 +154,9 @@ function IsHighContrastEnabled(): Boolean;
 /// the OS does not support it - the window then keeps its regular scroll bars.
 /// Re-apply after a window recreation (TBaseVirtualTree.DarkNativeScrollBars does that
 /// automatically). The Diag overload reports every step for measuring in foreign hosts.
+/// Measured limitation: Windows applies the dark rendering fully only to Unicode windows -
+/// on ANSI windows (Delphi 7 VCL, CreateWindowExA) the scroll bar renders only partially,
+/// proven by a raw CreateWindowExW window going fully dark in the same D7 process.
 /// </summary>
 function TryEnableDarkScrollBars(Window: HWND; Force: Boolean = True): Boolean; overload;
 function TryEnableDarkScrollBars(Window: HWND; Force: Boolean; out Diag: string): Boolean; overload;
