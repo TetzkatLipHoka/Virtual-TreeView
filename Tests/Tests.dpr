@@ -22,6 +22,7 @@ uses
   VTScrollRangeIssue983Tests in 'VTScrollRangeIssue983Tests.pas',
   VTFocusChangedIssue1379Tests in 'VTFocusChangedIssue1379Tests.pas',
   VTFixedColumnDragIssue1377Tests in 'VTFixedColumnDragIssue1377Tests.pas',
+  VTHeaderHintIssue728Tests in 'VTHeaderHintIssue728Tests.pas',
   VTCellSelectionTests in 'VTCellSelectionTests.pas',
   VTSelectedCountIssue1197Tests in 'VTSelectedCountIssue1197Tests.pas',
   VTPaintToIssue632Tests in 'VTPaintToIssue632Tests.pas',
