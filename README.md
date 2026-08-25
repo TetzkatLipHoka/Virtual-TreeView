@@ -68,6 +68,7 @@ behavior are welcome in this fork's issue tracker; everything else belongs
 
 ## License and credits
 
-Same licensing as upstream (MPL 1.1 / LGPL 2.1, see `LICENSE.md`). Virtual
+Same licensing as upstream (MPL 1.1 / LGPL 2.1 dual license, see the header of
+`Source\VirtualTrees.pas`). Virtual
 Treeview was initially created by Mike Lischke and is maintained by JAM Software
 and contributors. The backport work in this fork is by TetzkatLipHoka.
