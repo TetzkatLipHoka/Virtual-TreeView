@@ -1,73 +1,73 @@
-# Virtual-TreeView
+# Virtual-Treeview — V8 backport for Delphi 7 to 13.1
 
-Virtual Treeview is a Delphi treeview control built from ground up. Many years of development made it one of the most flexible and advanced tree controls available today. Virtual Treeview starts off with the claim to improve many aspects of existing solutions and introduces some new technologies and principles which were not available before.
+This is a fork of [JAM-Software/Virtual-TreeView](https://github.com/JAM-Software/Virtual-TreeView)
+that carries **current V8 master backported to older Delphi versions** — one code
+base from Delphi 7 up to Delphi 13.1, no separate legacy line. If you are on a
+recent RAD Studio, use the [upstream repository](https://github.com/JAM-Software/Virtual-TreeView);
+this fork exists for everyone stuck below its supported floor.
 
-## Help Needed: Any volunteer that takes care about **C++ Builder** bugs and packages?
+Virtual Treeview is a Delphi treeview control built from ground up. Many years of
+development made it one of the most flexible and advanced tree controls available
+today.
 
-I don't use C++ Builder and my experience with it is very limited. This makes it difficult to take care about bugs that are reported in C++ Builder and to maintain the C++ Builder packages. I would be great if someone would volunteer to do this.
+## What is inside
 
-## Downloads
+- **Current V8 master** as the base, with newer upstream fixes cherry-picked
+  (e.g. the Windows 7 black-tree fix from upstream PR #1390).
+- **All fixes from the 2026-08 series** that were developed and measured on this
+  code base and are merged upstream: #1197 (SelectedCount), #632 (PaintTo /
+  WM_PRINT), #1091 (bands), #1074 (unbuffered painting under mapping modes),
+  #765 (full row focus rect), #1379 (keyboard refocus), #1377 (fixed column
+  drag trap), the classic-mode `Header.Background` fix and the dpi-independent
+  `TestCopyHTML` rework.
+- **Fork extras** (opt-in, default behavior unchanged):
+  - A manual dark mode for hosts without VCL styles (e.g. IDE plugins):
+    classic header cells honor `Header.Background`, plus
+    `TBaseVirtualTree.DarkNativeScrollBars` for system-dark native scroll bars
+    (Windows 10 1809+; full rendering requires a Unicode window class, i.e.
+    Delphi 2009+ built executables).
+  - `VirtualTrees.Utils.DrawDataBar`: an Excel-style in-cell data bar with heat
+    coloring for use from `OnBeforeCellPaint`.
 
-[**V8** official release](https://github.com/JAM-Software/Virtual-TreeView/releases/latest) for **RAD Studio 10 to 13** which includes some **[breaking changes](https://github.com/JAM-Software/Virtual-TreeView/wiki/Breaking-Changes-in-V8)**.
+## Verified compilers
 
-[**V7.6.x**](https://github.com/JAM-Software/Virtual-TreeView/releases/tag/V7.6.6) for **Delphi XE3 to XE8**.
+| Compiler | Status |
+|---|---|
+| Delphi 7 | builds; demos run; headless regression probe green |
+| Delphi 2009 | builds; demos run |
+| Delphi 10 Seattle – 10.4 | builds (full matrix) |
+| Delphi 11.3, 12.3, 13.1 | builds; DUnitX suite **154/154 green** on 13.1 |
 
-An experimental **FireMonkey** port can be found here: [livius2/Virtual-TreeView](https://github.com/livius2/Virtual-TreeView)
+Versions between Delphi 2010 and XE8 are untested. XE2/XE3 are known to trip
+over compiler quirks of that era (see
+[upstream issue #1395](https://github.com/JAM-Software/Virtual-TreeView/issues/1395)
+for the measured details and a possible upstream XE3 revival).
 
-A port to **Lazarus / FPC** can be found here: [blikblum/VirtualTreeView-Lazarus](https://github.com/blikblum/VirtualTreeView-Lazarus)
+Win32 is the tested target. Unicode rendering works on all versions including
+Delphi 7; on Delphi 7 the in-place editors accept ANSI input (extensible via
+`IVTEditLink`).
 
-For a **Delphi XE2** compatible fork see: [Fr0sT-Brutal/VirtualTreeView_mod/tree/fr0st_xe2](https://github.com/Fr0sT-Brutal/VirtualTreeView_mod/tree/fr0st_xe2)
+## Building
 
-**V5.5.3** for **Delphi 7 to XE2**: [Download](https://github.com/JAM-Software/Virtual-TreeView/releases/download/V5.5.3/VirtualTreeViewV5.5.3.zip)
+- **Delphi 10 Seattle and newer:** add `Source` to your project/library path —
+  done.
+- **Delphi 7 / 2009:** additionally add `Compat\2009` to the search path (small
+  self-contained shims for `System.UITypes`, `Vcl.Themes` and friends).
+  Delphi 2009 also needs the unit aliases from
+  `Compat\2009\unit-aliases-2009.txt` (project options → unit aliases, or the
+  `-A` command line switch).
+- Delphi 7 forms use the generated `*.D7.dfm` variants shipped with the demos.
 
-**V6 latest stable version** tested on Windows XP/2003 support: [GitHub](https://github.com/Virtual-TreeView/Virtual-TreeView/archive/V6_stable.zip)
+## Relationship to upstream
 
-For installation instruction see the "INSTALL.TXT" file in the ZIP. [Delphinus](http://memnarch.bplaced.net/blog/2015/08/delphinus-packagemanager-for-delphi-xe-and-newer/)-Support was added.
+Fixes found here are submitted upstream first (see the PR series above — all
+merged); upstream fixes are cherry-picked back, so this fork stays a superset
+of upstream master rather than a diverging line. Bug reports for old-Delphi
+behavior are welcome in this fork's issue tracker; everything else belongs
+[upstream](https://github.com/JAM-Software/Virtual-TreeView/issues).
 
-### Technical Support
+## License and credits
 
-Please do not contact developers or JAM Software for technical support. Please try to get support from the community e.g. at [Stack Overflow](http://stackoverflow.com/search?q=%22virtual+treeview%22), [Delphi Pages](http://www.delphipages.com/), [Delphi Praxis](http://www.delphipraxis.net/141465-virtual-treeview-tutorials-mit-beispielen.html) or [Embarcadero forums](https://forums.embarcadero.com/). Please do not use the issue tracker for getting support, only for reporting true bugs (see below).
-
-## Reporting Bugs
-
-First of all, please make sure you are using the **latest official version**. When **[reporting a bug](https://github.com/Virtual-TreeView/Virtual-TreeView/issues)** please attach a **sample** project as ZIP-file that allows us to quickly reproduce the bug. This can also be one of the demo projects that come with Virtual Treeview, modified to show the bug. If only small changes are required, a description is sufficient how a demo projects needs to be changed in order to replicate the bug. Please follow [best practices for good bug reports](https://www.softwaretestinghelp.com/how-to-write-good-bug-report/).
-
-If you already have a solution, please supply a patch file or make a pull request. If you used a previous version that did not have the bug, please include this version number in your report.
-
-## Feature Requests
-
-We currently focus on reducing the number of reported bugs and getting Virtual Treeview stable. Feature Requests will most likely not processed at the moment. We are only going to process enhancement requests if the new feature is of general interest and a source code patch based on the latest SVN revision is attached to the report. Please mark feature requests with the flag "Enhancement".
-
-## Contributors
-
-If you want to contribute, you are welcome. We always look for help, not only for the development of the Virtual Treeview control itself, but also for maintaining the sample projects, the help or the wiki. Please send an email to: joachim(dot)marder(a)gmail.com
-
-## License
-
-Virtual Treeview is published under a double license: MPL 1.1 and LGPL 2.1 with static linking exception as described here: <http://wiki.freepascal.org/modified_LGPL>
-
-## New project owner
-
-JAM Software took Virtual Treeview under its wing in 2014, but not much will change besides the homepage and download location.
-
-## Running Tests
-
-### From RAD Studio IDE
-
-- Open "Tests\Tests.dproj"
-- Run the project
-- Use command line option --run to run individual tests
-
-### From Command Line
-
-```cmd
-# Build  tests on console
-RsVars.bat
-MsBuild.exe /property:Platform=Win64 /p:Config=Console Tests\Tests.dproj
-
-# Run all unit tests on console after build
-Tests\Tests.exe
-
-# Example how to run specific unit tests on console
-Tests\ShellBrowser.Tests.exe --run:
-```
+Same licensing as upstream (MPL 1.1 / LGPL 2.1, see `LICENSE.md`). Virtual
+Treeview was initially created by Mike Lischke and is maintained by JAM Software
+and contributors. The backport work in this fork is by TetzkatLipHoka.
