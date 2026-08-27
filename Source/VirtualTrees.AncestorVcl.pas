@@ -530,4 +530,24 @@ initialization
     end;
   end;
 
+finalization
+  // Issue #728, package-unload safety: HintWindowClass is a process-global in
+  // Vcl.Controls (shared RTL). When this unit is linked into a runtime package
+  // that gets UNLOADED (an IDE design package or plugin BPL), the global would
+  // keep pointing at TVirtualTreeHintWindow whose VMT lives in the now-freed
+  // package - the next hint (TApplication.IsHintMsg / ActivateHint) then faults.
+  // Restore the stock class on the way out. Only revert if we are still the
+  // installed class, so a later override by another unit is left untouched.
+  if HintWindowClass = TVirtualTreeHintWindow then
+  begin
+    HintWindowClass := THintWindow;
+    // Destroy our live hint window NOW (code still mapped) and let the app build a
+    // stock one, instead of leaving a dangling instance to be freed after unload.
+    if Assigned(Application) and Application.ShowHint then
+    begin
+      Application.ShowHint := False;
+      Application.ShowHint := True;
+    end;
+  end;
+
 end.
