@@ -201,12 +201,12 @@ var
   DrawFormat: Cardinal;
   HintKind: TVTHintKind;
   LClipRect: TRect;
-
+{$IF CompilerVersion >= 23}
   LColor: TColor;
   LDetails: TThemedElementDetails;
   LGradientStart: TColor;
   LGradientEnd: TColor;
-
+{$IFEND}
 begin
   if FHintData.Tree = nil then
   begin
