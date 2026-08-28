@@ -208,13 +208,6 @@ var
   LGradientEnd: TColor;
 {$IFEND}
 begin
-  if FHintData.Tree = nil then
-  begin
-    // Hint of a foreign control (we are the application-wide hint window class,
-    // see initialization, issue #728). Render like the standard VCL hint window.
-    inherited Paint;
-    Exit;
-  end;
   with FHintData do
   begin
     // Do actual painting only in the very first run.
@@ -324,13 +317,8 @@ var
 begin
   try
     if AData = nil then
-    begin
-      // No tree hint data. Since we register ourselves as the application-wide
-      // hint window class (see initialization, issue #728), this hint belongs to
-      // another control - behave exactly like the standard VCL hint window.
-      FHintData.Tree := nil;
-      Result := inherited CalcHintRect(MaxWidth, AHint, AData);
-    end
+      // Defensive approach, it *can* happen that AData is nil. Maybe when several user defined hint classes are used.
+      Result := Rect(0, 0, 0, 0)
     else
     begin
       // The hint window does not need any bidi mode setting but the caller of this method (TApplication.ActivateHint)
@@ -504,50 +492,5 @@ begin
   if Result and ((Msg.Message = WM_NCMOUSEMOVE) or ((Msg.Message >= WM_KEYFIRST) and (Msg.Message <= WM_KEYLAST) and (Msg.wparam in [VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT]))) then
     Result := False;
 end;
-
-//----------------------------------------------------------------------------------------------------------------------
-
-initialization
-  // Issue #728: The header occupies the window's non-client area, so hovering it
-  // produces WM_NCMOUSEMOVE messages. The stock THintWindow.IsHintMsg tells the VCL
-  // to cancel a pending hint on every such message, which made header tooltips
-  // unreliable - they only worked while a TVirtualTreeHintWindow happened to be the
-  // application's hint window (e.g. after a node hint had been shown).
-  // TVirtualTreeHintWindow.IsHintMsg filters those messages out, so we install it as
-  // the application-wide hint window class to make that override always effective.
-  // For hints of other controls it falls back to the stock rendering (see the
-  // AData = nil branches in CalcHintRect and Paint). We only replace the default
-  // class, so applications using their own hint window are left untouched.
-  if HintWindowClass = THintWindow then
-  begin
-    HintWindowClass := TVirtualTreeHintWindow;
-    // The application already created its hint window during VCL startup (before this
-    // unit's initialization ran), so recreate it to adopt the new class right away.
-    if Assigned(Application) and Application.ShowHint then
-    begin
-      Application.ShowHint := False;
-      Application.ShowHint := True;
-    end;
-  end;
-
-finalization
-  // Issue #728, package-unload safety: HintWindowClass is a process-global in
-  // Vcl.Controls (shared RTL). When this unit is linked into a runtime package
-  // that gets UNLOADED (an IDE design package or plugin BPL), the global would
-  // keep pointing at TVirtualTreeHintWindow whose VMT lives in the now-freed
-  // package - the next hint (TApplication.IsHintMsg / ActivateHint) then faults.
-  // Restore the stock class on the way out. Only revert if we are still the
-  // installed class, so a later override by another unit is left untouched.
-  if HintWindowClass = TVirtualTreeHintWindow then
-  begin
-    HintWindowClass := THintWindow;
-    // Destroy our live hint window NOW (code still mapped) and let the app build a
-    // stock one, instead of leaving a dangling instance to be freed after unload.
-    if Assigned(Application) and Application.ShowHint then
-    begin
-      Application.ShowHint := False;
-      Application.ShowHint := True;
-    end;
-  end;
 
 end.
