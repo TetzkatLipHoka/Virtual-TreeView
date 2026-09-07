@@ -53,7 +53,7 @@ type
   {$ELSE}
     TVTBaseAncestor        = TVTBaseAncestorVcl;
     TCanvas                = {$IF CompilerVersion < 23}Graphics{$ELSE}Vcl.Graphics{$IFEND}.TCanvas;
-    TFormatEtcArray        = VirtualTrees.Types.TFormatEtcArray;											  
+    TFormatEtcArray        = VirtualTrees.Types.TFormatEtcArray;
   {$ENDIF}
 
   // Alias defintions for convenience
@@ -541,9 +541,8 @@ type
     FOffsetY: TDimension;                        // Determines left and top scroll offset.
     FEffectiveOffsetX: TDimension;               // Actual position of the horizontal scroll bar (varies depending on bidi mode).
     FRangeX,
-    FRangeY: TNodeHeight;                         // current virtual width and height of the tree
-    FHorzRangeGrowOnly: Boolean;                 // True while updating scroll bars in reaction to scrolling: the
-                                                 // horizontal range may then only grow, never shrink. See issue #983.
+    FRangeY: TNodeHeight;                        // current virtual width and height of the tree
+    FScrolling: Boolean;                         // True while updating scroll bars in reaction to scrolling. See issue #983.
     FBottomSpace: TDimension;                    // Extra space below the last node.
 
     FDefaultPasteMode: TVTNodeAttachMode;        // Used to determine where to add pasted nodes to.
@@ -1877,7 +1876,7 @@ type
   //These allow us access to protected members in the classes
   TVirtualTreeColumnsCracker = class(TVirtualTreeColumns);
   TVTHeaderCracker = class(TVTHeader);
-  TVirtualTreeColumnCracker = class(TVirtualTreeColumn);												 
+  TVirtualTreeColumnCracker = class(TVirtualTreeColumn);
   TBaseVirtualTreeCracker = class(TBaseVirtualTree);
 
   // streaming support
@@ -8404,11 +8403,11 @@ begin
         DoStateChange([], [tsThumbTracking]);
         // Avoiding to adjust the horizontal scroll position while tracking makes scrolling much smoother
         // but we need to adjust the final position here then.
-        FHorzRangeGrowOnly := True; // issue #983, see UpdateHorizontalRange
+        FScrolling := True; // issue #983, see UpdateHorizontalRange
         try
           UpdateScrollBars(True);
         finally
-          FHorzRangeGrowOnly := False;
+          FScrolling := False;
         end;
         // Really weird invalidation needed here (and I do it only because it happens so rarely), because
         // when showing the horizontal scrollbar while scrolling down using the down arrow button,
@@ -11317,11 +11316,11 @@ begin
           if not (FHeader.UseColumns or IsMouseSelecting) and
             (FScrollBarOptions.ScrollBars in [ssHorizontal, ssBoth]) then
           begin
-            FHorzRangeGrowOnly := True; // issue #983, see UpdateHorizontalRange
+            FScrolling := True; // issue #983, see UpdateHorizontalRange
             try
               UpdateHorizontalScrollBar(suoRepaintScrollBars in Options);
             finally
-              FHorzRangeGrowOnly := False;
+              FScrolling := False;
             end;
           end;
         end;
@@ -12422,15 +12421,31 @@ function TBaseVirtualTree.GetMaxRightExtend(): TDimension;
 
 var
   Node,
-  NextNode: PVirtualNode;
+  NextNode,
+  PrevNode: PVirtualNode;
   TopPosition: TDimension;
   CurrentWidth: TDimension;
+  ScrollBarOffset: TDimension;
 
 begin
   Node := GetNodeAt(0, 0, True, TopPosition);
   Result := 0;
   if not Assigned(Node) then
     exit;
+
+  if (FScrolling) and ((GetWindowLong(Handle, GWL_STYLE) and WS_HSCROLL) <> 0) then
+  begin
+    ScrollBarOffset := {$IF CompilerVersion >= 33}GetSystemMetricsForDpi(SM_CYHSCROLL, CurrentPPI){$ELSE}GetSystemMetrics(SM_CYHSCROLL){$IFEND};
+    PrevNode := GetPreviousVisible(Node, True);
+    while (ScrollBarOffset > 0) and Assigned(PrevNode) do
+    begin
+      CurrentWidth := GetOffset({$IF CompilerVersion >= 20}TVTElement.{$IFEND}ofsRightOfText, PrevNode);
+      if Result < CurrentWidth then
+        Result := CurrentWidth;
+      Dec(ScrollBarOffset, NodeHeight[PrevNode]);
+      PrevNode := GetPreviousVisible(PrevNode, True);
+    end;
+  end;
 
   while Assigned(Node) do
   begin
@@ -23454,14 +23469,6 @@ procedure TBaseVirtualTree.UpdateHorizontalRange;
 begin
   if FHeader.UseColumns then
     SetRangeX(FHeader.Columns.TotalWidth)
-  else if FHorzRangeGrowOnly then
-    // Issue #983: while scrolling vertically the horizontal range may only grow. Shrinking it
-    // would hide the horizontal scroll bar as soon as the widest node scrolls out of view; the
-    // resulting taller client area then clamps the scroll position back up, which scrolls the
-    // widest node into view again, which brings the scroll bar back - the tree oscillates and
-    // the user can never reach the bottom. Any other trigger (resize, structure or content
-    // change) recomputes the range from scratch as before.
-    SetRangeX(Max(FRangeX, GetMaxRightExtend))
   else
     SetRangeX(GetMaxRightExtend);
 end;
