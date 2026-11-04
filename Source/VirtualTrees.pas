@@ -140,7 +140,7 @@ const
   // Aliases for increased compatibility with V7, feel free to extend by pull requests
   // For C++Builder alias compatiblity, use {$EXTERNALSYM} and {$HPPEMIT}
 
-  {$HPPEMIT OPENNAMESPACE}
+  {$IF CompilerVersion >= 23}{$HPPEMIT OPENNAMESPACE}{$IFEND} // unquoted HPPEMIT token: invalid directive on D7/2009
 
   NoColumn = VirtualTrees.Types.NoColumn;
   {$EXTERNALSYM NoColumn}
@@ -275,7 +275,7 @@ const
   {$EXTERNALSYM hmTooltip}
   {$HPPEMIT 'using Virtualtrees::Types::hmTooltip;'}
 
-  {$HPPEMIT CLOSENAMESPACE}
+  {$IF CompilerVersion >= 23}{$HPPEMIT CLOSENAMESPACE}{$IFEND} // unquoted HPPEMIT token: invalid directive on D7/2009
 
 type
   TCustomVirtualStringTree = class;
