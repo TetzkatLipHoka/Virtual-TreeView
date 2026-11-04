@@ -138,38 +138,144 @@ type
 
 const
   // Aliases for increased compatibility with V7, feel free to extend by pull requests
-  NoColumn                 = VirtualTrees.Types.NoColumn;
-  InvalidColumn            = VirtualTrees.Types.InvalidColumn;
-  sdAscending              = VirtualTrees.Types.{$IF CompilerVersion >= 20}TSortDirection.{$IFEND}sdAscending;
-  sdDescending             = VirtualTrees.Types.{$IF CompilerVersion >= 20}TSortDirection.{$IFEND}sdDescending;
-  toAutoSort               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTAutoOption.{$IFEND}toAutoSort;
-  toCheckSupport           = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTMiscOption.{$IFEND}toCheckSupport;
-  toEditable               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTMiscOption.{$IFEND}toEditable;
-  toShowRoot               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowRoot;
-  ctNone                   = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctNone;
-  ctTriStateCheckBox       = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctTriStateCheckBox;
-  ctCheckBox               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctCheckBox;
-  ctRadioButton            = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctRadioButton;
-  ctButton                 = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctButton;
+  // For C++Builder alias compatiblity, use {$EXTERNALSYM} and {$HPPEMIT}
 
-  csUncheckedNormal        = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedNormal;
-  csUncheckedPressed       = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedPressed;
-  csCheckedNormal          = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedNormal;
-  csCheckedPressed         = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedPressed;
-  csMixedNormal            = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedNormal;
-  csMixedPressed           = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedPressed;
-  csUncheckedDisabled      = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedDisabled;
-  csCheckedDisabled        = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedDisabled;
-  csMixedDisable           = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedDisabled;
+  {$HPPEMIT OPENNAMESPACE}
 
-  coVisible                = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coVisible;
-  vsDisabled               = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVirtualNodeState.{$IFEND}vsDisabled;
-  etHTML                   = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etHTML;
-  hiOnItemButton           = VirtualTrees.Types.{$IF CompilerVersion >= 20}THitPosition.{$IFEND}hiOnItemButton;
-  dmOnNode                 = VirtualTrees.Types.{$IF CompilerVersion >= 20}TDropMode.{$IFEND}dmOnNode;
-  hlbForceMultiLine        = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTTooltipLineBreakStyle.{$IFEND}hlbForceMultiLine;
-  hmHintAndDefault         = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTHintMode.{$IFEND}hmHintAndDefault;
-  hmTooltip                = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTHintMode.{$IFEND}hmTooltip;
+  NoColumn = VirtualTrees.Types.NoColumn;
+  {$EXTERNALSYM NoColumn}
+  {$HPPEMIT 'using Virtualtrees::Types::NoColumn;'}
+
+  InvalidColumn = VirtualTrees.Types.InvalidColumn;
+  {$EXTERNALSYM InvalidColumn}
+  {$HPPEMIT 'using Virtualtrees::Types::InvalidColumn;'}
+
+  // TSortDirection
+  sdAscending = VirtualTrees.Types.{$IF CompilerVersion >= 20}TSortDirection.{$IFEND}sdAscending;
+  {$EXTERNALSYM sdAscending}
+  {$HPPEMIT 'using Virtualtrees::Types::sdAscending;'}
+
+  sdDescending = VirtualTrees.Types.{$IF CompilerVersion >= 20}TSortDirection.{$IFEND}sdDescending;
+  {$EXTERNALSYM sdDescending}
+  {$HPPEMIT 'using Virtualtrees::Types::sdDescending;'}
+
+  // TVTAutoOption
+  toAutoSort = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTAutoOption.{$IFEND}toAutoSort;
+  {$EXTERNALSYM toAutoSort}
+  {$HPPEMIT 'using Virtualtrees::Types::toAutoSort;'}
+
+  // TVTMiscOption
+  toCheckSupport = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTMiscOption.{$IFEND}toCheckSupport;
+  {$EXTERNALSYM toCheckSupport}
+  {$HPPEMIT 'using Virtualtrees::Types::toCheckSupport;'}
+
+  toEditable = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTMiscOption.{$IFEND}toEditable;
+  {$EXTERNALSYM toEditable}
+  {$HPPEMIT 'using Virtualtrees::Types::toEditable;'}
+
+  // TVTPaintOption
+  toShowRoot = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTPaintOption.{$IFEND}toShowRoot;
+  {$EXTERNALSYM toShowRoot}
+  {$HPPEMIT 'using Virtualtrees::Types::toShowRoot;'}
+
+  // TCheckType
+  ctNone = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctNone;
+  {$EXTERNALSYM ctNone}
+  {$HPPEMIT 'using Virtualtrees::Types::ctNone;'}
+
+  ctTriStateCheckBox = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctTriStateCheckBox;
+  {$EXTERNALSYM ctTriStateCheckBox}
+  {$HPPEMIT 'using Virtualtrees::Types::ctTriStateCheckBox;'}
+
+  ctCheckBox = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctCheckBox;
+  {$EXTERNALSYM ctCheckBox}
+  {$HPPEMIT 'using Virtualtrees::Types::ctCheckBox;'}
+
+  ctRadioButton = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctRadioButton;
+  {$EXTERNALSYM ctRadioButton}
+  {$HPPEMIT 'using Virtualtrees::Types::ctRadioButton;'}
+
+  ctButton = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckType.{$IFEND}ctButton;
+  {$EXTERNALSYM ctButton}
+  {$HPPEMIT 'using Virtualtrees::Types::ctButton;'}
+
+  // TCheckState
+  csUncheckedNormal = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedNormal;
+  {$EXTERNALSYM csUncheckedNormal}
+  {$HPPEMIT 'using Virtualtrees::Types::csUncheckedNormal;'}
+
+  csUncheckedPressed = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedPressed;
+  {$EXTERNALSYM csUncheckedPressed}
+  {$HPPEMIT 'using Virtualtrees::Types::csUncheckedPressed;'}
+
+  csCheckedNormal = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedNormal;
+  {$EXTERNALSYM csCheckedNormal}
+  {$HPPEMIT 'using Virtualtrees::Types::csCheckedNormal;'}
+
+  csCheckedPressed = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedPressed;
+  {$EXTERNALSYM csCheckedPressed}
+  {$HPPEMIT 'using Virtualtrees::Types::csCheckedPressed;'}
+
+  csMixedNormal = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedNormal;
+  {$EXTERNALSYM csMixedNormal}
+  {$HPPEMIT 'using Virtualtrees::Types::csMixedNormal;'}
+
+  csMixedPressed = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedPressed;
+  {$EXTERNALSYM csMixedPressed}
+  {$HPPEMIT 'using Virtualtrees::Types::csMixedPressed;'}
+
+  csUncheckedDisabled = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csUncheckedDisabled;
+  {$EXTERNALSYM csUncheckedDisabled}
+  {$HPPEMIT 'using Virtualtrees::Types::csUncheckedDisabled;'}
+
+  csCheckedDisabled = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csCheckedDisabled;
+  {$EXTERNALSYM csCheckedDisabled}
+  {$HPPEMIT 'using Virtualtrees::Types::csCheckedDisabled;'}
+
+  csMixedDisabled = VirtualTrees.Types.{$IF CompilerVersion >= 20}TCheckState.{$IFEND}csMixedDisabled;
+  {$EXTERNALSYM csMixedDisabled}
+  {$HPPEMIT 'using Virtualtrees::Types::csMixedDisabled;'}
+
+  // TVTColumnOption
+  coVisible = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTColumnOption.{$IFEND}coVisible;
+  {$EXTERNALSYM coVisible}
+  {$HPPEMIT 'using Virtualtrees::Types::coVisible;'}
+
+  // TVirtualNodeState
+  vsDisabled = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVirtualNodeState.{$IFEND}vsDisabled;
+  {$EXTERNALSYM vsDisabled}
+  {$HPPEMIT 'using Virtualtrees::Types::vsDisabled;'}
+
+  // TVTExportType
+  etHTML = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTExportType.{$IFEND}etHTML;
+  {$EXTERNALSYM etHTML}
+  {$HPPEMIT 'using Virtualtrees::Types::etHTML;'}
+
+  // THitPosition
+  hiOnItemButton = VirtualTrees.Types.{$IF CompilerVersion >= 20}THitPosition.{$IFEND}hiOnItemButton;
+  {$EXTERNALSYM hiOnItemButton}
+  {$HPPEMIT 'using Virtualtrees::Types::hiOnItemButton;'}
+
+  // TDropMode
+  dmOnNode = VirtualTrees.Types.{$IF CompilerVersion >= 20}TDropMode.{$IFEND}dmOnNode;
+  {$EXTERNALSYM dmOnNode}
+  {$HPPEMIT 'using Virtualtrees::Types::dmOnNode;'}
+
+  // TVTTooltipLineBreakStyle
+  hlbForceMultiLine = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTTooltipLineBreakStyle.{$IFEND}hlbForceMultiLine;
+  {$EXTERNALSYM hlbForceMultiLine}
+  {$HPPEMIT 'using Virtualtrees::Types::hlbForceMultiLine;'}
+
+  // TVTHintMode
+  hmHintAndDefault = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTHintMode.{$IFEND}hmHintAndDefault;
+  {$EXTERNALSYM hmHintAndDefault}
+  {$HPPEMIT 'using Virtualtrees::Types::hmHintAndDefault;'}
+
+  hmTooltip = VirtualTrees.Types.{$IF CompilerVersion >= 20}TVTHintMode.{$IFEND}hmTooltip;
+  {$EXTERNALSYM hmTooltip}
+  {$HPPEMIT 'using Virtualtrees::Types::hmTooltip;'}
+
+  {$HPPEMIT CLOSENAMESPACE}
 
 type
   TCustomVirtualStringTree = class;
