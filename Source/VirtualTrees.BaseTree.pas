@@ -3883,7 +3883,8 @@ begin
             if Assigned(FRoot.FirstChild) then
             begin
               FCellRangeAnchor.Node := FRoot.FirstChild;
-              FCellRangeAnchor.Column := 0;
+              // Use the visually first column, column 0 may be moved or hidden. See issue #1400.
+              FCellRangeAnchor.Column := FHeader.Columns.GetFirstVisibleColumn;
             end
             else
               FCellRangeAnchor := ClickedCell;
@@ -3913,7 +3914,8 @@ begin
           if Assigned(FRoot.FirstChild) then
           begin
             FCellRangeAnchor.Node := FRoot.FirstChild;
-            FCellRangeAnchor.Column := 0;
+            // Use the visually first column, column 0 may be moved or hidden. See issue #1400.
+            FCellRangeAnchor.Column := FHeader.Columns.GetFirstVisibleColumn;
           end
           else
             FCellRangeAnchor := ClickedCell;
@@ -8463,6 +8465,25 @@ procedure TBaseVirtualTree.WMVScroll(var Message: TWMVScroll);
     Result := SI.nTrackPos;
   end;
 
+  procedure UpdateThumbPosition;
+
+  // DoSetOffsetXY() does not update the vertical scrollbar while tsThumbTracking is set, so the scroll position stored
+  // by Windows (nPos) keeps its value from the start of the drag until SB_ENDSCROLL. Without WS_EX_COMPOSITED this is
+  // not visible, since the system's tracking loop draws the thumb directly. If the parent form has WS_EX_COMPOSITED,
+  // every repaint of the scrolled client area repaints the whole window hierarchy including the non-client area, and
+  // the thumb is redrawn at the stale nPos. Hence only the position is updated here (range and page stay untouched).
+  // See issue #1413.
+
+  var
+    SI: TScrollInfo;
+
+  begin
+    SI.cbSize := SizeOf(TScrollInfo);
+    SI.fMask := SIF_POS;
+    SI.nPos := -FOffsetY;
+    SetScrollInfo(SB_VERT, SI, True);
+  end;
+
   //--------------- end local functions ---------------------------------------
 
 begin
@@ -8499,6 +8520,7 @@ begin
       begin
         DoStateChange([tsThumbTracking]);
         SetOffsetY(-GetRealScrollPosition);
+        UpdateThumbPosition;
       end;
     SB_TOP:
       SetOffsetY(0);
@@ -12506,7 +12528,15 @@ begin
 
   if (FScrolling) and ((GetWindowLong(Handle, GWL_STYLE) and WS_HSCROLL) <> 0) then
   begin
-    ScrollBarOffset := {$IF CompilerVersion >= 33}GetSystemMetricsForDpi(SM_CYHSCROLL, CurrentPPI){$ELSE}GetSystemMetrics(SM_CYHSCROLL){$IFEND};
+    // Issue #1410: GetSystemMetricsForDpi() and CurrentPPI are only available since RAD Studio 10.3, and the API itself
+    // only exists since Windows 10 1607 (build 14393). It is a delayed import, so calling it on older Windows versions
+    // would raise an exception. Fall back to the system DPI value of GetSystemMetrics() in these cases.
+    {$if CompilerVersion >= 33}
+    if TOSVersion.Check(10) and (TOSVersion.Build >= 14393) then
+      ScrollBarOffset := GetSystemMetricsForDpi(SM_CYHSCROLL, CurrentPPI)
+    else
+    {$ifend}
+      ScrollBarOffset := GetSystemMetrics(SM_CYHSCROLL);
     PrevNode := GetPreviousVisible(Node, True);
     while (ScrollBarOffset > 0) and Assigned(PrevNode) do
     begin
@@ -15976,6 +16006,7 @@ var
   ColNext: TColumnIndex;
   TempCell: TVTCell;
   NextColFunc: TNextColFunc;
+  PositionsAscending: Boolean;
 begin
   // Normalize start cell
   if StartCell.Node = nil then
@@ -16005,7 +16036,11 @@ begin
   if not AddOnly then
     InternalClearCellSelection;
 
-  if ColFrom <= ColTo then
+  // Compare column positions, not indices: GetNext/GetPreviousVisibleColumn walk in visual
+  // order, so after reordering columns an index comparison picks the wrong direction and
+  // the iteration runs past the target column to the edge. See issue #1400.
+  PositionsAscending := FHeader.Columns[ColFrom].Position <= FHeader.Columns[ColTo].Position;
+  if PositionsAscending then
     NextColFunc := FHeader.Columns.GetNextVisibleColumn else
     NextColFunc := FHeader.Columns.GetPreviousVisibleColumn;
 
@@ -16047,6 +16082,7 @@ var
   ColFrom, ColTo, ColIter: TColumnIndex;
   ColNext: TColumnIndex;
   TempCell: TVTCell;
+  PositionsAscending: Boolean;
 begin
   if StartCell.Node = nil then
     StartCell.Node := FRoot.FirstChild;
@@ -16069,10 +16105,13 @@ begin
   if ColFrom = NoColumn then ColFrom := FHeader.MainColumn;
   if ColTo = NoColumn then ColTo := FHeader.MainColumn;
 
+  // Compare column positions, not indices - see InternalSelectCells and issue #1400.
+  PositionsAscending := FHeader.Columns[ColFrom].Position <= FHeader.Columns[ColTo].Position;
+
   NodeIter := NodeFrom;
   while NodeIter <> NodeTo do
   begin
-    if ColFrom <= ColTo then
+    if PositionsAscending then
     begin
       ColIter := ColFrom;
       repeat
@@ -16105,7 +16144,7 @@ begin
   // last node
   if Assigned(NodeTo) then
   begin
-    if ColFrom <= ColTo then
+    if PositionsAscending then
     begin
       ColIter := ColFrom;
       repeat
@@ -16146,6 +16185,7 @@ var
   TempCell: TVTCell;
   Found: Boolean;
   i: Integer;
+  PositionsAscending: Boolean;
 begin
   if FSelectionLocked or not IsCellSelectionEnabled then
     Exit;
@@ -16171,10 +16211,13 @@ begin
   if ColFrom = NoColumn then ColFrom := FHeader.MainColumn;
   if ColTo = NoColumn then ColTo := FHeader.MainColumn;
 
+  // Compare column positions, not indices - see InternalSelectCells and issue #1400.
+  PositionsAscending := FHeader.Columns[ColFrom].Position <= FHeader.Columns[ColTo].Position;
+
   NodeIter := NodeFrom;
   while NodeIter <> NodeTo do
   begin
-    if ColFrom <= ColTo then
+    if PositionsAscending then
     begin
       ColIter := ColFrom;
       repeat
@@ -16221,7 +16264,7 @@ begin
   // last node
   if Assigned(NodeTo) then
   begin
-    if ColFrom <= ColTo then
+    if PositionsAscending then
     begin
       ColIter := ColFrom;
       repeat
@@ -17017,7 +17060,9 @@ begin
 
       if ClipboardStates * FStates <> [] then
       begin
-        OleSetClipboard(nil);
+        // Our data object must leave the clipboard before the nodes it renders are gone, so retry if another process
+        // has the clipboard open.
+        OleSetClipboardWithRetry(nil);
         DoStateChange([], ClipboardStates);
       end;
       ClearSelection;
@@ -17652,8 +17697,11 @@ begin
   if ClipboardStates * FStates <> [] then
   begin
     DoStateChange([tsClipboardFlushing]);
-    OleFlushClipboard;
-    CancelCutOrCopy;
+    // If the clipboard cannot be flushed, e.g. because another process has it open, our data object stays on the
+    // clipboard and renders its data when it is requested later. This needs the nodes that are marked for cut or copy,
+    // so the operation must not be cancelled in this case.
+    if Succeeded(OleFlushClipboardWithRetry) then
+      CancelCutOrCopy;
     DoStateChange([], [tsClipboardFlushing]);
   end;
 end;
@@ -23276,16 +23324,29 @@ begin
       else
         if DoExpanding(Node) then
         begin
-          NeedUpdate := True;
+          // Issue #1415: An initialized node that has no children and no vsHasChildren flag cannot be expanded and
+          // stays as it is, so there is nothing to update for it. NeedUpdate is therefore only set when the node is
+          // changed here. Otherwise callers that toggle many such nodes, like FullExpand or a loop that sets
+          // Expanded[] for every node, pay for a cache invalidation and a scroll bar update per node.
+
           // expand the node, need to adjust the height
           if not (vsInitialized in Node.States) then
+          begin
             InitNode(Node);
+            NeedUpdate := True;
+          end;
           if (vsHasChildren in Node.States) and (Node.ChildCount = 0) then
+          begin
+            // If there turn out to be no children, the node loses the vsHasChildren flag and so its button, which
+            // needs a repaint (issue #1415).
             InitChildren(Node);
+            NeedUpdate := True;
+          end;
 
           // Avoid setting the vsExpanded style if there are no child nodes.
           if Node.ChildCount > 0 then
           begin
+            NeedUpdate := True;
             // Iterate through the child nodes without initializing them. We have to determine the entire height.
             Child := Node.FirstChild;
             repeat
@@ -23519,10 +23580,10 @@ begin
             InvalidateNode(Node);
         end
         else
-        begin
+          // Issue #1415: Between BeginUpdate and EndUpdate only the ranges are kept current, EndUpdate updates the
+          // scroll bars. UpdateScrollBars() does not touch them while the tree is updating, but it would still let
+          // the VCL style hook recalculate and repaint its scroll bars for every toggled node.
           UpdateRanges;
-          UpdateScrollBars(True);
-        end;
       end;
 
     finally

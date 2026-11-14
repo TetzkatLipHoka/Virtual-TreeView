@@ -8,6 +8,10 @@ This document provides essential information for AI coding assistants working wi
 - **Primary Language**: Object Pascal (Delphi)
 - **Main Documentation**: See [`README.md`](Readme.md) for technology stack, supported versions of RAD Studio / Delphi and project overview
 
+## Language
+
+Everything you write to this repository or its GitHub project must be in English: code, identifiers, comments, commit messages, pull requests, issue comments and documentation. This also applies when you talk to the user in another language.
+
 Important Directories
 
 ### Source Code
@@ -35,6 +39,14 @@ Important Directories
 ### Unit Tests
 
 See <Readme.md#Running-Tests>
+
+Use the console build of the tests (`Tests\Tests.exe`). Always pass `--exitbehavior:Continue`, otherwise the program waits for the Enter key when it is done. Use `--run:` to run a single test, a whole fixture or a comma-separated list of them:
+
+```cmd
+cd Tests
+Tests.exe --exitbehavior:Continue --run:VTCellSelectionTests.TCellSelectionTests.TestCopyHTML1
+Tests.exe --exitbehavior:Continue --run:VTCellSelectionTests.TCellSelectionTests
+```
 
 ### All relevant code
 

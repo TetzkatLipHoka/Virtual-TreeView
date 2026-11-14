@@ -302,15 +302,11 @@ end;
 
 procedure TVTBaseAncestorVcl.CopyToClipboard;
 
-var
-  lDataObject: IDataObject;
-
 begin
   // multicell support copy
   if GetSelectedCellCount > 0 then
   begin
-    lDataObject := TVTDataObject.Create(Self, True);
-    if OleSetClipboard(lDataObject) = S_OK then
+    if TVTDataObject.PlaceOnClipboard(Self) then
     begin
       MarkCutCopyCells;
       DoStateChange([tsCopyPending]);
@@ -322,8 +318,7 @@ begin
   // regular fullrow copy
   if GetSelectedCount > 0 then
   begin
-    lDataObject := TVTDataObject.Create(Self, True);
-    if OleSetClipboard(lDataObject) = S_OK then
+    if TVTDataObject.PlaceOnClipboard(Self) then
     begin
       MarkCutCopyNodes;
       DoStateChange([tsCopyPending]);
@@ -467,13 +462,10 @@ begin
 end;
 
 procedure TVTBaseAncestorVcl.CutToClipboard;
-var
-  lDataObject: IDataObject;
 begin
   if (GetSelectedCount > 0) then
   begin
-    lDataObject := TVTDataObject.Create(Self, True);
-    if OleSetClipboard(lDataObject) = S_OK then
+    if TVTDataObject.PlaceOnClipboard(Self) then
     begin
       MarkCutCopyNodes;
       DoStateChange([tsCutPending], [tsCopyPending]);
